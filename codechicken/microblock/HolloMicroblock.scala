@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.RenderBlocks
 import codechicken.core.render.IconTransformation
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.CCRenderState
-import net.minecraftforge.scala.ScalaBridge._
-import net.minecraftforge.scala.JSeq
+import codechicken.scala.ScalaBridge._
+import codechicken.scala.JSeq
 
 object HollowPlacement extends PlacementProperties
 {

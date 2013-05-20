@@ -25,7 +25,7 @@ import net.minecraft.util.Icon
 import net.minecraft.client.renderer.texture.IconRegister
 import codechicken.core.render.TextureSpecial
 import codechicken.core.render.TextureUtils
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.ScalaBridge._
 import net.minecraft.world.IBlockAccess
 import codechicken.core.raytracer.ExtendedMOP
 

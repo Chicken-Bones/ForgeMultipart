@@ -24,8 +24,8 @@ import codechicken.core.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.TMultiPart
-import net.minecraftforge.scala.JSeq
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.JSeq
+import codechicken.scala.ScalaBridge._
 
 object CommonMicroblock
 {

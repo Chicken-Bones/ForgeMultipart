@@ -28,7 +28,7 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.MovingObjectPosition
 import scala.collection.mutable.ArrayBuffer
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.ScalaBridge._
 import java.util.Random
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side

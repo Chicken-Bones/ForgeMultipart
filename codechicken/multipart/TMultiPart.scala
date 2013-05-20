@@ -20,8 +20,8 @@ import codechicken.core.vec.BlockCoord
 import net.minecraft.world.World
 import net.minecraft.tileentity.TileEntity
 import codechicken.core.render.CCRenderState
-import net.minecraftforge.scala.JSeq
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.JSeq
+import codechicken.scala.ScalaBridge._
 import codechicken.core.lighting.LazyLightMatrix
 
 abstract class TMultiPart

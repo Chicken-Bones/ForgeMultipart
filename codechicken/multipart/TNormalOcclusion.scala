@@ -1,8 +1,8 @@
 package codechicken.multipart
 
 import codechicken.core.vec.Cuboid6
-import net.minecraftforge.scala.JSeq
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.JSeq
+import codechicken.scala.ScalaBridge._
 
 object NormalOcclusionTest
 {

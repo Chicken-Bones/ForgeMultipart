@@ -17,7 +17,7 @@ import codechicken.core.lighting.LazyLightMatrix
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.ScalaBridge._
 import codechicken.core.raytracer.ExtendedMOP
 
 object EdgePlacement extends PlacementProperties

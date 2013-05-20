@@ -1,10 +1,7 @@
-package net.minecraftforge.scala
+package codechicken.scala
 
 import java.util.List
-import java.util.Map
 import scala.collection.JavaConverters._
-import codechicken.core.vec.Cuboid6
-import java.util.Collection
 
 object ScalaBridge
 {

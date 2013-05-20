@@ -5,10 +5,10 @@ import codechicken.core.raytracer.IndexedCuboid6
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.core.render.CCRenderState
 import codechicken.core.render.RenderUtils
-import net.minecraftforge.scala.ScalaBridge._
+import codechicken.scala.ScalaBridge._
 import codechicken.core.vec.Vector3
 import codechicken.core.render.IconTransformation
-import net.minecraftforge.scala.JSeq
+import codechicken.scala.JSeq
 
 abstract class JCuboidPart extends TCuboidPart
 

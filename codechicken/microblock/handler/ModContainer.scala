@@ -12,7 +12,6 @@ import cpw.mods.fml.common.event.FMLServerAboutToStartEvent
 import cpw.mods.fml.common.network.NetworkMod
 import cpw.mods.fml.common.Mod.Instance
 import codechicken.microblock.MicroMaterialRegistry
-import codechicken.scala.ScalaHelper
 import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
 
