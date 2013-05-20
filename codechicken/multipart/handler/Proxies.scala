@@ -47,7 +47,7 @@ class MultipartProxy_serverImpl
     
     def onTileClassBuilt(t:Class[_ <: TileEntity])
     {
-        TileEntity.classToNameMap.asInstanceOf[HashMap[Class[_ <: TileEntity], String]].put(t, "savedMultipart")        
+        MultipartSaveLoad.registerTileClass(t)   
     }
 }
 

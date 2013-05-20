@@ -1,6 +1,5 @@
 package codechicken.multipart.handler
 
-import net.minecraftforge.event.tileentity.TileEntityLoadEvent
 import net.minecraft.nbt.NBTTagCompound
 import codechicken.multipart.TileMultipart
 import net.minecraftforge.event.ForgeSubscribe
@@ -14,19 +13,14 @@ import net.minecraft.network.NetLoginHandler
 import net.minecraft.server.MinecraftServer
 import codechicken.core.packet.PacketCustom
 import codechicken.multipart.MultiPartRegistry
+import net.minecraftforge.event.world._
 
 object MultipartEventHandler extends IConnectionHandler
 {
     @ForgeSubscribe
-    def tileEntityLoad(event:TileEntityLoadEvent)
+    def tileEntityLoad(event:ChunkDataEvent.Load)
     {
-        val id = event.tag.getString("id");
-        if(!id.equals("savedMultipart"))
-            return
-        
-        val t = TileMultipartObj.createFromNBT(event.tag)
-        if(t != null)
-            event.setResult(t)
+        MultipartSaveLoad.loadTiles(event.getChunk())
     }
     
     def connectionReceived(loginHandler:NetLoginHandler, netManager:INetworkManager):String = 

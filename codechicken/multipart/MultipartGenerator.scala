@@ -75,6 +75,7 @@ object MultipartGenerator
         import SuperSet._
         val set = baseType+:types.sortWith(_.toString < _.toString)
         
+        def interfaces = set
         def baseType = if(client) TileMultipartClientType else TileMultipartType
         
         override def equals(obj:Any) = obj match
@@ -99,7 +100,7 @@ object MultipartGenerator
             })
         }
         
-        private def generator():Generator = 
+        def generator():Generator = 
         {
             val s = System.currentTimeMillis
             val defClass = 
@@ -139,7 +140,7 @@ object MultipartGenerator
             
             val v = tb.eval(Block(defClass, defGenClass, constructGenClass)).asInstanceOf[Generator]
             val dummy = v.generate
-            tileTraitMap=tileTraitMap+(dummy.getClass->set.toSet)
+            tileTraitMap=tileTraitMap+(dummy.getClass->types.toSet)
             MultipartProxy.onTileClassBuilt(dummy.getClass)
             println("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-s))
             return v.asInstanceOf[Generator]

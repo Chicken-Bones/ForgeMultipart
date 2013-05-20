@@ -5,7 +5,7 @@ An API for dynamically handling different functional parts in the one block spac
 
 Requirements:
 The latest version of CCC-Public
-Forge 7.8.0.706 (or latest git)
+Forge
 scala-compiler.jar (part of a standard scala installation, will need to be moved to /libs/ and linked in your IDE)
 A scala compatible IDE and project (For eclipse, download the scala eclipse plugin and right click on the project -> Add Scala Nature)
 
