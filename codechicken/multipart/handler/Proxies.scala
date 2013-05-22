@@ -22,6 +22,7 @@ import codechicken.multipart.TileMultipart
 import cpw.mods.fml.client.registry.KeyBindingRegistry
 import codechicken.multipart.ControlKeyHandler
 import cpw.mods.fml.common.network.NetworkRegistry
+import cpw.mods.fml.common.registry.TickRegistry
 
 class MultipartProxy_serverImpl
 {
@@ -43,6 +44,7 @@ class MultipartProxy_serverImpl
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
         NetworkRegistry.instance.registerConnectionHandler(MultipartEventHandler)
+        TickRegistry.registerTickHandler(MultipartEventHandler, Side.SERVER)
     }
     
     def onTileClassBuilt(t:Class[_ <: TileEntity])

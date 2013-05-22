@@ -15,8 +15,9 @@ import codechicken.multipart.JCuboidPart;
 import codechicken.multipart.JNormalOcclusion;
 import codechicken.multipart.NormalOcclusionTest;
 import codechicken.multipart.TMultiPart;
+import codechicken.core.data.MCDataInput;
+import codechicken.core.data.MCDataOutput;
 import codechicken.core.inventory.InventoryUtils;
-import codechicken.core.packet.PacketCustom;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
 import codechicken.core.vec.Vector3;
@@ -56,13 +57,13 @@ public class TorchPart extends JCuboidPart implements JNormalOcclusion, IPartMet
     }
     
     @Override
-    public void write(PacketCustom packet)
+    public void writeDesc(MCDataOutput packet)
     {
         packet.writeByte(meta);
     }
     
     @Override
-    public void read(PacketCustom packet)
+    public void readDesc(MCDataInput packet)
     {
         meta = packet.readByte();
     }

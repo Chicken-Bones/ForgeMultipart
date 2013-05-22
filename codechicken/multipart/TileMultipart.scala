@@ -35,6 +35,7 @@ import cpw.mods.fml.relauncher.Side
 import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
 import codechicken.core.lighting.LazyLightMatrix
+import net.minecraft.world.ChunkCoordIntPair
 
 trait TileMultipart extends TileEntity
 {
@@ -145,6 +146,10 @@ trait TileMultipart extends TileEntity
         return parts.forall(part => part.occlusionTest(npart) && npart.occlusionTest(part))
     }
     
+    def getWriteStream(part:TMultiPart):MCDataOutput = getWriteStream.writeByte(partList.indexOf(part))
+    
+    private def getWriteStream = MultipartSPH.getTileStream(worldObj, new BlockCoord(this))
+    
     private[multipart] def addPart(part:TMultiPart)
     {
         addPart_do(part)
@@ -154,19 +159,16 @@ trait TileMultipart extends TileEntity
         
         if(!worldObj.isRemote)
         {
-            val packet = new PacketCustom(MultipartSPH.channel, 3)
-            packet.setChunkDataPacket()
-            packet.writeCoord(xCoord, yCoord, zCoord)
-            MultiPartRegistry.writePartID(packet, part)
-            part.write(packet)
-            packet.sendToChunk(worldObj, xCoord>>4, zCoord>>4)
+            val stream = getWriteStream.writeByte(253)
+            MultiPartRegistry.writePartID(stream, part)
+            part.writeDesc(stream)
         }
     }
     
     private[multipart] def addPart_do(part:TMultiPart)
     {
-        if(partList.size >= 256)
-            throw new IllegalArgumentException("Tried to add more than 256 parts to the one tile")
+        if(partList.size >= 250)
+            throw new IllegalArgumentException("Tried to add more than 250 parts to the one tile. You're doing it wrong")
         
         partList+=part
         val mask = part.getSlotMask
@@ -198,13 +200,7 @@ trait TileMultipart extends TileEntity
         }
         
         if(!worldObj.isRemote)
-        {
-            val packet = new PacketCustom(MultipartSPH.channel, 4)
-            packet.setChunkDataPacket()
-            packet.writeCoord(xCoord, yCoord, zCoord)
-            packet.writeByte(i)
-            packet.sendToChunk(worldObj, xCoord>>4, zCoord>>4)
-        }
+            getWriteStream.writeByte(254).writeByte(i)
         
         if(!isInvalid())
             return MultipartGenerator.partRemoved(this, part)
@@ -259,29 +255,13 @@ trait TileMultipart extends TileEntity
         partList.clear()
     }
     
-    override def getDescriptionPacket():Packet =
+    def writeDesc(packet:PacketCustom)
     {
-        val packet = new PacketCustom(MultipartSPH.channel, 2);
-        packet.setChunkDataPacket()
-        
-        val superPacket = super.getDescriptionPacket
-        var partCount = partList.size
-        if(superPacket != null)
-            partCount |= 0x80
-            
-        packet.writeByte(partCount)
-        if(superPacket != null)
-        {
-            packet.writeByte(superPacket.getPacketId)
-            superPacket.writePacketData(new DataOutputStream(new MCDataOutputStream(packet)))
-        }
-        
-        packet.writeCoord(xCoord, yCoord, zCoord)
+        packet.writeByte(partList.size)
         partList.foreach{part => {
             MultiPartRegistry.writePartID(packet, part)
-            part.write(packet)
+            part.writeDesc(packet)
         }}
-        return packet.toPacket;
     }
     
     def harvestPart(index:Int, drop:Boolean):Boolean = 
@@ -299,20 +279,6 @@ trait TileMultipart extends TileEntity
     {
         val pos = Vector3.fromTileEntityCenter(this)
         items.foreach(item => InventoryUtils.dropItem(item, worldObj, pos))
-    }
-    
-    def sendPartDesc(part:TMultiPart)
-    {
-        val i = partList.indexOf(part)
-        if(i < 0)
-            throw new IllegalArgumentException("Tried to send desc for non-existant part")
-        
-        val packet = new PacketCustom(MultipartSPH.channel, 5)
-        packet.setChunkDataPacket()
-        packet.writeCoord(xCoord, yCoord, zCoord)
-        packet.writeByte(i)
-        part.write(packet)
-        packet.sendToChunk(worldObj, xCoord>>4, zCoord>>4)
     }
     
     def markRender()
@@ -457,24 +423,14 @@ object TileMultipartObj
         return MultipartGenerator.addPart(world, pos, part)
     }
     
-    @SideOnly(Side.CLIENT)
-    def handleDescPacket(world:World, packet:PacketCustom, netHandler:NetClientHandler)
+    def handleDescPacket(world:World, pos:BlockCoord, packet:PacketCustom)
     {
-        var partCount = packet.readUnsignedByte()
-        if((partCount & 0x80) > 0)//composite
-        {
-            val superPacket = Packet.getNewPacket(null, packet.readUnsignedByte())
-            superPacket.readPacketData(new DataInputStream(new MCDataInputStream(packet)))
-            superPacket.processPacket(netHandler)
-        }
-        partCount &= 0x7F
-        
-        val pos = packet.readCoord
-        val parts = ListBuffer[TMultiPart]()
-        for(i <- 0 until partCount)
+        val nparts = packet.readUnsignedByte
+        val parts = new ListBuffer[TMultiPart]()
+        for(i <- 0 until nparts)
         {
             val part:TMultiPart = MultiPartRegistry.readPart(packet)
-            part.read(packet)
+            part.readDesc(packet)
             parts+=part
         }
         
@@ -490,23 +446,22 @@ object TileMultipartObj
         tilemp.markRender()
     }
     
-    def handlePacket(world:World, packet:PacketCustom)
+    def handlePacket(pos:BlockCoord, world:World, i:Int, packet:PacketCustom)
     {
-        val pos = packet.readCoord
         var tilemp = BlockMultipart.getTile(world, pos.x, pos.y, pos.z)
         
-        packet.getType() match
+        i match
         {
-            case 3 => {
+            case 253 => {
                 val part = MultiPartRegistry.readPart(packet)
-                part.read(packet)
+                part.readDesc(packet)
                 addPart(world, pos, part)
             }
-            case 4 => if(tilemp != null) {
+            case 254 => if(tilemp != null) {
                 tilemp.remPart(tilemp.partList(packet.readUnsignedByte()))
             }
-            case 5 => if(tilemp != null) {
-                tilemp.partList(packet.readUnsignedByte()).read(packet)
+            case _ => if(tilemp != null) {
+                tilemp.partList(i).read(packet)
             }
         }
     }

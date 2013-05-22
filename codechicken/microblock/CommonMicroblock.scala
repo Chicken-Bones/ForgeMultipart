@@ -1,7 +1,7 @@
 package codechicken.microblock
 
 import net.minecraft.nbt.NBTTagCompound
-import codechicken.core.lighting.LightMatrix;
+import codechicken.core.lighting.LightMatrix
 import codechicken.core.packet.PacketCustom
 import codechicken.microblock.MicroMaterialRegistry._
 import codechicken.core.vec.BlockCoord
@@ -26,6 +26,8 @@ import scala.collection.mutable.ListBuffer
 import codechicken.multipart.TMultiPart
 import codechicken.scala.JSeq
 import codechicken.scala.ScalaBridge._
+import codechicken.core.data.MCDataOutput
+import codechicken.core.data.MCDataInput
 
 object CommonMicroblock
 {
@@ -213,13 +215,13 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
         return null//unreachable
     }
     
-    override def write(packet:PacketCustom)
+    override def writeDesc(packet:MCDataOutput)
     {
         packet.writeByte(shape)
         writePartID(packet, material)
     }
     
-    override def read(packet:PacketCustom)
+    override def readDesc(packet:MCDataInput)
     {
         shape = packet.readByte
         material = readPartID(packet)

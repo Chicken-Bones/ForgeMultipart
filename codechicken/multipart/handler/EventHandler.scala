@@ -14,13 +14,38 @@ import net.minecraft.server.MinecraftServer
 import codechicken.core.packet.PacketCustom
 import codechicken.multipart.MultiPartRegistry
 import net.minecraftforge.event.world._
+import cpw.mods.fml.common.ITickHandler
+import java.util.EnumSet
+import cpw.mods.fml.common.TickType
+import scala.collection.JavaConverters._
+import java.util.List
+import net.minecraft.entity.player.EntityPlayerMP
 
-object MultipartEventHandler extends IConnectionHandler
+object MultipartEventHandler extends IConnectionHandler with ITickHandler
 {
     @ForgeSubscribe
     def tileEntityLoad(event:ChunkDataEvent.Load)
     {
         MultipartSaveLoad.loadTiles(event.getChunk())
+    }
+    
+    @ForgeSubscribe
+    def worldLoad(event:WorldEvent.Load)
+    {
+        MultipartSPH.onWorldLoad(event.world)
+    }
+    
+    @ForgeSubscribe
+    def worldUnLoad(event:WorldEvent.Unload)
+    {
+        MultipartSPH.onWorldUnload(event.world)
+    }
+    
+    @ForgeSubscribe
+    def chunkWatch(event:ChunkWatchEvent.Watch)
+    {
+        val cc = event.chunk
+        MultipartSPH.onChunkWatch(event.player, event.player.worldObj.getChunkFromChunkCoords(cc.chunkXPos, cc.chunkZPos))
     }
     
     def connectionReceived(loginHandler:NetLoginHandler, netManager:INetworkManager):String = 
@@ -36,4 +61,14 @@ object MultipartEventHandler extends IConnectionHandler
     def connectionOpened(netHandler:NetHandler, server:String, port:Int, netManager:INetworkManager){}
     def connectionOpened(netHandler:NetHandler, server:MinecraftServer, netManager:INetworkManager){}
     def connectionClosed(netManager:INetworkManager){}
+    
+    def ticks = EnumSet.of(TickType.SERVER)
+    def getLabel = "Multipart"
+    def tickStart(tickType:EnumSet[TickType], data:Object*){}
+    def tickEnd(tickType:EnumSet[TickType], data:Object*)
+    {
+        MultipartSPH.onTickEnd(
+            MinecraftServer.getServer.getConfigurationManager.playerEntityList
+                .asInstanceOf[List[EntityPlayerMP]].asScala)
+    }
 }

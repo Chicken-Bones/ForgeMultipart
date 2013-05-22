@@ -1,6 +1,5 @@
 package codechicken.multipart
 
-import codechicken.core.packet.PacketCustom
 import codechicken.core.vec.Cuboid6
 import codechicken.core.vec.Vector3
 import net.minecraft.entity.player.EntityPlayer
@@ -23,6 +22,8 @@ import codechicken.core.render.CCRenderState
 import codechicken.scala.JSeq
 import codechicken.scala.ScalaBridge._
 import codechicken.core.lighting.LazyLightMatrix
+import codechicken.core.data.MCDataOutput
+import codechicken.core.data.MCDataInput
 
 abstract class TMultiPart
 {
@@ -57,8 +58,9 @@ abstract class TMultiPart
     @SideOnly(Side.CLIENT)
     def drawBreaking(renderBlocks:RenderBlocks){}
     
-    def read(packet:PacketCustom){}
-    def write(packet:PacketCustom){}
+    def read(packet:MCDataInput) = readDesc(packet)
+    def readDesc(packet:MCDataInput){}
+    def writeDesc(packet:MCDataOutput){}
     def save(tag:NBTTagCompound){}
     def load(tag:NBTTagCompound){}
     
@@ -72,7 +74,7 @@ abstract class TMultiPart
     def update(){}
     def pickItem(hit:MovingObjectPosition):ItemStack = null
     
-    def sendDescPacket() = tile.sendPartDesc(this)
+    def sendDescUpdate() = writeDesc(tile.getWriteStream(this))
 }
 
 trait TFacePart extends TMultiPart
