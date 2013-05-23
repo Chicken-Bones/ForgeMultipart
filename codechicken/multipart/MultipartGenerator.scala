@@ -148,21 +148,35 @@ object MultipartGenerator
     }
     
     private var generatorMap:Map[SuperSet, Generator] = Map()
-    private var interfaceTraitMap:Map[Type, Seq[Type]] = Map()
     private var tileTraitMap:Map[Class[_], Set[Type]] = Map()
-    private var partTraitMap:Map[Class[_], Seq[Type]] = Map()
+    private var interfaceTraitMap_c:Map[Type, Seq[Type]] = Map()
+    private var interfaceTraitMap_s:Map[Type, Seq[Type]] = Map()
+    private var partTraitMap_c:Map[Class[_], Seq[Type]] = Map()
+    private var partTraitMap_s:Map[Class[_], Seq[Type]] = Map()
     
     SuperSet(Seq(), false).generate//default impl, boots generator
     if(FMLCommonHandler.instance.getEffectiveSide == Side.CLIENT)
         SuperSet(Seq(), true).generate
     
-    private def traitsForPart(part:TMultiPart):Seq[Type] = 
+    private def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
+    
+    private def interfaceTraitMap(client:Boolean) = if(client) partTraitMap_c else interfaceTraitMap_s
+        
+    private def traitsForPart(part:TMultiPart, client:Boolean):Seq[Type] = 
     {
-        var ret = partTraitMap.getOrElse(part.getClass, null)
+        var ret = partTraitMap(client).getOrElse(part.getClass, null)
         if(ret == null)
         {
-            ret = getType(part).baseClasses.flatMap(s => interfaceTraitMap.getOrElse(s.asClass.toType, List())).distinct
-            partTraitMap = partTraitMap+(part.getClass -> ret)
+            if(client)
+            {
+                ret = getType(part).baseClasses.flatMap(s => interfaceTraitMap_c.getOrElse(s.asClass.toType, List())).distinct
+                partTraitMap_c = partTraitMap_c+(part.getClass -> ret)
+            }
+            else
+            {
+                ret = getType(part).baseClasses.flatMap(s => interfaceTraitMap_s.getOrElse(s.asClass.toType, List())).distinct
+                partTraitMap_s = partTraitMap_s+(part.getClass -> ret)
+            }
         }
         return ret
     }
@@ -175,12 +189,17 @@ object MultipartGenerator
     {
         var tile = TileMultipartObj.getOrConvertTile(world, pos)
         
-        var partTraits = traitsForPart(part)
+        var partTraits = traitsForPart(part, world.isRemote)
         var ntile = tile
         if(tile != null)
         {
             if(!tile.loaded)
-                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
+            {
+                if(world.isRemote)
+                    world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 3)
+                else
+                    world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 1)//the add part packet will do the conversion on the client
+            }
             
             val tileTraits = tileTraitMap(tile.getClass)
             partTraits = partTraits.filter(!tileTraits(_))
@@ -211,7 +230,7 @@ object MultipartGenerator
      */
     def generateCompositeTile(tile:TileEntity, parts:Seq[TMultiPart], client:Boolean):TileMultipart = 
     {
-        var partTraits = parts.flatMap(traitsForPart(_)).distinct
+        var partTraits = parts.flatMap(traitsForPart(_, client)).distinct
         if(tile != null && tile.isInstanceOf[TileMultipart])
         {
             var tileTraits = tileTraitMap(tile.getClass)
@@ -227,11 +246,12 @@ object MultipartGenerator
      */
     def partRemoved(tile:TileMultipart, part:TMultiPart):TileMultipart = 
     {
-        var partTraits = tile.partList.flatMap(traitsForPart(_))
+        val client = tile.worldObj.isRemote
+        var partTraits = tile.partList.flatMap(traitsForPart(_, client))
         var testSet = partTraits.toSet
-        if(!traitsForPart(part).forall(testSet(_)))
+        if(!traitsForPart(part, client).forall(testSet(_)))
         {
-            val ntile = SuperSet(testSet.toSeq, tile.worldObj.isRemote).generate
+            val ntile = SuperSet(testSet.toSeq, client).generate
             tile.worldObj.setBlockTileEntity(tile.xCoord, tile.yCoord, tile.zCoord, ntile)
             ntile.loadFrom(tile)
             return ntile
@@ -242,14 +262,33 @@ object MultipartGenerator
     /**
      * register s_trait to be applied to tiles containing parts implementing s_interface
      */
-    def registerTrait(s_interface:String, s_trait:String)
+    def registerTrait(s_interface:String, s_trait:String):Unit = registerTrait(s_interface, s_trait, s_trait)
+    
+    /**
+     * register traits to be applied to tiles containing parts implementing s_interface
+     * s_trait for server worlds (may be null)
+     * c_trait for client worlds (may be null)
+     */
+    def registerTrait(s_interface:String, c_trait:String, s_trait:String)
     {
-        val iSymbol = mirror.staticClass(s_interface).asClass
-        val tSymbol = mirror.staticClass(s_trait).asClass
-        //TODO some checking
-        var reg = interfaceTraitMap.getOrElse(iSymbol.toType, Seq())
-        if(!reg.contains(tSymbol.toType))
-            reg = reg:+tSymbol.toType
-        interfaceTraitMap = interfaceTraitMap+(iSymbol.toType->reg)
+            val iSymbol = mirror.staticClass(s_interface).asClass
+        if(c_trait != null)
+        {
+            val tSymbol = mirror.staticClass(c_trait).asClass
+            //TODO some checking
+            var reg = interfaceTraitMap_c.getOrElse(iSymbol.toType, Seq())
+            if(!reg.contains(tSymbol.toType))
+                reg = reg:+tSymbol.toType
+            interfaceTraitMap_c = interfaceTraitMap_c+(iSymbol.toType->reg)
+        }
+        if(s_trait != null)
+        {
+            val tSymbol = mirror.staticClass(s_trait).asClass
+            //TODO some checking
+            var reg = interfaceTraitMap_s.getOrElse(iSymbol.toType, Seq())
+            if(!reg.contains(tSymbol.toType))
+                reg = reg:+tSymbol.toType
+            interfaceTraitMap_s = interfaceTraitMap_s+(iSymbol.toType->reg)
+        }
     }
 }

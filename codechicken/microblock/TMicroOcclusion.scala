@@ -106,8 +106,8 @@ trait TMicroOcclusionClient extends TMicroOcclusion
         {
             val e1 = s1-15
             val c2 = s2-7
-            val ebits = unpackEdgeBits(s1)
-            if((c2&edgeAxisMask(s1)) != ebits)
+            val ebits = unpackEdgeBits(e1)
+            if((c2&edgeAxisMask(e1)) != ebits)
                 return -1
             
             return (e1&0xC)>>1|(c2&(~ebits))>>(e1>>2)

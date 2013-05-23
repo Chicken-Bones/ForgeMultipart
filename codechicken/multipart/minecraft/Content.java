@@ -13,7 +13,7 @@ public class Content implements IPartFactory, IPartConverter
     @Override
     public TMultiPart createPart(String name, boolean client)
     {
-        if(name.equals("mc_torch")) return client ? new TorchPartClient() : new TorchPart();
+        if(name.equals("mc_torch")) return new TorchPart();
         
         return null;
     }
@@ -38,7 +38,7 @@ public class Content implements IPartFactory, IPartConverter
         int id = world.getBlockId(pos.x, pos.y, pos.z);
         int meta = world.getBlockMetadata(pos.x, pos.y, pos.z);
         if(id == Block.torchWood.blockID)
-            return world.isRemote ? new TorchPartClient(meta) : new TorchPart(meta);
+            return new TorchPart(meta);
         
         return null;
     }

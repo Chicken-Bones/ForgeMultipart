@@ -33,7 +33,7 @@ class MultipartProxy_serverImpl
         
         MultipartGenerator.registerTrait("net.minecraftforge.liquids.ITankContainer", "codechicken.multipart.TLiquidTank")
         MultipartGenerator.registerTrait("codechicken.multipart.JPartialOcclusion", "codechicken.multipart.TPartialOcclusionTile")
-        MultipartGenerator.registerTrait("codechicken.multipart.IRandomDisplayTick", "codechicken.multipart.TRandomDisplayTickTile")
+        MultipartGenerator.registerTrait("codechicken.multipart.IRandomDisplayTick", "codechicken.multipart.TRandomDisplayTickTile", null)
     }
     
     def postInit()

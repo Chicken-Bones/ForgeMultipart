@@ -12,7 +12,7 @@ object NormalOcclusionTest
     def apply(part1:JNormalOcclusion, part2:TMultiPart):Boolean = 
     {
         var boxes = Seq[Cuboid6]()
-        if(part2.isInstanceOf[TNormalOcclusion])
+        if(part2.isInstanceOf[JNormalOcclusion])
             boxes = boxes++part2.asInstanceOf[JNormalOcclusion].getOcclusionBoxes
         
         if(part2.isInstanceOf[JPartialOcclusion])
