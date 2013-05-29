@@ -11,7 +11,6 @@ import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.Icon
-import codechicken.core.entity.EntityDigIconFX
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.IconTransformation
