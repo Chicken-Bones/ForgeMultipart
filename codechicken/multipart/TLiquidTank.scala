@@ -5,7 +5,6 @@ import scala.collection.mutable.ListBuffer
 import net.minecraftforge.liquids.LiquidStack
 import net.minecraftforge.liquids.ILiquidTank
 import net.minecraftforge.common.ForgeDirection
-import codechicken.core.liquid.LiquidUtils
 
 trait TLiquidTank extends TileMultipart with ITankContainer
 {
@@ -65,10 +64,17 @@ trait TLiquidTank extends TileMultipart with ITankContainer
     {
         var filled = 0
         var initial = liquid.amount
-        tankList.foreach(p => {
-            filled+=p.fill(dir, LiquidUtils.copy(liquid, initial-filled), doFill)
-        })
+        tankList.foreach(p => 
+            filled+=p.fill(dir, copy(liquid, initial-filled), doFill)
+        )
         return filled
+    }
+    
+    def copy(liquid:LiquidStack, quantity:Int):LiquidStack = 
+    {
+        val copy = liquid.copy
+        copy.amount = quantity
+        return copy
     }
     
     override def drain(dir:ForgeDirection, amount:Int, doDrain:Boolean):LiquidStack = 

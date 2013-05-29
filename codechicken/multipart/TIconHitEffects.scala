@@ -6,9 +6,9 @@ import cpw.mods.fml.relauncher.Side
 import net.minecraft.util.Icon
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.client.particle.EffectRenderer
-import codechicken.core.entity.EntityDigIconFX
 import codechicken.core.vec.Vector3
 import codechicken.core.raytracer.ExtendedMOP
+import codechicken.core.render.EntityDigIconFX
 
 object IconHitEffects
 {

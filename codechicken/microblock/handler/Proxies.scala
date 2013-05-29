@@ -1,6 +1,5 @@
 package codechicken.microblock.handler
 
-import codechicken.core.CommonUtils
 import net.minecraftforge.common.MinecraftForge
 import codechicken.multipart.handler.MultipartProxy._
 import codechicken.multipart.TMultiPart
