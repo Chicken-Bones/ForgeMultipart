@@ -11,9 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.multipart.IRandomDisplayTick;
+import codechicken.multipart.TileMultipartObj;
 import codechicken.core.data.MCDataInput;
 import codechicken.core.data.MCDataOutput;
-import codechicken.core.inventory.InventoryUtils;
 import codechicken.core.lighting.LazyLightMatrix;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
@@ -104,7 +104,7 @@ public class TorchPart extends McBlockPart implements IPartMeta, IRandomDisplayT
     public void drop()
     {
         tile().remPart(this);
-        InventoryUtils.dropItem(new ItemStack(torch), getTile().worldObj, Vector3.fromTileEntityCenter(getTile()));
+        TileMultipartObj.dropItem(new ItemStack(torch), getTile().worldObj, Vector3.fromTileEntityCenter(getTile()));
     }
     
     @Override
