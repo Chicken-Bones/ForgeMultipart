@@ -10,7 +10,6 @@ import cpw.mods.fml.common.registry.GameRegistry
 import java.io.File
 import codechicken.multipart.handler.MultipartProxy._
 import codechicken.multipart.BlockMultipartImpl
-import codechicken.core.CommonUtils
 import codechicken.multipart.MultipartRenderer
 import java.util.HashMap
 import net.minecraftforge.common.MinecraftForge
@@ -23,6 +22,7 @@ import cpw.mods.fml.client.registry.KeyBindingRegistry
 import codechicken.multipart.ControlKeyHandler
 import cpw.mods.fml.common.network.NetworkRegistry
 import cpw.mods.fml.common.registry.TickRegistry
+import net.minecraft.block.Block
 
 class MultipartProxy_serverImpl
 {
@@ -38,13 +38,21 @@ class MultipartProxy_serverImpl
     
     def postInit()
     {
-        block = new BlockMultipartImpl(config.getTag("block.id").getIntValue(CommonUtils.getFreeBlockID(1281)))
+        block = new BlockMultipartImpl(config.getTag("block.id").getIntValue(getFreeBlockID(1281)))
         block.setUnlocalizedName("ccmultipart")
         
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
         NetworkRegistry.instance.registerConnectionHandler(MultipartEventHandler)
         TickRegistry.registerTickHandler(MultipartEventHandler, Side.SERVER)
+    }
+    
+    def getFreeBlockID(preferred:Int):Int =
+    {
+        for(i <- (preferred until 4096) ++ (preferred-1 until 255))
+            if(Block.blocksList(i) == null)
+                return i
+        throw new RuntimeException("Out of Block IDs")
     }
     
     def onTileClassBuilt(t:Class[_ <: TileEntity])

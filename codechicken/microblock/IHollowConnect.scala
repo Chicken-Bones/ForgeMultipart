@@ -1,12 +1,12 @@
-package codechicken.microblock;
+package codechicken.microblock
 
 /**
  * Implement this on center parts that connect through hollow covers to have the covers render their hollows to fit the connection size
  */
-public interface IHollowConnect
+trait IHollowConnect
 {
     /**
      * @return The size (width and height) of the connection in pixels. Must be be less than 12 and more than 0
      */
-    public int getSize();
+    def getSize:Int
 }

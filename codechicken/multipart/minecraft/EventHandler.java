@@ -4,7 +4,6 @@ import codechicken.core.packet.PacketCustom;
 import codechicken.core.raytracer.RayTracer;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Vector3;
-import codechicken.multipart.TMultiPart;
 import codechicken.multipart.TileMultipart;
 import codechicken.multipart.TileMultipartObj;
 import net.minecraft.block.Block;
@@ -34,6 +33,9 @@ public class EventHandler
         BlockCoord pos = new BlockCoord(hit.blockX, hit.blockY, hit.blockZ).offset(hit.sideHit);
         ItemStack held = player.getHeldItem();
         McBlockPart part = null;
+        if(held == null)
+            return false;
+        
         if(held.itemID == Block.torchWood.blockID)
             part = TorchPart.placement(world, pos, hit.sideHit);
         

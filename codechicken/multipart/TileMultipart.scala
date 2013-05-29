@@ -22,7 +22,6 @@ import scala.collection.mutable.HashSet
 import codechicken.multipart.handler.MultipartProxy
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
-import codechicken.core.inventory.InventoryUtils
 import codechicken.core.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
@@ -36,6 +35,7 @@ import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
 import codechicken.core.lighting.LazyLightMatrix
 import net.minecraft.world.ChunkCoordIntPair
+import net.minecraft.entity.item.EntityItem
 
 trait TileMultipart extends TileEntity
 {
@@ -278,7 +278,7 @@ trait TileMultipart extends TileEntity
     def dropItems(items:Seq[ItemStack])
     {
         val pos = Vector3.fromTileEntityCenter(this)
-        items.foreach(item => InventoryUtils.dropItem(item, worldObj, pos))
+        items.foreach(item => TileMultipartObj.dropItem(item, worldObj, pos))
     }
     
     def markRender()
@@ -493,5 +493,14 @@ object TileMultipartObj
         tmb.readFromNBT(tag)
         tmb.loadParts(parts)
         return tmb
+    }
+    
+    def dropItem(stack:ItemStack, world:World, pos:Vector3)
+    {
+        val item = new EntityItem(world, pos.x, pos.y, pos.z, stack);
+        item.motionX = world.rand.nextGaussian() * 0.05;
+        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
+        item.motionZ = world.rand.nextGaussian() * 0.05;
+        world.spawnEntityInWorld(item);
     }
 }
