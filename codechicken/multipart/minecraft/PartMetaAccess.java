@@ -1,7 +1,9 @@
 package codechicken.multipart.minecraft;
 
+import codechicken.core.vec.BlockCoord;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3Pool;
@@ -11,22 +13,28 @@ import net.minecraft.world.biome.BiomeGenBase;
 public class PartMetaAccess implements IBlockAccess
 {
     public IPartMeta part;
+    private BlockCoord pos;
     
     public PartMetaAccess(IPartMeta p)
     {
         part = p;
+        pos = p.getPos();
     }
     
     @Override
     public int getBlockId(int i, int j, int k)
     {
-        return part.getBlockId();
+        if(i == pos.x && j == pos.y && k == pos.z)
+            return part.getBlockId();
+        return part.getWorld().getBlockId(i, j, k);
     }
 
     @Override
     public TileEntity getBlockTileEntity(int i, int j, int k)
     {
-        throw new IllegalArgumentException("Unsupported Operation");
+        if(i == pos.x && j == pos.y && k == pos.z)
+            throw new IllegalArgumentException("Unsupported Operation");
+        return part.getWorld().getBlockTileEntity(i, j, k);
     }
 
     @Override
@@ -39,7 +47,9 @@ public class PartMetaAccess implements IBlockAccess
     @Override
     public int getBlockMetadata(int i, int j, int k)
     {
-        return part.getMetadata();
+        if(i == pos.x && j == pos.y && k == pos.z)
+            return part.getMetadata();
+        return part.getWorld().getBlockMetadata(i, j, k);
     }
 
     @Override
@@ -59,20 +69,20 @@ public class PartMetaAccess implements IBlockAccess
     @Override
     public Material getBlockMaterial(int i, int j, int k)
     {
-        throw new IllegalArgumentException("Unsupported Operation");
+        return Block.blocksList[getBlockId(i, j, k)].blockMaterial;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean isBlockOpaqueCube(int i, int j, int k)
     {
-        throw new IllegalArgumentException("Unsupported Operation");
+        return part.getWorld().isBlockOpaqueCube(i, j, k);
     }
 
     @Override
     public boolean isBlockNormalCube(int i, int j, int k)
     {
-        throw new IllegalArgumentException("Unsupported Operation");
+        return part.getWorld().isBlockNormalCube(i, j, k);
     }
 
     @Override

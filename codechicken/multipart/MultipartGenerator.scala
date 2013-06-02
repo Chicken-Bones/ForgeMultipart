@@ -195,10 +195,8 @@ object MultipartGenerator
         {
             if(!tile.loaded)
             {
-                if(world.isRemote)
-                    world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 3)
-                else
-                    world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 1)//the add part packet will do the conversion on the client
+                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 3)
+                ntile.writeAddPart(ntile.partList(0))
             }
             
             val tileTraits = tileTraitMap(tile.getClass)
@@ -209,7 +207,7 @@ object MultipartGenerator
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
                 ntile.loadFrom(tile)
             }
-            else if(!tile.loaded)
+            else if(!tile.loaded)//converted
             {
                 ntile.validate()
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)

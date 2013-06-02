@@ -38,6 +38,8 @@ public class EventHandler
         
         if(held.itemID == Block.torchWood.blockID)
             part = TorchPart.placement(world, pos, hit.sideHit);
+        else if(held.itemID == Block.lever.blockID)
+            part = LeverPart.placement(world, pos, player, hit.sideHit);
         
         if(part == null)
             return false;
