@@ -4,6 +4,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.core.lighting.LazyLightMatrix;
@@ -84,5 +87,29 @@ public class LeverPart extends McSidedMetaPart
     public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
     {
         new RenderBlocks(new PartMetaAccess(this)).renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
+    }
+
+    @Override
+    public boolean activate(EntityPlayer player, MovingObjectPosition part, ItemStack item)
+    {
+        World world = getTile().worldObj;
+        if(world.isRemote)
+            return true;
+
+        int state = meta&8;
+        world.playSoundEffect(getTile().xCoord + 0.5, getTile().yCoord + 0.5, getTile().zCoord + 0.5, "random.click", 0.3F, state > 0 ? 0.6F : 0.5F);
+        meta = (byte) (meta^8);
+        sendDescUpdate();
+        tile().notifyPartChange();
+        tile().markDirty();
+        return true;
+    }
+    
+    public void drawBreaking(RenderBlocks renderBlocks)
+    {
+        IBlockAccess actual = renderBlocks.blockAccess;
+        renderBlocks.blockAccess = new PartMetaAccess(this);
+        renderBlocks.renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
+        renderBlocks.blockAccess = actual;
     }
 }

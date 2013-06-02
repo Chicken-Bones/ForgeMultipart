@@ -36,6 +36,7 @@ import codechicken.multipart.handler.MultipartSPH
 import codechicken.core.lighting.LazyLightMatrix
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.player.EntityPlayer
 
 trait TileMultipart extends TileEntity
 {
@@ -223,6 +224,7 @@ trait TileMultipart extends TileEntity
                 partMap(i) = null
         
         partRemoved(part, r)
+        part.bind(null)
         
         if(partList.isEmpty)
         {

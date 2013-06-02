@@ -44,6 +44,13 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     }
     
     @Override
+    public void read(MCDataInput packet)
+    {
+        readDesc(packet);
+        tile().markRender();
+    }
+    
+    @Override
     public World getWorld()
     {
         return getTile().worldObj;

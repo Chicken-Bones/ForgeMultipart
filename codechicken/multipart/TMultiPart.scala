@@ -71,9 +71,11 @@ abstract class TMultiPart
     def click(player:EntityPlayer, part:MovingObjectPosition, item:ItemStack){}
     def doesTick = true
     def update(){}
+    def scheduledTick(){}
     def pickItem(hit:MovingObjectPosition):ItemStack = null
     
     def sendDescUpdate() = writeDesc(tile.getWriteStream(this))
+    def scheduleTick(ticks:Int) = TickScheduler.scheduleTick(this, ticks)
 }
 
 trait TFacePart extends TMultiPart

@@ -23,6 +23,8 @@ import codechicken.multipart.ControlKeyHandler
 import cpw.mods.fml.common.network.NetworkRegistry
 import cpw.mods.fml.common.registry.TickRegistry
 import net.minecraft.block.Block
+import net.minecraft.world.ChunkCoordIntPair
+import codechicken.core.vec.BlockCoord
 
 class MultipartProxy_serverImpl
 {
@@ -84,4 +86,7 @@ object MultipartProxy extends MultipartProxy_clientImpl
 {
     var block:BlockMultipart = _
     var config:ConfigFile = _
+    
+    def indexInChunk(cc:ChunkCoordIntPair, i:Int) = new BlockCoord(cc.chunkXPos<<4|i&0xF, i>>8, cc.chunkZPos<<4|(i&0xF0)>>4)
+    def indexInChunk(pos:BlockCoord) = pos.x&0xF|pos.y<<8|(pos.z&0xF)<<4
 }

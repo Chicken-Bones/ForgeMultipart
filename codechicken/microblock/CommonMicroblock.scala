@@ -225,11 +225,13 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     {
         shape = packet.readByte
         material = readPartID(packet)
-        if(tile != null)
-        {
-            tile.notifyPartChange()
-            tile.markRender()
-        }
+    }
+    
+    override def read(packet:MCDataInput)
+    {
+        readDesc(packet)
+        tile.notifyPartChange()
+        tile.markRender()
     }
     
     override def save(tag:NBTTagCompound)

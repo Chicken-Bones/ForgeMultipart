@@ -26,6 +26,7 @@ import java.io.DataOutputStream
 import java.io.ByteArrayOutputStream
 import net.minecraft.world.WorldServer
 import net.minecraft.world.ChunkCoordIntPair
+import MultipartProxy._
 
 object MultipartCPH extends IClientPacketHandler
 {
@@ -47,8 +48,6 @@ object MultipartCPH extends IClientPacketHandler
         if(!missing.isEmpty)
             netHandler.handleKickDisconnect(new Packet255KickDisconnect("The following multiparts are not installed on this client: "+missing.mkString(", ")))
     }
-    
-    def indexInChunk(cc:ChunkCoordIntPair, i:Int) = new BlockCoord(cc.chunkXPos<<4|i&0xF, i>>8, cc.chunkZPos<<4|(i&0xF0)>>4)
     
     def handleCompressedTileDesc(packet:PacketCustom, world:World)
     {
@@ -145,7 +144,7 @@ object MultipartSPH extends IServerPacketHandler
             val tile = iterator.next
             if(tile.isInstanceOf[TileMultipart])
             {
-                packet.writeShort(tile.xCoord&0xF|tile.yCoord<<8|(tile.zCoord&0xF)<<4)
+                packet.writeShort(indexInChunk(new BlockCoord(tile)))
                 tile.asInstanceOf[TileMultipart].writeDesc(packet)
                 empty = false
             }

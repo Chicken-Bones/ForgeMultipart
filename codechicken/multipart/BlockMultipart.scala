@@ -54,8 +54,6 @@ trait BlockMultipart extends Block
 {
     import BlockMultipart._
     
-    setTickRandomly(true)
-    
     override def hasTileEntity(meta:Int = 0) = true
     
     override def isBlockSolidOnSide(world:World, x:Int, y:Int, z:Int, side:ForgeDirection):Boolean =
@@ -210,6 +208,34 @@ trait BlockMultipart extends Block
     {
         val tile = getClientTile(world, x, y, z)
         if(tile != null) tile.randomDisplayTick(random)
+    }
+    
+    override def onBlockActivated(world:World, x:Int, y:Int, z:Int, player:EntityPlayer, side:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
+    {
+        val hit = RayTracer.retraceBlock(world, player, x, y, z);
+        if(hit == null)
+            return false
+        
+        val tile = getTile(world, x, y, z)
+        if(tile == null) 
+            return false
+        
+        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
+        return tile.partList(hitInfo._1).activate(player, hit, player.getHeldItem())
+    }
+    
+    override def onBlockClicked(world:World, x:Int, y:Int, z:Int, player:EntityPlayer)
+    {
+        val hit = RayTracer.retraceBlock(world, player, x, y, z);
+        if(hit == null)
+            return
+        
+        val tile = getTile(world, x, y, z)
+        if(tile == null) 
+            return
+        
+        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
+        tile.partList(hitInfo._1).click(player, hit, player.getHeldItem())
     }
 }
 
