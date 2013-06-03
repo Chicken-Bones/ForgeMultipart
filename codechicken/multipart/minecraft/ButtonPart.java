@@ -82,7 +82,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
         return null;//falloff
     }
 
-    public static McBlockPart placement(World world, BlockCoord pos, EntityPlayer player, int side, int type)
+    public static McBlockPart placement(World world, BlockCoord pos, int side, int type)
     {
         if(side == 0 || side == 1)
             return null;

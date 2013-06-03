@@ -70,8 +70,9 @@ abstract class TMultiPart
     def onWorldJoin(world:World){onPartChanged()}
     def onPartChanged(){}
     def onNeighbourChanged(){}
+    def onAdded(){}
     def onRemoved(){}
-    def onConverted(){}
+    def onConverted() = onAdded()
     
     def doesTick = true
     def update(){}

@@ -15,7 +15,10 @@ import scala.collection.mutable.HashSet
 
 object TickScheduler extends WorldExtensionInstantiator
 {
-    class PartTickEntry(val part:TMultiPart, var ticks:Int)
+    class PartTickEntry(val part:TMultiPart, var ticks:Int, var random:Boolean)
+    {
+        def this(part:TMultiPart, ticks:Int) = this(part, ticks, false)
+    }
     
     class WorldTickScheduler(world:World) extends WorldExtension(world)
     {
@@ -40,17 +43,47 @@ object TickScheduler extends WorldExtensionInstantiator
         import codechicken.multipart.handler.MultipartProxy._
         
         var tickList = ListBuffer[PartTickEntry]()
+        private var processing = false
+        private val pending = ListBuffer[PartTickEntry]()
         
-        def scheduleTick(part:TMultiPart, ticks:Int)
+        def scheduleTick(part:TMultiPart, ticks:Int):Unit = scheduleTick(part, ticks, false)
+        
+        def scheduleTick(part:TMultiPart, ticks:Int, random:Boolean)
         {
-            tickList+=new PartTickEntry(part, ticks)
+            if(processing)
+            {
+                pending+=new PartTickEntry(part, ticks, random)
+                return
+            }
+            
+            val it = tickList.iterator
+            while(it.hasNext)
+            {
+                val e = it.next
+                if(e.part == part)
+                {
+                    if(ticks > e.ticks && random == e.random || e.random && !random)
+                    {
+                        e.ticks = ticks
+                        e.random = random
+                    }
+                    return
+                }
+            }
+            tickList+=new PartTickEntry(part, ticks, random)
             if(tickList.size == 1)
                 world.tickChunks+=this
         }
         
+        def nextRandomTick = world.world.rand.nextInt(800)+800
+        
         def processTicks():Boolean =
         {
+            processing = true
             tickList = tickList.filter(processTick(_))
+            processing = false
+            pending.foreach(e => scheduleTick(e.part, e.ticks, e.random))
+            pending.clear()
             return !tickList.isEmpty
         }
         
@@ -60,7 +93,19 @@ object TickScheduler extends WorldExtensionInstantiator
             if(e.ticks == 0)
             {
                 if(e.part.tile != null)
-                    e.part.scheduledTick()
+                {
+                    if(e.random && e.part.isInstanceOf[IRandomUpdateTick])
+                        e.part.asInstanceOf[IRandomUpdateTick].randomUpdate()
+                    else
+                        e.part.scheduledTick()
+                    
+                    if(e.part.isInstanceOf[IRandomUpdateTick])
+                    {
+                        e.ticks = nextRandomTick
+                        e.random = true
+                        return true
+                    }
+                }
                 return false
             }
             return true
@@ -71,7 +116,7 @@ object TickScheduler extends WorldExtensionInstantiator
             val tagList = new NBTTagList
             tickList.foreach{e =>
                 val part = e.part
-                if(part.tile != null)
+                if(part.tile != null && !e.random)
                 {
                     val tag = new NBTTagCompound
                     tag.setShort("pos", indexInChunk(new BlockCoord(part.tile)).toShort)
@@ -104,6 +149,16 @@ object TickScheduler extends WorldExtensionInstantiator
         
         override def load()
         {
+            val it = chunk.chunkTileEntityMap.values.iterator
+            while(it.hasNext)
+            {
+                val t = it.next
+                if(t.isInstanceOf[TileMultipart])
+                    t.asInstanceOf[TileMultipart].partList.foreach(p =>
+                        if(p.isInstanceOf[IRandomUpdateTick])
+                            scheduleTick(p, nextRandomTick, true))
+            }
+            
             if(!tickList.isEmpty)
                 world.tickChunks+=this
         }

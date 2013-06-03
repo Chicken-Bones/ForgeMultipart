@@ -155,6 +155,7 @@ trait TileMultipart extends TileEntity
     private[multipart] def addPart(part:TMultiPart)
     {
         addPart_do(part)
+        part.onAdded()
         notifyPartChange()
         markDirty()
         markRender()

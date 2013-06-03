@@ -22,13 +22,19 @@ public abstract class McSidedMetaPart extends McMetaPart
     
     public void onNeighbourChanged()
     {
-        TileEntity tile = getTile();
-        if(!tile.worldObj.isRemote)
+        if(!getTile().worldObj.isRemote)
+            dropIfCantStay();
+    }
+    
+    public boolean dropIfCantStay()
+    {
+        BlockCoord pos = new BlockCoord(getTile()).offset(sideForMeta(meta));
+        if(!getTile().worldObj.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1)))
         {
-            BlockCoord pos = new BlockCoord(tile).offset(sideForMeta(meta));
-            if(!tile.worldObj.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1)))
-                drop();
+            drop();
+            return true;
         }
+        return false;
     }
 
     public void drop()

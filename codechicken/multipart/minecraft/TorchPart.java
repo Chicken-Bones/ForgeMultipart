@@ -40,6 +40,11 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
     @Override
     public Cuboid6 getBounds()
     {
+        return getBounds(meta);
+    }
+    
+    public Cuboid6 getBounds(int meta)
+    {
         double d = 0.15;
         if (meta == 1)
             return new Cuboid6(0, 0.2, 0.5 - d, d * 2, 0.8, 0.5 + d);
