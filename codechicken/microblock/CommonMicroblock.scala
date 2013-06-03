@@ -247,6 +247,8 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     }
     
     def isTransparent = MicroMaterialRegistry.getMaterial(material).isTransparent
+    
+    override def blocksRedstone = true
 }
 
 trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with TMicroOcclusionClient

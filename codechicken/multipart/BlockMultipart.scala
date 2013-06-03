@@ -237,6 +237,27 @@ trait BlockMultipart extends Block
         val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
         tile.partList(hitInfo._1).click(player, hit, player.getHeldItem())
     }
+    
+    override def isProvidingStrongPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null) return tile.strongPowerLevel(side^1)
+        return 0
+    }
+    
+    override def isProvidingWeakPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null) return tile.weakPowerLevel(side^1)
+        return 0
+    }
+    
+    override def canConnectRedstone(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Boolean =
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null) return tile.canConnectRedstone(side)
+        return false
+    }
 }
 
 class BlockMultipartImpl(id:Int) extends Block(id, Material.rock) with BlockMultipart

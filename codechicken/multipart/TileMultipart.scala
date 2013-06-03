@@ -303,6 +303,18 @@ trait TileMultipart extends TileEntity
         }}
         tag.setTag("parts", taglist)
     }
+    
+    def strongPowerLevel(side:Int) = 0
+    
+    def weakPowerLevel(side:Int) = 0
+    
+    def canConnectRedstone(side:Int) = false
+    
+    def notifyNeighborChange(side:Int)
+    {
+        val pos = new BlockCoord(this).offset(side)
+        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, getBlockType().blockID)
+    }
 }
 
 trait TileMultipartClient extends TileMultipart

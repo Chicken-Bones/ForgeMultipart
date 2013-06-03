@@ -13,8 +13,9 @@ import codechicken.core.lighting.LazyLightMatrix;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
 import codechicken.core.vec.Vector3;
+import codechicken.multipart.IRedstonePart;
 
-public class LeverPart extends McSidedMetaPart
+public class LeverPart extends McSidedMetaPart implements IRedstonePart
 {
     public static BlockLever lever = (BlockLever) Block.lever;
     public static int[] metaSideMap = new int[]{1, 4, 5, 2, 3, 0, 0, 1};
@@ -101,6 +102,7 @@ public class LeverPart extends McSidedMetaPart
         meta = (byte) (meta^8);
         sendDescUpdate();
         tile().notifyPartChange();
+        tile().notifyNeighborChange(metaSideMap[meta&7]);
         tile().markDirty();
         return true;
     }
@@ -111,5 +113,20 @@ public class LeverPart extends McSidedMetaPart
         renderBlocks.blockAccess = new PartMetaAccess(this);
         renderBlocks.renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
         renderBlocks.blockAccess = actual;
+    }
+    
+    public int weakPowerLevel(int side)
+    {
+        return (meta & 8) > 0 ? 15 : 0;
+    }
+    
+    public int strongPowerLevel(int side)
+    {
+        return (meta & 8) > 0 && side == metaSideMap[meta&7] ? 15 : 0;
+    }
+    
+    public boolean canConnectRedstone(int side)
+    {
+        return true;
     }
 }

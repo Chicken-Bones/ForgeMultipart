@@ -37,6 +37,7 @@ abstract class TMultiPart
     }
     
     def getSlotMask:Int = 0
+    def blocksRedstone:Boolean = false//Not necessarily sure this is the best way to test this
     
     def occlusionTest(npart:TMultiPart):Boolean = true
     def getSubParts:JSeq[IndexedCuboid6] = Seq()
