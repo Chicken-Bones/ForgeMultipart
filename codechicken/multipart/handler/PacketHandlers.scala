@@ -111,7 +111,7 @@ object MultipartSPH extends IServerPacketHandler
     
     def onTickEnd(players:Seq[EntityPlayerMP])
     {
-        players.foreach(p => {
+        players.foreach{p =>
             val m = updateMap.getOrElse(p.worldObj, null)
             if(!m.isEmpty)
             {
@@ -128,7 +128,7 @@ object MultipartSPH extends IServerPacketHandler
                 if(send)
                     packet.sendToPlayer(p)
             }
-        })
+        }
         updateMap.foreach(_._2.clear())
     }
     

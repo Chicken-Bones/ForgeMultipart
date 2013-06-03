@@ -77,11 +77,8 @@ trait BlockMultipart extends Block
             return null
         
         for(i <- 0 until tile.partList.size)
-        {
-            tile.partList(i).getSubParts.foreach { c => 
-                boxes.add(new IndexedCuboid6((i, c.data), c.copy.add(new Vector3(x, y, z))))
-            }
-        }
+            tile.partList(i).getSubParts.foreach(c => 
+                boxes.add(new IndexedCuboid6((i, c.data), c.copy.add(new Vector3(x, y, z)))))
                 
         return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), boxes, new BlockCoord(x, y, z), this)        
     }
@@ -125,17 +122,12 @@ trait BlockMultipart extends Block
         val list = list$.asInstanceOf[List[AxisAlignedBB]]
         val tile = getTile(world, x, y, z)
         if(tile != null)
-        {
-            tile.partList.foreach { part => 
-                part.getCollisionBoxes.foreach{ c => 
-                    {
+            tile.partList.foreach(part => 
+                part.getCollisionBoxes.foreach{c => 
                         val aabb = c.toAABB().offset(x, y, z)
                         if(aabb.intersectsWith(ebb))
                             list.add(aabb)
-                    }
-                }
-            }
-        }
+                })
     }
     
     override def addBlockHitEffects(world:World, hit:MovingObjectPosition, effectRenderer:EffectRenderer):Boolean =

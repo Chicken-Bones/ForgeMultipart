@@ -43,20 +43,20 @@ trait TLiquidTank extends TileMultipart with ITankContainer
         tankList.foreach(t => tankCount += t.getTanks(dir).length)
         val tanks = new Array[ILiquidTank](tankCount)
         var i = 0
-        tankList.foreach(p => p.getTanks(dir).foreach(t => {
+        tankList.foreach(p => p.getTanks(dir).foreach{t =>
             tanks(i) = t
             i+=1
-        }))
+        })
         return tanks
     }
     
     override def getTank(dir:ForgeDirection, liquid:LiquidStack):ILiquidTank =
     {
-        tankList.foreach(p => {
+        tankList.foreach{p =>
             val t = p.getTank(dir, liquid)
             if(t != null)
                 return t//TODO: bad, slow
-        })
+        }
         return null
     }
     
@@ -80,7 +80,7 @@ trait TLiquidTank extends TileMultipart with ITankContainer
     override def drain(dir:ForgeDirection, amount:Int, doDrain:Boolean):LiquidStack = 
     {
         var drained:LiquidStack = null
-        tankList.foreach(p => {
+        tankList.foreach{p =>
             val ret = p.drain(dir, amount-drained.amount, false)
             if(ret != null && ret.amount > 0 && (drained == null || drained.isLiquidEqual(ret)))
             {
@@ -92,7 +92,7 @@ trait TLiquidTank extends TileMultipart with ITankContainer
                 else
                     drained.amount+=ret.amount
             }
-        })
+        }
         return drained
     }
     

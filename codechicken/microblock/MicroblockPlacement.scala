@@ -146,14 +146,13 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
         
         val mUnits = mcrClass.sizeToVolume(sizea) - mcrClass.sizeToVolume(sizea+size)
         var mat = 0
-        player.inventory.mainInventory.foreach(item => {
+        player.inventory.mainInventory.foreach(item =>
             if(item != null && item.itemID == MicroblockProxy.item.itemID)
             {
                 val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
                 if(ItemMicroPart.getMaterialID(item) == material)
                     mat+=mcrClass.sizeToVolume(item.getItemDamage&0xFF)
-            }
-        })
+            })
         return mat >= mUnits
     }
     

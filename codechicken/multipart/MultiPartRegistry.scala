@@ -40,13 +40,12 @@ object MultiPartRegistry
             throw new IllegalStateException("You must register your parts in the init methods.")
         state=1
         
-        types.foreach(s => 
-        {
+        types.foreach{s => 
             if(typeMap.contains(s))
                 throw new IllegalStateException("Part with id "+s+" is already registered.");
             
             typeMap.put(s, (c:Boolean) => partFactory(s, c));
-        })
+        }
     }
     
     def registerConverter(c:IPartConverter)
@@ -116,11 +115,11 @@ object MultiPartRegistry
     
     def convertBlock(world:World, pos:BlockCoord, id:Int):TMultiPart =
     {
-        converters(id).foreach(c => {
+        converters(id).foreach{c =>
             val ret = c.convert(world, pos)
             if(ret != null)
                 return ret
-        })
+        }
         return null
     }
 }

@@ -69,7 +69,7 @@ object TickScheduler extends WorldExtensionInstantiator
         override def saveData(data:NBTTagCompound)
         {
             val tagList = new NBTTagList
-            tickList.foreach(e => {
+            tickList.foreach{e =>
                 val part = e.part
                 if(part.tile != null)
                 {
@@ -79,7 +79,7 @@ object TickScheduler extends WorldExtensionInstantiator
                     tag.setInteger("ticks", e.ticks)
                     tagList.appendTag(tag)
                 }
-            })
+            }
             if(tagList.tagCount > 0)
                 data.setTag("multipartTicks", tagList)
         }

@@ -264,10 +264,10 @@ trait TileMultipart extends TileEntity
     def writeDesc(packet:PacketCustom)
     {
         packet.writeByte(partList.size)
-        partList.foreach{part => {
+        partList.foreach{part =>
             MultiPartRegistry.writePartID(packet, part)
             part.writeDesc(packet)
-        }}
+        }
     }
     
     def harvestPart(index:Int, drop:Boolean):Boolean = 
@@ -296,12 +296,12 @@ trait TileMultipart extends TileEntity
     {
         super.writeToNBT(tag)
         val taglist = new NBTTagList
-        partList.foreach { part => {
+        partList.foreach{part => 
             val parttag = new NBTTagCompound
             parttag.setString("id", part.getType)
             part.save(parttag)
             taglist.appendTag(parttag)
-        }}
+    }
         tag.setTag("parts", taglist)
     }
     
