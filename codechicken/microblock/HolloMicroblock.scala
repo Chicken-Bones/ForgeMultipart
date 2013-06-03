@@ -89,7 +89,7 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
         val icont = new IconTransformation(renderBlocks.overrideBlockTexture)
         renderHollow(Vector3.fromTileEntity(tile), null, null, getBounds, 0, false, 
             (pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)=>
-                RenderUtils.renderBlock(c, sideMask, pos, icont))
+                RenderUtils.renderBlock(c, sideMask, pos, null, -1, icont))
     }
     
     override def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)

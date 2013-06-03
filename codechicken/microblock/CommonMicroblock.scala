@@ -28,6 +28,8 @@ import codechicken.scala.JSeq
 import codechicken.scala.ScalaBridge._
 import codechicken.core.data.MCDataOutput
 import codechicken.core.data.MCDataInput
+import codechicken.core.render.RenderUtils
+import codechicken.core.render.IFaceRenderer
 
 object CommonMicroblock
 {
@@ -79,86 +81,16 @@ import CommonMicroblock._
     
     def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)
     {
-        val x1 = c.min.x
-        val x2 = c.max.x
-        val y1 = c.min.y
-        val y2 = c.max.y
-        val z1 = c.min.z
-        val z2 = c.max.z
-        var u1:Double = 0
-        var u2:Double = 0
-        var v1:Double = 0
-        var v2:Double = 0
-        var side = 0
         var lightMatrix:LightMatrix = null
         if(olm != null)
             lightMatrix = olm.lightMatrix
-        
-        if((sideMask&1) == 0)
-        {
-            u1 = x1; v1 = z1
-            u2 = x2; v2 = z2
-            face(0).set(x1, y1, z2, u1, v2)
-            face(1).set(x1, y1, z1, u1, v1)
-            face(2).set(x2, y1, z1, u2, v1)
-            face(3).set(x2, y1, z2, u2, v2)
-            mat.renderMicroFace(face, if(c.min.y > 0) 6 else 0, pos, lightMatrix, this)
-        }
-        
-        if((sideMask&2) == 0)
-        {
-            u1 = x1+2; v1 = z1
-            u2 = x2+2; v2 = z2
-            face(0).set(x2, y2, z2, u2, v2)
-            face(1).set(x2, y2, z1, u2, v1)
-            face(2).set(x1, y2, z1, u1, v1)
-            face(3).set(x1, y2, z2, u1, v2)
-            mat.renderMicroFace(face, if(c.max.y < 1) 7 else 1, pos, lightMatrix, this)
-        }
-        
-        if((sideMask&4) == 0)
-        {
-            u1 = 1-x1+4; v1 = 1-y2
-            u2 = 1-x2+4; v2 = 1-y1
-            face(0).set(x1, y1, z1, u1, v2)
-            face(1).set(x1, y2, z1, u1, v1)
-            face(2).set(x2, y2, z1, u2, v1)
-            face(3).set(x2, y1, z1, u2, v2)
-            mat.renderMicroFace(face, if(c.min.z > 0) 8 else 2, pos, lightMatrix, this)
-        }
-    
-        if((sideMask&8) == 0)
-        {
-            u1 = x1+6; v1 = 1-y2
-            u2 = x2+6; v2 = 1-y1
-            face(0).set(x2, y1, z2, u2, v2)
-            face(1).set(x2, y2, z2, u2, v1)
-            face(2).set(x1, y2, z2, u1, v1)
-            face(3).set(x1, y1, z2, u1, v2)
-            mat.renderMicroFace(face, if(c.max.z < 1) 9 else 3, pos, lightMatrix, this)
-        }
-    
-        if((sideMask&0x10) == 0)
-        {
-            u1 = z1+8; v1 = 1-y2
-            u2 = z2+8; v2 = 1-y1
-            face(0).set(x1, y1, z2, u2, v2)
-            face(1).set(x1, y2, z2, u2, v1)
-            face(2).set(x1, y2, z1, u1, v1)
-            face(3).set(x1, y1, z1, u1, v2)
-            mat.renderMicroFace(face, if(c.min.x > 0) 10 else 4, pos, lightMatrix, this)
-        }
-    
-        if((sideMask&0x20) == 0)
-        {
-            u1 = 1-z1+10; v1 = 1-y2
-            u2 = 1-z2+10; v2 = 1-y1
-            face(0).set(x2, y1, z1, u1, v2)
-            face(1).set(x2, y2, z1, u1, v1)
-            face(2).set(x2, y2, z2, u2, v1)
-            face(3).set(x2, y1, z2, u2, v2)
-            mat.renderMicroFace(face, if(c.max.x < 1) 11 else 5, pos, lightMatrix, this)
-        }
+            
+        RenderUtils.renderBlock(c, sideMask, pos, lightMatrix, 
+            new IFaceRenderer()
+            {
+                def renderFace(face:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix) = 
+                    mat.renderMicroFace(face, side, pos, lightMatrix, MicroblockClient.this)
+            })
     }
 }
 

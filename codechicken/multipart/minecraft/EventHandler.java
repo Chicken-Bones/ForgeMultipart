@@ -40,6 +40,10 @@ public class EventHandler
             part = TorchPart.placement(world, pos, hit.sideHit);
         else if(held.itemID == Block.lever.blockID)
             part = LeverPart.placement(world, pos, player, hit.sideHit);
+        else if(held.itemID == Block.stoneButton.blockID)
+            part = ButtonPart.placement(world, pos, player, hit.sideHit, 0);
+        else if(held.itemID == Block.woodenButton.blockID)
+            part = ButtonPart.placement(world, pos, player, hit.sideHit, 1);
         
         if(part == null)
             return false;

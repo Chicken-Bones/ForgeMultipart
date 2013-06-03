@@ -20,10 +20,11 @@ import cpw.mods.fml.common.TickType
 import scala.collection.JavaConverters._
 import java.util.List
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraftforge.event.EventPriority
 
 object MultipartEventHandler extends IConnectionHandler with ITickHandler
 {
-    @ForgeSubscribe
+    @ForgeSubscribe(priority = EventPriority.HIGHEST)
     def tileEntityLoad(event:ChunkDataEvent.Load)
     {
         MultipartSaveLoad.loadTiles(event.getChunk())
@@ -67,8 +68,11 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     def tickStart(tickType:EnumSet[TickType], data:Object*){}
     def tickEnd(tickType:EnumSet[TickType], data:Object*)
     {
-        MultipartSPH.onTickEnd(
-            MinecraftServer.getServer.getConfigurationManager.playerEntityList
-                .asInstanceOf[List[EntityPlayerMP]].asScala)
+        if(tickType.contains(TickType.SERVER))
+        {
+            MultipartSPH.onTickEnd(
+                MinecraftServer.getServer.getConfigurationManager.playerEntityList
+                    .asInstanceOf[List[EntityPlayerMP]].asScala)
+        }
     }
 }

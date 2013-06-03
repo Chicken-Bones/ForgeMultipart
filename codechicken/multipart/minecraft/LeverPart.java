@@ -9,10 +9,8 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import codechicken.core.lighting.LazyLightMatrix;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
-import codechicken.core.vec.Vector3;
 import codechicken.multipart.IRedstonePart;
 
 public class LeverPart extends McSidedMetaPart implements IRedstonePart
@@ -41,6 +39,11 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
     public String getType()
     {
         return "mc_lever";
+    }
+    
+    public boolean active()
+    {
+        return (meta&8) > 0;
     }
     
     @Override
@@ -83,12 +86,6 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
         
         return new LeverPart(meta);
     }
-    
-    @Override
-    public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
-    {
-        new RenderBlocks(new PartMetaAccess(this)).renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
-    }
 
     @Override
     public boolean activate(EntityPlayer player, MovingObjectPosition part, ItemStack item)
@@ -97,8 +94,7 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
         if(world.isRemote)
             return true;
 
-        int state = meta&8;
-        world.playSoundEffect(getTile().xCoord + 0.5, getTile().yCoord + 0.5, getTile().zCoord + 0.5, "random.click", 0.3F, state > 0 ? 0.6F : 0.5F);
+        world.playSoundEffect(getTile().xCoord + 0.5, getTile().yCoord + 0.5, getTile().zCoord + 0.5, "random.click", 0.3F, !active() ? 0.6F : 0.5F);
         meta = (byte) (meta^8);
         sendDescUpdate();
         tile().notifyPartChange();
@@ -106,7 +102,8 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
         tile().markDirty();
         return true;
     }
-    
+
+    @Override
     public void drawBreaking(RenderBlocks renderBlocks)
     {
         IBlockAccess actual = renderBlocks.blockAccess;
@@ -114,17 +111,34 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
         renderBlocks.renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
         renderBlocks.blockAccess = actual;
     }
+
+    @Override
+    public void onRemoved()
+    {
+        if(active())
+            tile().notifyNeighborChange(metaSideMap[meta&7]);
+    }
     
+    @Override
+    public void onConverted()
+    {
+        if(active())
+            tile().notifyNeighborChange(metaSideMap[meta&7]);
+    }
+
+    @Override
     public int weakPowerLevel(int side)
     {
-        return (meta & 8) > 0 ? 15 : 0;
+        return active() ? 15 : 0;
     }
-    
+
+    @Override
     public int strongPowerLevel(int side)
     {
-        return (meta & 8) > 0 && side == metaSideMap[meta&7] ? 15 : 0;
+        return active() && side == metaSideMap[meta&7] ? 15 : 0;
     }
-    
+
+    @Override
     public boolean canConnectRedstone(int side)
     {
         return true;

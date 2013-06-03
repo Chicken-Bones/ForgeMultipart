@@ -258,6 +258,13 @@ trait BlockMultipart extends Block
         if(tile != null) return tile.canConnectRedstone(side)
         return false
     }
+    
+    override def onEntityCollidedWithBlock(world:World, x:Int, y:Int, z:Int, entity:Entity)
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null)
+            tile.onEntityCollision(entity)
+    }
 }
 
 class BlockMultipartImpl(id:Int) extends Block(id, Material.rock) with BlockMultipart

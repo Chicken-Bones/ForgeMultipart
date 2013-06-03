@@ -59,7 +59,7 @@ trait TRedstoneTile extends TileMultipart with IRedstoneConnector
     
     override def weakPowerLevel(side:Int):Int = 
     {
-        val mask = openConnections(side)&otherConnectionMap(worldObj, xCoord, yCoord, zCoord, side)
+        val mask = openConnections(side)&otherConnectionMap(worldObj, xCoord, yCoord, zCoord, side, true)
         var max = 0
         partList.foreach(p => 
             if((connectionMask(p, side)&mask) > 0)
@@ -73,7 +73,7 @@ trait TRedstoneTile extends TileMultipart with IRedstoneConnector
     override def canConnectRedstone(side:Int):Boolean =
     {
         val vside = vanillaToSide(side)
-        return (getConnectionMap(vside) & otherConnectionMap(worldObj, xCoord, yCoord, zCoord, vside)) > 0
+        return (getConnectionMap(vside) & otherConnectionMap(worldObj, xCoord, yCoord, zCoord, vside, false)) > 0
     }
     
     def getConnectionMap(side:Int):Int = 
@@ -116,10 +116,13 @@ object RedstoneInteractions
     
     def vanillaToSide(vside:Int) = sideVanillaMap(vside+1)
     
-    def otherConnectionMap(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
-        getConnectionMap(world, x+offsetsXForSide(side), y+offsetsYForSide(side), z+offsetsZForSide(side), side^1)
+    def otherConnectionMap(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int, power:Boolean):Int =
+        getConnectionMap(world, x+offsetsXForSide(side), y+offsetsYForSide(side), z+offsetsZForSide(side), side^1, power)
     
-    def getConnectionMap(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
+    /**
+     * @param power If true, don't test canConnectRedstone on blocks, just get a power transmission mask rather than a visual connection
+     */
+    def getConnectionMap(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int, power:Boolean):Int =
     {
         val tile = world.getBlockTileEntity(x, y, z)
         if(tile.isInstanceOf[IRedstoneConnector])
@@ -132,8 +135,13 @@ object RedstoneInteractions
         if(block.isInstanceOf[IRedstoneConnectorBlock])
             return block.asInstanceOf[IRedstoneConnectorBlock].getConnectionMap(x, y, z, side)
         
-        if(side == 0)
+        //start vanilla interactions
+        if(side == 0)//vanilla doesn't handle side 0
+        {
+            if(power)
+                return 0x1F
             return 0
+        }
         
         if(block == Block.redstoneWire)
         {
@@ -158,7 +166,7 @@ object RedstoneInteractions
              return 0
         }
         
-        if(block.canConnectRedstone(world, x, y, z, vside))
+        if(power || block.canConnectRedstone(world, x, y, z, vside))//some blocks accept power without visualising connections
             return 0x1F
         
         return 0

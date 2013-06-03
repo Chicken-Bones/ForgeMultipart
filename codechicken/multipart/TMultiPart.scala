@@ -23,6 +23,7 @@ import codechicken.scala.ScalaBridge._
 import codechicken.core.lighting.LazyLightMatrix
 import codechicken.core.data.MCDataOutput
 import codechicken.core.data.MCDataInput
+import net.minecraft.entity.Entity
 
 abstract class TMultiPart
 {
@@ -31,9 +32,11 @@ abstract class TMultiPart
     def getTile():TileEntity = tile
     
     def getType:String
-    def bind(tile:TileMultipart)
+    def bind(t:TileMultipart)
     {
-        TMultiPart.this.tile = tile
+        if(tile != null && t == null)
+            onRemoved()
+        tile = t
     }
     
     def getSlotMask:Int = 0
@@ -67,13 +70,17 @@ abstract class TMultiPart
     def onWorldJoin(world:World){onPartChanged()}
     def onPartChanged(){}
     def onNeighbourChanged(){}
+    def onRemoved(){}
+    def onConverted(){}
     
-    def activate(player:EntityPlayer, part:MovingObjectPosition, item:ItemStack):Boolean = false
-    def click(player:EntityPlayer, part:MovingObjectPosition, item:ItemStack){}
     def doesTick = true
     def update(){}
     def scheduledTick(){}
+    
     def pickItem(hit:MovingObjectPosition):ItemStack = null
+    def activate(player:EntityPlayer, part:MovingObjectPosition, item:ItemStack):Boolean = false
+    def click(player:EntityPlayer, part:MovingObjectPosition, item:ItemStack){}
+    def onEntityCollision(entity:Entity){}
     
     def sendDescUpdate() = writeDesc(tile.getWriteStream(this))
     def scheduleTick(ticks:Int) = TickScheduler.scheduleTick(this, ticks)

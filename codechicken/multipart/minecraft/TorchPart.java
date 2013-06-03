@@ -4,14 +4,11 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.multipart.IRandomDisplayTick;
-import codechicken.core.lighting.LazyLightMatrix;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
-import codechicken.core.vec.Vector3;
 
 public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
 {
@@ -109,11 +106,5 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
             world.spawnParticle("smoke", d0, d1, d2, 0, 0, 0);
             world.spawnParticle("flame", d0, d1, d2, 0, 0, 0);
         }
-    }
-    
-    @Override
-    public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
-    {
-        new RenderBlocks(new PartMetaAccess(this)).renderBlockTorch(torch, getTile().xCoord, getTile().yCoord, getTile().zCoord);
     }
 }

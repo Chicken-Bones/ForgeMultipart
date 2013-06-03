@@ -23,6 +23,6 @@ trait TCuboidPart extends TMultiPart
     override def drawBreaking(renderBlocks:RenderBlocks)
     {
         CCRenderState.reset()
-        RenderUtils.renderBlock(getBounds, 0, Vector3.fromTileEntity(tile), new IconTransformation(renderBlocks.overrideBlockTexture))
+        RenderUtils.renderBlock(getBounds, 0, Vector3.fromTileEntity(tile), null, -1, new IconTransformation(renderBlocks.overrideBlockTexture))
     }
 }

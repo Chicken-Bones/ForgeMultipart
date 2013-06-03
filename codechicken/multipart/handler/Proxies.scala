@@ -25,6 +25,8 @@ import cpw.mods.fml.common.registry.TickRegistry
 import net.minecraft.block.Block
 import net.minecraft.world.ChunkCoordIntPair
 import codechicken.core.vec.BlockCoord
+import codechicken.core.world.WorldExtensionManager
+import codechicken.multipart.TickScheduler
 
 class MultipartProxy_serverImpl
 {
@@ -48,6 +50,8 @@ class MultipartProxy_serverImpl
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
         NetworkRegistry.instance.registerConnectionHandler(MultipartEventHandler)
         TickRegistry.registerTickHandler(MultipartEventHandler, Side.SERVER)
+        
+        WorldExtensionManager.registerWorldExtension(TickScheduler)
     }
     
     def getFreeBlockID(preferred:Int):Int =

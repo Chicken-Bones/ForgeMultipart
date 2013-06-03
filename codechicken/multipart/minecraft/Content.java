@@ -15,6 +15,7 @@ public class Content implements IPartFactory, IPartConverter
     {
         if(name.equals("mc_torch")) return new TorchPart();
         if(name.equals("mc_lever")) return new LeverPart();
+        if(name.equals("mc_button")) return new ButtonPart();
         
         return null;
     }
@@ -24,7 +25,8 @@ public class Content implements IPartFactory, IPartConverter
         MultiPartRegistry.registerConverter(this);
         MultiPartRegistry.registerParts(this, new String[]{
                 "mc_torch",
-                "mc_lever"
+                "mc_lever",
+                "mc_button"
             });
     }
 
@@ -32,7 +34,9 @@ public class Content implements IPartFactory, IPartConverter
     public boolean canConvert(int blockID)
     {
         return blockID == Block.torchWood.blockID || 
-                blockID == Block.lever.blockID;
+                blockID == Block.lever.blockID || 
+                blockID == Block.stoneButton.blockID || 
+                blockID == Block.woodenButton.blockID;
     }
 
     @Override
@@ -44,6 +48,10 @@ public class Content implements IPartFactory, IPartConverter
             return new TorchPart(meta);
         if(id == Block.lever.blockID)
             return new LeverPart(meta);
+        if(id == Block.stoneButton.blockID)
+            return new ButtonPart(meta);
+        if(id == Block.woodenButton.blockID)
+            return new ButtonPart(meta|0x10);
         
         return null;
     }

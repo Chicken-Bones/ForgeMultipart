@@ -1,7 +1,5 @@
 package codechicken.multipart;
 
-import java.util.Arrays;
-
 public enum PartMap
 {
     BOTTOM(0),

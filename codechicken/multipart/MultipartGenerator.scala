@@ -9,6 +9,8 @@ import codechicken.core.vec.BlockCoord
 import codechicken.multipart.handler.MultipartProxy
 import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.relauncher.Side
+import codechicken.core.packet.PacketCustom
+import net.minecraft.network.packet.Packet53BlockChange
 
 object MultipartGenerator
 {
@@ -193,9 +195,11 @@ object MultipartGenerator
         var ntile = tile
         if(tile != null)
         {
-            if(!tile.loaded)
+            val converted = !tile.loaded
+            if(converted)//perform client conversion
             {
-                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 3)
+                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 1)
+                PacketCustom.sendToChunk(new Packet53BlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)
                 ntile.writeAddPart(ntile.partList(0))
             }
             
@@ -207,11 +211,13 @@ object MultipartGenerator
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
                 ntile.loadFrom(tile)
             }
-            else if(!tile.loaded)//converted
+            else if(converted)
             {
                 ntile.validate()
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
             }
+            if(converted)
+                ntile.partList(0).onConverted()
         }
         else
         {

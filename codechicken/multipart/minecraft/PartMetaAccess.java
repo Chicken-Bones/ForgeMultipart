@@ -48,7 +48,7 @@ public class PartMetaAccess implements IBlockAccess
     public int getBlockMetadata(int i, int j, int k)
     {
         if(i == pos.x && j == pos.y && k == pos.z)
-            return part.getMetadata();
+            return part.getMetadata()&0xF;
         return part.getWorld().getBlockMetadata(i, j, k);
     }
 

@@ -37,6 +37,7 @@ import codechicken.core.lighting.LazyLightMatrix
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.Entity
 
 trait TileMultipart extends TileEntity
 {
@@ -304,6 +305,13 @@ trait TileMultipart extends TileEntity
         tag.setTag("parts", taglist)
     }
     
+    def onEntityCollision(entity:Entity)
+    {
+        TileMultipartObj.startOperation(this)
+        partList.foreach(_.onEntityCollision(entity))
+        TileMultipartObj.finishOperation(this)
+    }
+    
     def strongPowerLevel(side:Int) = 0
     
     def weakPowerLevel(side:Int) = 0
@@ -336,56 +344,147 @@ object TileMultipartObj
 {
     var renderID:Int = -1
     
-    private var operatingTile = new ThreadLocal[TileMultipart]
-    private val removalQueue = Queue[TMultiPart]()
-    private val additionQueue = Queue[TMultiPart]()
-    
-    def startOperation(tile:TileMultipart)
+    class TileOperationSet
     {
-        if(operatingTile.get != null)
-            throw new IllegalStateException("Recursive operations not implemented")
+        var tile:TileMultipart = _
+        var depth = 0
+        private val removalQueue = Queue[TMultiPart]()
+        private val additionQueue = Queue[TMultiPart]()
         
-        operatingTile.set(tile)
+        def start(t:TileMultipart)
+        {
+            tile = t
+            depth = 1
+        }
+        
+        def queueAddition(part:TMultiPart)
+        {
+            if(!additionQueue.contains(part))
+                additionQueue+=part
+        }
+        
+        def queueRemoval(part:TMultiPart)
+        {
+            if(!removalQueue.contains(part))
+                removalQueue+=part
+        }
+        
+        def finish()
+        {
+            if(removalQueue.isEmpty && additionQueue.isEmpty)
+                return
+            
+            var otile = tile
+            val world = tile.worldObj
+            val pos = new BlockCoord(tile)
+            while(!removalQueue.isEmpty)
+                otile = otile.remPart(removalQueue.dequeue)
+            
+            while(!additionQueue.isEmpty)
+                MultipartGenerator.addPart(world, pos, additionQueue.dequeue)
+        }
     }
     
-    def finishOperation(tile:TileMultipart)
+    class OperationSynchroniser
     {
-        operatingTile.remove
+        private val operations = ArrayBuffer[TileOperationSet]()
+        private var depth = 0
         
-        if(removalQueue.isEmpty && additionQueue.isEmpty)
-            return
+        def startOperation(tile:TileMultipart)
+        {
+            var i = 0
+            while(i < depth)
+            {
+                val op = operations(i)
+                if(op.tile == tile)
+                {
+                    op.depth+=1
+                    return
+                }
+                i+=1
+            }
+            if(depth == operations.length)
+                operations+=new TileOperationSet
+            operations(depth).start(tile)
+            depth+=1
+        }
         
-        var otile = tile
-        val world = tile.worldObj
-        val pos = new BlockCoord(tile)
-        while(!removalQueue.isEmpty)
-            otile = otile.remPart(removalQueue.dequeue)
+        def finishOperation(tile:TileMultipart)
+        {
+            var i = depth-1
+            while(i >= 0)
+            {
+                val op = operations(i)
+                if(op.tile == tile)
+                {
+                    op.depth-=1
+                    if(op.depth == 0)
+                    {
+                        if(i != depth-1)
+                            throw new IllegalStateException("Tried to finish an operation that was not on top")
+                        depth-=1
+                        op.finish()
+                    }
+                    return
+                }
+                i-=1
+            }
+            throw new IllegalStateException("Inconsistant Operation stack")
+        }
         
-        while(!additionQueue.isEmpty)
-            MultipartGenerator.addPart(world, pos, additionQueue.dequeue)
-    }
-    
-    def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean =
-    {
-        if(tile != operatingTile.get)
+        def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean =
+        {
+            var i = depth-1
+            while(i >= 0)
+            {
+                val op = operations(i)
+                if(op.tile == tile)
+                {
+                    op.queueRemoval(part)
+                    return true
+                }
+                i-=1
+            }
             return false
+        }
         
-        if(!removalQueue.contains(part))
-            removalQueue+=part
-        return true
+        def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = 
+        {
+            var i = depth-1
+            while(i >= 0)
+            {
+                val op = operations(i)
+                val opt = op.tile
+                if(opt.worldObj == world && opt.xCoord == pos.x && opt.yCoord == pos.y && opt.zCoord == pos.z)
+                {
+                    op.queueRemoval(part)
+                    return true
+                }
+                i-=1
+            }
+            return false
+        }
     }
     
-    def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
+    private var operationSync_ = new ThreadLocal[OperationSynchroniser]
+    private def operationSync():OperationSynchroniser = 
     {
-        val opt = operatingTile.get
-        if(opt == null || opt.worldObj != world || opt.xCoord != pos.x || opt.yCoord != pos.y || opt.zCoord != pos.z)
-            return false
-        
-        if(!additionQueue.contains(part))
-            additionQueue+=part
-        
-        return true
+        var r = operationSync_.get
+        if(r == null)
+        {
+            r = new OperationSynchroniser
+            operationSync_.set(r)
+        }
+        return r
     }
+    
+    def startOperation(tile:TileMultipart) = operationSync.startOperation(tile)
+    
+    def finishOperation(tile:TileMultipart) = operationSync.finishOperation(tile)
+        
+    def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean = operationSync.queueRemoval(tile, part)
+    
+    def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
     
     def getOrConvertTile(world:World, pos:BlockCoord):TileMultipart =
     {
