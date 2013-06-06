@@ -74,7 +74,8 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     val mcrClass = pp.microClass
     val pos = new BlockCoord(hit.blockX, hit.blockY, hit.blockZ)
     val vhit = new Vector3(hit.hitVec).add(-pos.x, -pos.y, -pos.z)
-    val htile = TileMultipartObj.getOrConvertTile(world, pos)
+    val gtile = TileMultipartObj.getOrConvertTile2(world, pos)
+    val htile = gtile._1
     val slot = pp.placementGrid.getHitSlot(vhit, hit.sideHit)
     val oslot = pp.opposite(slot, hit.sideHit)
     
@@ -82,7 +83,7 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     val useOppMod = pp.sneakOpposite(slot, hit.sideHit)
     val oppMod = player.isControlDown
     val internal = d < 1 && htile != null
-    val doExpand = internal && htile.loaded && !player.isSneaking && !(oppMod && useOppMod) && pp.expand(slot, hit.sideHit)
+    val doExpand = internal && !gtile._2 && !player.isSneaking && !(oppMod && useOppMod) && pp.expand(slot, hit.sideHit)
     val side = hit.sideHit
     
     def apply():ExecutablePlacement = 

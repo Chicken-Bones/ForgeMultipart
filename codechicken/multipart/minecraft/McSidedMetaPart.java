@@ -1,7 +1,6 @@
 package codechicken.multipart.minecraft;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Vector3;
@@ -22,14 +21,14 @@ public abstract class McSidedMetaPart extends McMetaPart
     
     public void onNeighbourChanged()
     {
-        if(!getTile().worldObj.isRemote)
+        if(!world().isRemote)
             dropIfCantStay();
     }
     
     public boolean dropIfCantStay()
     {
         BlockCoord pos = new BlockCoord(getTile()).offset(sideForMeta(meta));
-        if(!getTile().worldObj.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1)))
+        if(!world().isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1)))
         {
             drop();
             return true;
@@ -40,6 +39,6 @@ public abstract class McSidedMetaPart extends McMetaPart
     public void drop()
     {
         tile().remPart(this);
-        TileMultipartObj.dropItem(new ItemStack(getBlock()), getTile().worldObj, Vector3.fromTileEntityCenter(getTile()));
+        TileMultipartObj.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
     }
 }

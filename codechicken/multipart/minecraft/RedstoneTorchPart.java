@@ -10,11 +10,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Cuboid6;
-import codechicken.core.vec.Vector3;
 import codechicken.multipart.IRandomUpdateTick;
 import codechicken.multipart.IRedstonePart;
-
-import static net.minecraft.util.Facing.*;
+import codechicken.multipart.RedstoneInteractions;
 
 public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRandomUpdateTick
 {
@@ -89,13 +87,13 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
         if(!active())
             return;
         
-        double d0 = getTile().xCoord + 0.5 + (random.nextFloat() - 0.5) * 0.2;
-        double d1 = getTile().yCoord + 0.7 + (random.nextFloat() - 0.5) * 0.2;
-        double d2 = getTile().zCoord + 0.5 + (random.nextFloat() - 0.5) * 0.2;
+        double d0 = x() + 0.5 + (random.nextFloat() - 0.5) * 0.2;
+        double d1 = y() + 0.7 + (random.nextFloat() - 0.5) * 0.2;
+        double d2 = z() + 0.5 + (random.nextFloat() - 0.5) * 0.2;
         double d3 = 0.22D;
         double d4 = 0.27D;
         
-        World world = getTile().worldObj;
+        World world = world();
         int m = meta&7;
         if (m == 1)
             world.spawnParticle("reddust", d0 - d4, d1 + d3, d2, 0, 0, 0);
@@ -118,7 +116,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     @Override
     public void onNeighbourChanged()
     {
-        if(!getTile().worldObj.isRemote)
+        if(!world().isRemote)
         {
             if(!dropIfCantStay() && isBeingPowered() == active())
                 scheduleTick(2);
@@ -128,8 +126,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     public boolean isBeingPowered()
     {
         int side = metaSideMap[meta&7];
-        return getTile().worldObj.getIndirectPowerOutput(
-                getTile().xCoord+offsetsXForSide[side], getTile().yCoord+offsetsYForSide[side], getTile().zCoord+offsetsZForSide[side], side);
+        return RedstoneInteractions.getWeakPowerTo(this, side) > 0;
     }
     
     @Override
@@ -141,19 +138,18 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     
     public void randomUpdate()
     {
-        if(!active() && !isBeingPowered())
-            scheduledTick();
+        scheduledTick();
     }
     
     private boolean burnedOut(boolean add)
     {
-        long time = getTile().worldObj.getWorldTime();
+        long time = world().getWorldTime();
         while(burnout != null && burnout.timeout <= time)
             burnout = burnout.next;
         
         if(add)
         {
-            BurnoutEntry e = new BurnoutEntry(getTile().worldObj.getWorldTime()+60);
+            BurnoutEntry e = new BurnoutEntry(world().getWorldTime()+60);
             if(burnout == null)
                 burnout = e;
             else
@@ -184,16 +180,10 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
         {
             if(burnedOut(true))
             {
-                Vector3 pos = Vector3.fromTileEntityCenter(getTile());
-                World world = getTile().worldObj;
+                World world = world();
                 Random rand = world.rand;
-                world.playSoundEffect(pos.x+0.5, pos.y+0.5, pos.z+0.5, "random.fizz", 0.5F, 2.6F + (rand.nextFloat() - rand.nextFloat()) * 0.8F);
-                
-                for (int l = 0; l < 5; ++l)
-                    getTile().worldObj.spawnParticle("smoke", 
-                            pos.x + rand.nextDouble() * 0.6 + 0.2, 
-                            pos.y + rand.nextDouble() * 0.6 + 0.2, 
-                            pos.z + rand.nextDouble() * 0.6 + 0.2, 0, 0, 0);
+                world.playSoundEffect(x()+0.5, y()+0.5, z()+0.5, "random.fizz", 0.5F, 2.6F + (rand.nextFloat() - rand.nextFloat()) * 0.8F);
+                McMultipartSPH.spawnBurnoutSmoke(world, x(), y(), z());
             }
         }
         else if(burnedOut(false))

@@ -2,6 +2,7 @@ package codechicken.multipart.minecraft;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetServerHandler;
+import net.minecraft.world.World;
 import codechicken.core.packet.PacketCustom;
 import codechicken.core.packet.PacketCustom.IServerPacketHandler;
 
@@ -18,5 +19,10 @@ public class McMultipartSPH implements IServerPacketHandler
                 EventHandler.place(sender, sender.worldObj);
             break;
         }
+    }
+
+    public static void spawnBurnoutSmoke(World world, int x, int y, int z)
+    {
+        new PacketCustom(channel, 1).writeCoord(x, y, z).sendToChunk(world, x>>4, z>>4);
     }
 }

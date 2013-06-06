@@ -62,12 +62,11 @@ object MultipartCPH extends IClientPacketHandler
         {
             val pos = packet.readCoord
             var i = packet.readUnsignedByte
-            do
+            while(i < 255)
             {
                 TileMultipartObj.handlePacket(pos, world, i, packet)
                 i = packet.readUnsignedByte
             }
-            while(i < 255)
         }
     }
 }

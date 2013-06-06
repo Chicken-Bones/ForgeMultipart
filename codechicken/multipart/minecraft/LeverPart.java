@@ -90,11 +90,11 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
     @Override
     public boolean activate(EntityPlayer player, MovingObjectPosition part, ItemStack item)
     {
-        World world = getTile().worldObj;
+        World world = world();
         if(world.isRemote)
             return true;
 
-        world.playSoundEffect(getTile().xCoord + 0.5, getTile().yCoord + 0.5, getTile().zCoord + 0.5, "random.click", 0.3F, !active() ? 0.6F : 0.5F);
+        world.playSoundEffect(x() + 0.5, y() + 0.5, z() + 0.5, "random.click", 0.3F, !active() ? 0.6F : 0.5F);
         meta ^= 8;
         sendDescUpdate();
         tile().notifyPartChange();
@@ -108,7 +108,7 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
     {
         IBlockAccess actual = renderBlocks.blockAccess;
         renderBlocks.blockAccess = new PartMetaAccess(this);
-        renderBlocks.renderBlockLever(lever, getTile().xCoord, getTile().yCoord, getTile().zCoord);
+        renderBlocks.renderBlockLever(lever, x(), y(), z());
         renderBlocks.blockAccess = actual;
     }
 

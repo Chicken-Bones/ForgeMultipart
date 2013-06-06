@@ -68,13 +68,30 @@ trait TileMultipart extends TileEntity
         TileMultipartObj.finishOperation(this)
     }
     
-    override def setWorldObj(world:World)
+    override def onChunkUnload()
     {
-        super.setWorldObj(world)
-        partList.foreach(_.onWorldJoin(world))
+        partList.foreach(_.onChunkUnload())
     }
     
-    def loaded() = !isInvalid
+    def onChunkLoad()
+    {
+        partList.foreach(_.onChunkLoad())
+    }
+    
+    override def validate()
+    {
+        val wasInvalid = isInvalid()
+        super.validate()
+        if(wasInvalid)
+            partList.foreach(_.onWorldJoin())
+    }
+    
+    override def invalidate()
+    {
+        super.invalidate()
+        if(worldObj != null)
+            partList.foreach(_.onWorldSeparate())
+    }
     
     def notifyPartChange()
     {
@@ -226,7 +243,7 @@ trait TileMultipart extends TileEntity
                 partMap(i) = null
         
         partRemoved(part, r)
-        part.bind(null)
+        part.onRemoved()
         
         if(partList.isEmpty)
         {
@@ -487,11 +504,13 @@ object TileMultipartObj
     
     def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
     
-    def getOrConvertTile(world:World, pos:BlockCoord):TileMultipart =
+    def getOrConvertTile(world:World, pos:BlockCoord) = getOrConvertTile2(world, pos)._1
+    
+    def getOrConvertTile2(world:World, pos:BlockCoord):(TileMultipart, Boolean) =
     {
         val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
         if(t.isInstanceOf[TileMultipart])
-            return t.asInstanceOf[TileMultipart]
+            return (t.asInstanceOf[TileMultipart], false)
         
         val id = world.getBlockId(pos.x, pos.y, pos.z)
         val p = MultiPartRegistry.convertBlock(world, pos, id)
@@ -501,11 +520,18 @@ object TileMultipartObj
             t.xCoord = pos.x
             t.yCoord = pos.y
             t.zCoord = pos.z
-            t.invalidate()
             t.setWorldObj(world)
             t.addPart_do(p)
-            return t
+            return (t, true)
         }
+        return (null, false)
+    }
+    
+    def getTile(world:World, pos:BlockCoord):TileMultipart =
+    {
+        val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
+        if(t.isInstanceOf[TileMultipart])
+            return t.asInstanceOf[TileMultipart]
         return null
     }
     

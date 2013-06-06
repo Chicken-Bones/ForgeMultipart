@@ -79,13 +79,13 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
     @Override
     public void randomDisplayTick(Random random)
     {
-        double d0 = getTile().xCoord + 0.5;
-        double d1 = getTile().yCoord + 0.7;
-        double d2 = getTile().zCoord + 0.5;
+        double d0 = x() + 0.5;
+        double d1 = y() + 0.7;
+        double d2 = z() + 0.5;
         double d3 = 0.22D;
         double d4 = 0.27D;
         
-        World world = getTile().worldObj;
+        World world = world();
         if (meta == 1)
         {
             world.spawnParticle("smoke", d0 - d4, d1 + d3, d2, 0, 0, 0);

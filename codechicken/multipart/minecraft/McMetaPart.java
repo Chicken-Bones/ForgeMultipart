@@ -47,16 +47,9 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     }
     
     @Override
-    public void read(MCDataInput packet)
-    {
-        readDesc(packet);
-        tile().markRender();
-    }
-    
-    @Override
     public World getWorld()
     {
-        return getTile().worldObj;
+        return world();
     }
     
     @Override
@@ -86,6 +79,6 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     @Override
     public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
     {
-        new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), getTile().xCoord, getTile().yCoord, getTile().zCoord);
+        new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), x(), y(), z());
     }
 }

@@ -100,7 +100,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
         if(pressed())
             return false;
         
-        if(!getTile().worldObj.isRemote)
+        if(!world().isRemote)
             toggle();
         
         return true;
@@ -121,7 +121,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
     @Override
     public void onEntityCollision(Entity entity)
     {
-        if(!pressed() && !getTile().worldObj.isRemote && entity instanceof EntityArrow)
+        if(!pressed() && !world().isRemote && entity instanceof EntityArrow)
             updateState();
     }
 
@@ -129,7 +129,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
     {
         boolean in = !pressed();
         meta^=8;
-        getTile().worldObj.playSoundEffect(getTile().xCoord + 0.5, getTile().yCoord + 0.5, getTile().zCoord + 0.5, "random.click", 0.3F, in ? 0.6F : 0.5F);
+        world().playSoundEffect(x() + 0.5, y() + 0.5, z() + 0.5, "random.click", 0.3F, in ? 0.6F : 0.5F);
         if(in)
             TickScheduler.scheduleTick(this, delay());
         
@@ -141,7 +141,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
 
     private void updateState()
     {
-        boolean arrows = sensitive() && !getTile().worldObj.getEntitiesWithinAABB(EntityArrow.class,
+        boolean arrows = sensitive() && !world().getEntitiesWithinAABB(EntityArrow.class,
                 getBounds().add(Vector3.fromTileEntity(getTile())).toAABB()).isEmpty();
         boolean pressed = pressed();
         

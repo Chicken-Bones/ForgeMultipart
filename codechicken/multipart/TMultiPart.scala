@@ -30,12 +30,14 @@ abstract class TMultiPart
     var tile:TileMultipart = _
     
     def getTile():TileEntity = tile
+    def world() = tile.worldObj
+    def x = tile.xCoord
+    def y = tile.yCoord
+    def z = tile.zCoord
     
     def getType:String
     def bind(t:TileMultipart)
     {
-        if(tile != null && t == null)
-            onRemoved()
         tile = t
     }
     
@@ -61,17 +63,24 @@ abstract class TMultiPart
     @SideOnly(Side.CLIENT)
     def drawBreaking(renderBlocks:RenderBlocks){}
     
-    def read(packet:MCDataInput) = readDesc(packet)
+    def read(packet:MCDataInput)
+    {
+        readDesc(packet)
+        tile.markRender()
+    }
     def readDesc(packet:MCDataInput){}
     def writeDesc(packet:MCDataOutput){}
     def save(tag:NBTTagCompound){}
     def load(tag:NBTTagCompound){}
     
-    def onWorldJoin(world:World){onPartChanged()}
     def onPartChanged(){}
     def onNeighbourChanged(){}
-    def onAdded(){}
-    def onRemoved(){}
+    def onAdded() = onWorldJoin()
+    def onRemoved() = onWorldSeparate()
+    def onChunkLoad() = onWorldJoin()
+    def onChunkUnload() = onWorldSeparate()
+    def onWorldSeparate(){}
+    def onWorldJoin(){}
     def onConverted() = onAdded()
     
     def doesTick = true
