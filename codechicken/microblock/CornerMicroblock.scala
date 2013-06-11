@@ -23,7 +23,7 @@ object CornerMicroClass extends MicroblockClass
         val rx = if((s&4) != 0) -1 else 1
         val ry = if((s&1) != 0) -1 else 1
         val rz = if((s&2) != 0) -1 else 1
-        val transform = new Scale(new Vector3(rx, ry, rz), Vector3.center)
+        val transform = new Scale(new Vector3(rx, ry, rz)).at(Vector3.center)
         
         for(t <- 1 until 8)
         {

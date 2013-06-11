@@ -37,6 +37,8 @@ object HollowMicroClass extends MicroblockClass
     var pBoxes:Array[Seq[Cuboid6]] = new Array(256)
     var occBounds:Array[Cuboid6] = new Array(256)
     for(s <- 0 until 6)
+    {
+        val transform = Rotation.sideRotations(s).at(Vector3.center)
         for(t <- 1 until 8)
         {
             val d = t/8D
@@ -47,10 +49,11 @@ object HollowMicroClass extends MicroblockClass
                 new SelectionBox(new Cuboid6(1-w1, 0, 0, 1, d, 1)),
                 new SelectionBox(new Cuboid6(w1, 0, 0, 1-w1, d, w1)),
                 new SelectionBox(new Cuboid6(w1, 0, 1-w1, 1-w1, d, 1)))
-                .map(_.transform(Rotation.sideRotations(s), Vector3.center).bound)
+                .map(_.transform(transform).bound)
             occBounds(t<<4|s) = new SelectionBox(new Cuboid6(1/8D, 0, 1/8D, 7/8D, d, 7/8D))
-                .transform(Rotation.sideRotations(s), Vector3.center).bound
+                .transform(transform).bound
         }
+    }
     
     def getName = "mcr_hllw"
     

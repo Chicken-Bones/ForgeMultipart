@@ -73,13 +73,13 @@ object EdgeMicroClass extends MicroblockClass
     {
         val rx = if((s&2) != 0) -1 else 1
         val rz = if((s&1) != 0) -1 else 1
-        val transform = new TransformationList(new Scale(new Vector3(rx, 1, rz)), AxisCycle.cycles(s>>2))
+        val transform = new TransformationList(new Scale(new Vector3(rx, 1, rz)), AxisCycle.cycles(s>>2)).at(Vector3.center)
         
         for(t <- 1 until 8)
         {
             val d = t/8D
             aBounds(t<<4|s) = new SelectionBox(new Cuboid6(0, 0, 0, d, 1, d))
-                .transform(transform, Vector3.center).bound
+                .transform(transform).bound
         }
     }
     
@@ -133,12 +133,13 @@ object PostMicroClass
     
     for(s <- 0 until 3)
     {
+        val transform = Rotation.sideRotations(s<<1).at(Vector3.center)
         for(t <- 2 until 8 by 2)
         {
             val d1 = 0.5-t/16D
             val d2 = 0.5+t/16D
             aBounds(t<<4|s) = new SelectionBox(new Cuboid6(d1, 0, d1, d2, 1, d2))
-                .transform(Rotation.sideRotations(s<<1), Vector3.center).bound
+                .transform(transform).bound
         }
     }
     

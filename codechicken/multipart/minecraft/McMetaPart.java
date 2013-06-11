@@ -79,6 +79,7 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     @Override
     public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
     {
-        new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), x(), y(), z());
+        if(pass == 0)
+            new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), x(), y(), z());
     }
 }

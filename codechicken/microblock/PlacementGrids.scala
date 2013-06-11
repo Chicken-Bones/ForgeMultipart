@@ -16,7 +16,7 @@ trait PlacementGrid
         val pos = new BlockCoord(hit)
         GL11.glPushMatrix()
         GL11.glTranslated(pos.x+0.5, pos.y+0.5, pos.z+0.5)
-        Rotation.sideRotationsG(side).glRotate()
+        Rotation.sideRotations(side).glApply()
         val rhit = new Vector3(pos.x+0.5, pos.y+0.5, pos.z+0.5).subtract(hit).rotate(Rotation.sideQuatsR(side^1))
         GL11.glTranslated(0, rhit.y-0.002, 0)
     }

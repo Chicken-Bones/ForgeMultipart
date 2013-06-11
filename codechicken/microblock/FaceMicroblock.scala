@@ -45,12 +45,15 @@ object FaceMicroClass extends MicroblockClass
     var aBounds:Array[Cuboid6] = new Array(256);
     
     for(s <- 0 until 6)
+    {
+        val transform = Rotation.sideRotations(s).at(Vector3.center)
         for(t <- 1 until 8)
         {
             val d = t/8D
             aBounds(t<<4|s) = new SelectionBox(new Cuboid6(0, 0, 0, 1, d, 1))
-                .transform(Rotation.sideRotations(s), Vector3.center).bound
+                .transform(transform).bound
         }
+    }
     
     def getName = "mcr_face"
     

@@ -101,35 +101,4 @@ public enum PartMap
             throw new IllegalArgumentException("Faces "+s1+" and "+s2+" are opposites");
         return 15+edgeBetweenMap[s1*6+s2];
     }
-    
-    private static int[] sideRotMap = new int[]{
-        3,5,2,4,
-        3,4,2,5,
-        1,5,0,4,
-        1,4,0,5,
-        1,2,0,3,
-        1,3,0,2};
-    
-    public static int rotateSide(int s, int r)
-    {
-        return sideRotMap[s<<2|r];
-    }
-    
-    private static int[] rotSideMap = new int[]{
-        -1,-1, 2, 0, 3, 1,
-        -1,-1, 2, 0, 1, 3,
-         2, 0,-1,-1, 3, 1,
-         2, 0,-1,-1, 1, 3,
-         2, 0, 1, 3,-1,-1,
-         2, 0, 3, 1,-1,-1};
-    
-    /**
-     * Reverse of rotateSide
-     */
-    public static int rotationTo(int s1, int s2)
-    {
-        if((s1&6) == (s2&6))
-            throw new IllegalArgumentException("Faces "+s1+" and "+s2+" are opposites");
-        return rotSideMap[s1*6+s2];
-    }
 }

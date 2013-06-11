@@ -142,10 +142,11 @@ object ItemMicroPartRenderer extends IItemRenderer
     
     def renderItem(t:ItemRenderType, item:ItemStack, data:Object*)
     {
+        GL11.glPushMatrix()
         if(t == ItemRenderType.ENTITY)
-            GL11.glScaled(0.5, 0.5, 0.5);
+            GL11.glScaled(0.5, 0.5, 0.5)
         if(t == ItemRenderType.INVENTORY || t == ItemRenderType.ENTITY)
-            GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+            GL11.glTranslatef(-0.5F, -0.5F, -0.5F)
         
         val material = getMaterial(item)
         val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
@@ -162,6 +163,7 @@ object ItemMicroPartRenderer extends IItemRenderer
             val part = mcrClass.create(size, mcrClass.itemSlot, 0, true).asInstanceOf[MicroblockClient]
             part.render(new Vector3(0.5, 0.5, 0.5).subtract(part.getBounds.center), null, material, part.getBounds, 0)
         CCRenderState.draw()
+        GL11.glPopMatrix()
     }
     
     def renderHighlight(world:World, player:EntityPlayer, stack:ItemStack, hit:MovingObjectPosition):Boolean =
