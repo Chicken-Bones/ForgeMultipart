@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3Pool;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.ForgeDirection;
 
 public class PartMetaAccess implements IBlockAccess
 {
@@ -130,5 +131,11 @@ public class PartMetaAccess implements IBlockAccess
     public int isBlockProvidingPowerTo(int i, int j, int k, int l)
     {
         throw new IllegalArgumentException("Unsupported Operation");
+    }
+    
+    @Override
+    public boolean isBlockSolidOnSide(int x, int y, int z, ForgeDirection side, boolean _default)
+    {
+        return part.getWorld().isBlockSolidOnSide(x, y, z, side, _default);
     }
 }
