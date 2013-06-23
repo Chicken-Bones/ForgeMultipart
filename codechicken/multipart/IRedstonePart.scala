@@ -23,71 +23,13 @@ trait IFaceRedstonePart extends IRedstonePart
     def getFace():Int
 }
 
-trait TRedstoneTile extends TileMultipart with IRedstoneConnector
+/**
+ * Internal interface for TileMultipart instances hosting IRedstonePart
+ */
+trait IRedstoneTile extends IRedstoneConnector
 {
-    import RedstoneInteractions._
-    
-    override def strongPowerLevel(side:Int):Int =
-    {
-        var max = 0
-        partList.foreach(p => 
-            if(p.isInstanceOf[IRedstonePart])
-            {
-                val l = p.asInstanceOf[IRedstonePart].strongPowerLevel(side)
-                if(l > max) max = l
-            }
-        )
-        return max
-    }
-    
-    def openConnections(side:Int):Int =
-    {
-        if(blocksRedstone(side))
-            return 0
-        
-        var m = 0x10
-        var i = 0
-        while(i < 4)
-        {
-            if(!blocksRedstone(edgeBetween(side, rotateSide(side&6, i))))
-                m|=1<<i
-            i+=1
-        }
-        return m
-    }
-    
-    def blocksRedstone(i:Int) = partMap(i) != null && partMap(i).blocksRedstone
-    
-    override def weakPowerLevel(side:Int):Int = 
-        weakPowerLevel(side, otherConnectionMask(worldObj, xCoord, yCoord, zCoord, side, true))
-    
-    override def canConnectRedstone(side:Int):Boolean =
-    {
-        val vside = vanillaToSide(side)
-        return (getConnectionMask(vside) & otherConnectionMask(worldObj, xCoord, yCoord, zCoord, vside, false)) > 0
-    }
-    
-    def getConnectionMask(side:Int):Int = 
-    {
-        val mask = openConnections(side)
-        var res = 0
-        partList.foreach(p => 
-            res|=connectionMask(p, side)&mask)
-        return res
-    }
-    
-    def weakPowerLevel(side:Int, mask:Int):Int = 
-    {
-        val tmask = openConnections(side)&mask
-        var max = 0
-        partList.foreach(p => 
-            if((connectionMask(p, side)&tmask) > 0)
-            {
-                val l = p.asInstanceOf[IRedstonePart].weakPowerLevel(side)
-                if(l > max) max = l
-            })
-        return max
-    }
+    def openConnections(side:Int):Int
+    def blocksRedstone(i:Int):Boolean
 }
 
 /**
@@ -101,6 +43,9 @@ trait IRedstoneConnector
     def weakPowerLevel(side:Int, mask:Int):Int
 }
 
+/**
+ * Block version of IRedstoneConnector
+ */
 trait IRedstoneConnectorBlock
 {
     def getConnectionMask(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int
@@ -118,7 +63,7 @@ object RedstoneInteractions
     {
         val tile = p.tile
         return getWeakPowerTo(tile.worldObj, tile.xCoord, tile.yCoord, tile.zCoord, side, 
-                tile.asInstanceOf[TRedstoneTile].openConnections(side)&connectionMask(p, side))
+                tile.asInstanceOf[IRedstoneTile].openConnections(side)&connectionMask(p, side))
     }
     
     def getWeakPowerTo(world:World, x:Int, y:Int, z:Int, side:Int, mask:Int):Int =

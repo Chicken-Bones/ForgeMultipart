@@ -41,8 +41,8 @@ import net.minecraft.entity.Entity
 
 trait TileMultipart extends TileEntity
 {
-    var partList: ArrayBuffer[TMultiPart] = ArrayBuffer()
-    var partMap: Array[TMultiPart] = new Array(27)
+    var partList = ArrayBuffer[TMultiPart]()
+    var partMap = new Array[TMultiPart](27)
     
     private var doesTick = false
     
