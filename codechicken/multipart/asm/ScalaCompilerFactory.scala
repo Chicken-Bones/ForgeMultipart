@@ -18,6 +18,8 @@ object ScalaCompilerFactory extends IMultipartFactory
     var mirror = scala.reflect.runtime.currentMirror
     var tb = mirror.mkToolBox()
     
+    def getType(obj:Any) = mirror.classSymbol(obj.getClass).toType
+    
     def Apply(f:Tree, args:Tree*) = scala.reflect.runtime.universe.Apply(f, List(args:_*))
     def Apply(f:Tree, args:List[Tree]) = scala.reflect.runtime.universe.Apply(f, args)
     def TypeApply(f:Tree, args:Tree*) = scala.reflect.runtime.universe.TypeApply(f, List(args:_*))
@@ -69,15 +71,15 @@ object ScalaCompilerFactory extends IMultipartFactory
     
     object SuperSet
     {
-        val TileMultipartType = typeOf[TileMultipart]
-        val TileMultipartClientType = typeOf[TileMultipartClient]
-        def apply(types:Seq[Type], client:Boolean) = new SuperSet(types, client)
+        val TileMultipartType = classOf[TileMultipart].getName
+        val TileMultipartClientType = classOf[TileMultipartClient].getName
+        def apply(types:Seq[String], client:Boolean) = new SuperSet(types, client)
     }
     
-    class SuperSet(types:Seq[Type], client:Boolean)
+    class SuperSet(types:Seq[String], client:Boolean)
     {
         import SuperSet._
-        val set = baseType+:types.sortWith(_.toString < _.toString)
+        val set = baseType+:types.sorted
         
         def interfaces = set
         def baseType = if(client) TileMultipartClientType else TileMultipartType
@@ -111,7 +113,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                 normalClassDef(
                     NoFlags,
                     uniqueName("TileMultipart_cmp"),
-                    set.map(_.typeSymbol.asType).toList, 
+                    set.map(s => mirror.staticClass(s).asType).toList, 
                     List(
                         defaultConstructor
                     )
@@ -179,8 +181,9 @@ object ScalaCompilerFactory extends IMultipartFactory
     private def passThroughTraitName(iName:String) = 
         "T" + (if(iName.startsWith("I")) iName.substring(1) else iName)
     
-    def generatePassThroughTrait(iSymbol:ClassSymbol):Type =
+    def generatePassThroughTrait(s_interface:String):String =
     {
+        val iSymbol = mirror.staticClass(s_interface)
         val tname = uniqueName(passThroughTraitName(iSymbol.name.decoded))
         val methods = iSymbol.toType.members.filter(_.isJava).map(m => passThroughMethod(tname, m.asMethod))
         val traitDef = 
@@ -291,8 +294,8 @@ object ScalaCompilerFactory extends IMultipartFactory
                 Ident(tname:TypeName))
         
         val clazz = tb.eval(Block(traitDef, retType)).asInstanceOf[Class[_]]
-        return mirror.classSymbol(clazz).asType.toType
+        return clazz.getName
     }
     
-    def generateTile(types:Seq[Type], client:Boolean) = SuperSet(types, client).generate        
+    def generateTile(types:Seq[String], client:Boolean) = SuperSet(types, client).generate        
 }

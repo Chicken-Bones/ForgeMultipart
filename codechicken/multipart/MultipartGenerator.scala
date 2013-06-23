@@ -1,6 +1,5 @@
 package codechicken.multipart
 
-import scala.reflect.runtime.universe._
 import net.minecraft.tileentity.TileEntity
 import scala.collection.immutable.Map
 import net.minecraft.world.World
@@ -17,37 +16,36 @@ import codechicken.multipart.asm.ScalaCompilerFactory
 
 object MultipartGenerator
 {
-    var mirror = scala.reflect.runtime.currentMirror
-    
-    private var tileTraitMap:Map[Class[_], Set[Type]] = Map()
-    private var interfaceTraitMap_c:Map[Type, Type] = Map()
-    private var interfaceTraitMap_s:Map[Type, Type] = Map()
-    private var partTraitMap_c:Map[Class[_], Seq[Type]] = Map()
-    private var partTraitMap_s:Map[Class[_], Seq[Type]] = Map()
+    private var tileTraitMap:Map[Class[_], Set[String]] = Map()
+    private var interfaceTraitMap_c:Map[String, String] = Map()
+    private var interfaceTraitMap_s:Map[String, String] = Map()
+    private var partTraitMap_c:Map[Class[_], Seq[String]] = Map()
+    private var partTraitMap_s:Map[Class[_], Seq[String]] = Map()
     
     var factory:IMultipartFactory = ScalaCompilerFactory
-    
-    def getType(obj:Any) = mirror.classSymbol(obj.getClass).toType
     
     def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
     
     def interfaceTraitMap(client:Boolean) = if(client) partTraitMap_c else interfaceTraitMap_s
     
-    def traitsForPart(part:TMultiPart, client:Boolean):Seq[Type] = 
+    def traitsForPart(part:TMultiPart, client:Boolean):Seq[String] = 
     {
         var ret = partTraitMap(client).getOrElse(part.getClass, null)
         if(ret == null)
         {
+            def heirachy(clazz:Class[_]):Seq[Class[_]] =
+            {
+                var superClasses:Seq[Class[_]] = clazz.getInterfaces:+clazz
+                if(clazz.getSuperclass != null)
+                    superClasses = superClasses++heirachy(clazz.getSuperclass)
+                return superClasses
+            }
+            
+            ret = heirachy(part.getClass).flatMap(c => interfaceTraitMap_c.get(c.getName)).distinct
             if(client)
-            {
-                ret = getType(part).baseClasses.flatMap(s => interfaceTraitMap_c.get(s.asClass.toType)).distinct
                 partTraitMap_c = partTraitMap_c+(part.getClass -> ret)
-            }
             else
-            {
-                ret = getType(part).baseClasses.flatMap(s => interfaceTraitMap_s.get(s.asClass.toType)).distinct
                 partTraitMap_s = partTraitMap_s+(part.getClass -> ret)
-            }
         }
         return ret
     }
@@ -138,22 +136,19 @@ object MultipartGenerator
      */
     def registerTrait(s_interface:String, c_trait:String, s_trait:String)
     {
-        val iSymbol = mirror.staticClass(s_interface).asClass
         if(c_trait != null)
         {
-            val tSymbol = mirror.staticClass(c_trait).asClass
-            if(interfaceTraitMap_c.contains(iSymbol.toType))
-                System.err.println("Trait already registered for "+iSymbol)
+            if(interfaceTraitMap_c.contains(s_interface))
+                System.err.println("Trait already registered for "+s_interface)
             else
-                interfaceTraitMap_c = interfaceTraitMap_c+(iSymbol.toType->tSymbol.toType)
+                interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->c_trait)
         }
         if(s_trait != null)
         {
-            val tSymbol = mirror.staticClass(s_trait).asClass
-            if(interfaceTraitMap_s.contains(iSymbol.toType))
-                System.err.println("Trait already registered for "+iSymbol)
+            if(interfaceTraitMap_s.contains(s_interface))
+                System.err.println("Trait already registered for "+s_interface)
             else
-                interfaceTraitMap_s = interfaceTraitMap_s+(iSymbol.toType->tSymbol.toType)
+                interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->s_trait)
         }
     }
     
@@ -161,25 +156,24 @@ object MultipartGenerator
     
     def registerPassThroughInterface(s_interface:String, client:Boolean, server:Boolean)
     {
-        val iSymbol = mirror.staticClass(s_interface).asClass
-        val tType = factory.generatePassThroughTrait(iSymbol)
+        val tType = factory.generatePassThroughTrait(s_interface)
         if(client)
         {
-            if(interfaceTraitMap_c.contains(iSymbol.toType))
-                System.err.println("Trait already registered for "+iSymbol)
+            if(interfaceTraitMap_c.contains(s_interface))
+                System.err.println("Trait already registered for "+s_interface)
             else
-                interfaceTraitMap_c = interfaceTraitMap_c+(iSymbol.toType->tType)
+                interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->tType)
         }
         if(server)
         {
-            if(interfaceTraitMap_s.contains(iSymbol.toType))
-                System.err.println("Trait already registered for "+iSymbol)
+            if(interfaceTraitMap_s.contains(s_interface))
+                System.err.println("Trait already registered for "+s_interface)
             else
-                interfaceTraitMap_s = interfaceTraitMap_s+(iSymbol.toType->tType)
+                interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->tType)
         }
     }
     
-    def registerTileClass(clazz:Class[_ <: TileEntity], traits:Set[Type])
+    def registerTileClass(clazz:Class[_ <: TileEntity], traits:Set[String])
     {
         tileTraitMap=tileTraitMap+(clazz->traits)
         MultipartProxy.onTileClassBuilt(clazz)

@@ -5,7 +5,7 @@ import codechicken.multipart.TileMultipart
 
 trait IMultipartFactory
 {
-    def generatePassThroughTrait(iSymbol:ClassSymbol):Type
+    def generatePassThroughTrait(s_interface:String):String
     
-    def generateTile(types:Seq[Type], client:Boolean):TileMultipart
+    def generateTile(types:Seq[String], client:Boolean):TileMultipart
 }
