@@ -30,6 +30,7 @@ import codechicken.core.data.MCDataOutput
 import codechicken.core.data.MCDataInput
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.IFaceRenderer
+import codechicken.multipart.TSlottedPart
 
 object CommonMicroblock
 {
@@ -193,7 +194,7 @@ trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with
     }
 }
 
-abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TMicroOcclusion
+abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TMicroOcclusion with TSlottedPart
 {
     def microClass():MicroblockClass
     

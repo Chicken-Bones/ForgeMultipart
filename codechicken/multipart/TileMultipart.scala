@@ -42,18 +42,21 @@ import net.minecraft.entity.Entity
 trait TileMultipart extends TileEntity
 {
     var partList = ArrayBuffer[TMultiPart]()
-    var partMap = new Array[TMultiPart](27)
     
     private var doesTick = false
     
     def loadFrom(that:TileMultipart)//Potentially auto gen this
     {
         partList = that.partList
-        partMap = that.partMap
         doesTick = that.doesTick
         
         partList.foreach(_.bind(this))
     }
+    
+    /**
+     * Overidden in TSlottedTile when a part that goes in a slot is added
+     */
+    def partMap(slot:Int):TMultiPart = null
     
     def jPartList():List[TMultiPart] = partList.asJava
     
@@ -142,11 +145,6 @@ trait TileMultipart extends TileEntity
     {
         if(partList.contains(part))
             return false
-            
-        val slotMask = part.getSlotMask
-        for(i <- 0 until partMap.length)
-            if((slotMask&1<<i) != 0 && partMap(i) != null)
-                return false
         
         return occlusionTest(partList, part)
     }
@@ -194,11 +192,7 @@ trait TileMultipart extends TileEntity
             throw new IllegalArgumentException("Tried to add more than 250 parts to the one tile. You're doing it wrong")
         
         partList+=part
-        val mask = part.getSlotMask
-        for(i <- 0 until 27)
-            if ((mask&1<<i) > 0)
-                partMap(i) = part
-        
+        bindPart(part)
         part.bind(this)
         
         if(!doesTick && part.doesTick)
@@ -206,6 +200,11 @@ trait TileMultipart extends TileEntity
         
         partAdded(part)
     }
+    
+    /**
+     * Bind this part to an internal cache
+     */
+    def bindPart(part:TMultiPart){}
     
     def partAdded(part:TMultiPart){}
     
@@ -238,9 +237,6 @@ trait TileMultipart extends TileEntity
             throw new IllegalArgumentException("Tried to remove a non-existant part")
         
         partList-=part
-        for(i <- 0 until 27)
-            if(partMap(i) == part)
-                partMap(i) = null
         
         partRemoved(part, r)
         part.onRemoved()
@@ -267,8 +263,6 @@ trait TileMultipart extends TileEntity
     private[multipart] def loadParts(parts:ListBuffer[TMultiPart])
     {
         clearParts()
-        for(i <- 0 until partMap.length)
-            partMap(i) = null
         parts.foreach(p => addPart_do(p))
         if(worldObj != null)
             notifyPartChange()

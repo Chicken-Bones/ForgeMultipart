@@ -246,8 +246,6 @@ class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shap
     
     def getBounds = PostMicroClass.aBounds(shape)
     
-    override def getSlotMask = 0
-    
     def getOcclusionBoxes = Seq(getBounds)
     
     def getPartialOcclusionBoxes = getOcclusionBoxes
