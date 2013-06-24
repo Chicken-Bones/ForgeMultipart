@@ -35,7 +35,7 @@ object MultipartGenerator
         {
             def heirachy(clazz:Class[_]):Seq[Class[_]] =
             {
-                var superClasses:Seq[Class[_]] = clazz.getInterfaces:+clazz
+                var superClasses:Seq[Class[_]] = clazz.getInterfaces.flatMap(c => heirachy(c)):+clazz
                 if(clazz.getSuperclass != null)
                     superClasses = superClasses++heirachy(clazz.getSuperclass)
                 return superClasses
