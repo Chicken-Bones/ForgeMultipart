@@ -217,7 +217,7 @@ object ScalaCompilerFactory extends IMultipartFactory
     private def symbolToValDef(m:Symbol) =
         ValDef(Modifiers(PARAM), m.asTerm.name.decoded, Ident(m), EmptyTree)
     
-    private def passThroughMethod(tname:String, m:MethodSymbol):Tree =
+    private def passThroughMethod(tname:String, vname:String, m:MethodSymbol):Tree =
         DefDef(
             Modifiers(Flag.OVERRIDE), 
             m.name, 
@@ -226,7 +226,7 @@ object ScalaCompilerFactory extends IMultipartFactory
             TypeTree(), 
             Apply(
                Select(
-                   Select(This(tname), "impl"), 
+                   Select(This(tname), vname), 
                    m.name.toTermName),
                m.paramss.flatMap(_.map{m => 
                    Ident(m.name)
@@ -241,7 +241,8 @@ object ScalaCompilerFactory extends IMultipartFactory
     {
         val iSymbol = mirror.staticClass(s_interface)
         val tname = uniqueName(passThroughTraitName(iSymbol.name.decoded))
-        val methods = iSymbol.toType.members.filter(_.isJava).map(m => passThroughMethod(tname, m.asMethod))
+        val vname = tname+"_impl"
+        val methods = iSymbol.toType.members.filter(_.isJava).map(m => passThroughMethod(tname, vname, m.asMethod))
         val traitDef = 
             normalClassDef(
                 ABSTRACT | TRAIT, 
@@ -252,7 +253,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                 List(
                     ValDef(//pass through field
                         Modifiers(MUTABLE | DEFAULTINIT), 
-                        "impl", 
+                        vname, 
                         Ident(iSymbol), 
                         EmptyTree),
                     DefDef(
@@ -270,7 +271,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                                     Select(Ident("part"), "isInstanceOf"), 
                                     Ident(iSymbol)), 
                                 Apply(
-                                    Select(This(tname), "impl_$eq"), 
+                                    Select(This(tname), vname+"_$eq"), 
                                     TypeApply(
                                         Select(Ident("part"), "asInstanceOf"), 
                                         Ident(iSymbol))), 
@@ -294,9 +295,9 @@ object ScalaCompilerFactory extends IMultipartFactory
                             If(
                                 Apply(
                                     Select(Ident("part"), "$eq$eq"), 
-                                    Select(This(tname), "impl")), 
+                                    Select(This(tname), vname)), 
                                 Apply(
-                                    Select(This(tname), "impl_$eq"), 
+                                    Select(This(tname), vname+"_$eq"), 
                                     const(null)), 
                                 literalUnit), 
                             Apply(
@@ -322,7 +323,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                                         Ident(iSymbol)),
                                     "$amp$amp", 
                                     Invoke(
-                                        Select(This(tname), "impl"), 
+                                        Select(This(tname), vname), 
                                         "$bang$eq", 
                                         const(null))), 
                                 Return(const(false)),//return true
