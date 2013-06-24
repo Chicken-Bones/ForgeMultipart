@@ -9,9 +9,9 @@ trait TSlottedTile extends TileMultipart
 {
     var v_partMap = new Array[TMultiPart](27)
     
-    override def loadFrom(that:TileMultipart)
+    override def copyFrom(that:TileMultipart)
     {
-        super.loadFrom(that)
+        super.copyFrom(that)
         if(that.isInstanceOf[TSlottedTile])
             v_partMap = that.asInstanceOf[TSlottedTile].v_partMap
     }

@@ -12,6 +12,13 @@ trait TTankContainerTile extends TileMultipart with ITankContainer
 {
     var tankList = ListBuffer[ITankContainer]()
     
+    override def copyFrom(that:TileMultipart)
+    {
+        super.copyFrom(that)
+        if(that.isInstanceOf[TTankContainerTile])
+            tankList = that.asInstanceOf[TTankContainerTile].tankList
+    }
+    
     override def partAdded(part:TMultiPart)
     {
         super.partAdded(part)
@@ -24,13 +31,6 @@ trait TTankContainerTile extends TileMultipart with ITankContainer
         super.partRemoved(part, p)
         if(part.isInstanceOf[ITankContainer])
             tankList-=part.asInstanceOf[ITankContainer]
-    }
-    
-    override def loadFrom(that:TileMultipart)
-    {
-        super.loadFrom(that)
-        if(that.isInstanceOf[TTankContainerTile])
-            tankList = that.asInstanceOf[TTankContainerTile].tankList
     }
     
     override def clearParts()

@@ -73,7 +73,7 @@ abstract class TMultiPart
     def load(tag:NBTTagCompound){}
     
     def onPartChanged(){}
-    def onNeighbourChanged(){}
+    def onNeighborChanged(){}
     def onAdded() = onWorldJoin()
     def onRemoved() = onWorldSeparate()
     def onChunkLoad() = onWorldJoin()

@@ -45,11 +45,20 @@ trait TileMultipart extends TileEntity
     
     private var doesTick = false
     
-    def loadFrom(that:TileMultipart)//Potentially auto gen this
+    private[multipart] def from(that:TileMultipart)
+    {
+        copyFrom(that)
+        loadFrom(that)
+    }
+    
+    def copyFrom(that:TileMultipart)//Potentially auto gen this
     {
         partList = that.partList
         doesTick = that.doesTick
-        
+    }
+    
+    def loadFrom(that:TileMultipart)
+    {
         partList.foreach(_.bind(this))
     }
     
@@ -109,7 +118,7 @@ trait TileMultipart extends TileEntity
     def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)
     {
         TileMultipartObj.startOperation(this)
-        partList.foreach(_.onNeighbourChanged())
+        partList.foreach(_.onNeighborChanged())
         TileMultipartObj.finishOperation(this)
     }
     

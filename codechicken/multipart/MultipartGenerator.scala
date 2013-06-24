@@ -77,7 +77,7 @@ object MultipartGenerator
             {
                 ntile = factory.generateTile(partTraits++tileTraits, world.isRemote)
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
-                ntile.loadFrom(tile)
+                ntile.from(tile)
             }
         }
         else
@@ -118,7 +118,7 @@ object MultipartGenerator
         {
             val ntile = factory.generateTile(testSet.toSeq, client)
             tile.worldObj.setBlockTileEntity(tile.xCoord, tile.yCoord, tile.zCoord, ntile)
-            ntile.loadFrom(tile)
+            ntile.from(tile)
             return ntile
         }
         return tile
