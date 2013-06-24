@@ -172,14 +172,14 @@ trait TileMultipart extends TileEntity
     
     private[multipart] def addPart(part:TMultiPart)
     {
+        if(!worldObj.isRemote)
+            writeAddPart(part)
+            
         addPart_do(part)
         part.onAdded()
         notifyPartChange()
         markDirty()
         markRender()
-        
-        if(!worldObj.isRemote)
-            writeAddPart(part)
     }
     
     private[multipart] def writeAddPart(part:TMultiPart)
