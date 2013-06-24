@@ -1,8 +1,10 @@
 package codechicken.multipart.asm
 
-import scala.reflect.runtime.universe._
-import scala.tools.reflect.ToolBox
+import scala.reflect.runtime.{universe => ru}
+import ru._
 import Flag._
+import scala.tools.reflect.ToolBox
+import scala.collection.mutable.{Map => MMap}
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.TileMultipartClient
 import codechicken.multipart.handler.MultipartProxy
@@ -11,12 +13,53 @@ import codechicken.multipart.TMultiPart
 import cpw.mods.fml.relauncher.Side
 import codechicken.multipart.MultipartGenerator
 
+/**
+ * Adds top level code gen to toolboxes
+ * Scala 2.10 implementaton for https://github.com/scala/scala/pull/2662
+ */
+class ExtendedToolbox(tb:ToolBox[ru.type])
+{
+    def define(tree: ImplDef, pkg:String): Symbol = 
+    {
+        val compiler = tb.asInstanceOf[{ def compiler: scala.tools.nsc.Global }].compiler
+        val importer = compiler.mkImporter(ru)
+        val exporter = importer.reverse
+        val ctree: compiler.ImplDef = importer.importTree(tree).asInstanceOf[compiler.ImplDef]
+        def defineInternal(ctree: compiler.ImplDef): compiler.Symbol = 
+        {
+            import compiler._
+
+            val pdef = PackageDef(Ident(pkg:TermName), List(ctree))
+            val unit = new CompilationUnit(scala.reflect.internal.util.NoSourceFile)
+            unit.body = pdef
+            
+            val run = new Run
+            reporter.reset()
+            run.compileUnits(List(unit), run.namerPhase)
+            compiler.asInstanceOf[{ def throwIfErrors(): Unit }].throwIfErrors()
+
+            ctree.symbol
+        }
+        val csym: compiler.Symbol = defineInternal(ctree)
+        val usym = exporter.importSymbol(csym)
+        usym
+    }
+}
+
+object ExtendedToolbox
+{
+    implicit def extend(tb:ToolBox[ru.type]) = new ExtendedToolbox(tb)
+}
+
 object ScalaCompilerFactory extends IMultipartFactory
 {
+    import ExtendedToolbox._
+    
     private var ugenid = 0
     
     var mirror = scala.reflect.runtime.currentMirror
     var tb = mirror.mkToolBox()
+    private val definedTypes = MMap[String, TypeSymbol]()
     
     def getType(obj:Any) = mirror.classSymbol(obj.getClass).toType
     
@@ -27,9 +70,9 @@ object ScalaCompilerFactory extends IMultipartFactory
     def Invoke(s:Tree, n:TermName, args:Tree*) = Apply(Select(s, n), args:_*)
     def literalUnit = Literal(Constant(()))
     def const(o:Any) = Literal(Constant(o))
-    def PkgIdent(s:String):Tree = Ident(mirror.staticClass(s))
+    def PkgIdent(s:String):Tree = Ident(typeSymbol(s))
     
-    def typeSymbol(s:String):TypeSymbol = mirror.staticClass(s)
+    def typeSymbol(s:String) = definedTypes.getOrElse(s, mirror.staticClass(s))
     
     def defaultConstructor() = 
         DefDef(
@@ -62,6 +105,13 @@ object ScalaCompilerFactory extends IMultipartFactory
         val ret = prefix+"$$"+ugenid
         ugenid += 1
         return ret
+    }
+    
+    def define(tree: ImplDef): TypeSymbol =
+    {
+        val sym = tb.define(tree, "scfactory").asType
+        definedTypes+=((sym.fullName, sym))
+        return sym
     }
     
     abstract class Generator
@@ -108,16 +158,22 @@ object ScalaCompilerFactory extends IMultipartFactory
         
         def generator():Generator = 
         {
-            val s = System.currentTimeMillis
+            val startTime = System.currentTimeMillis
             val defClass = 
                 normalClassDef(
                     NoFlags,
                     uniqueName("TileMultipart_cmp"),
-                    set.map(s => mirror.staticClass(s).asType).toList, 
+                    set.map(s => typeSymbol(s)).toList, 
                     List(
                         defaultConstructor
                     )
                 )
+            val csym = define(defClass)
+            
+            val defClassOf = TypeApply(Ident("classOf"), Ident(csym))
+            val cmpClass = tb.eval(defClassOf).asInstanceOf[Class[_ <: TileMultipart]]
+            MultipartGenerator.registerTileClass(cmpClass, types.toSet)
+            
             val defGenClass = 
                 normalClassDef(
                     FINAL, 
@@ -132,23 +188,23 @@ object ScalaCompilerFactory extends IMultipartFactory
                             List(List()), 
                             TypeTree(), 
                             Invoke(
-                                New(Ident(defClass.name)), 
+                                New(Ident(csym)), 
                                 nme.CONSTRUCTOR
                             )
                         )
                     )
                 )
+            val gsym = define(defGenClass)
+            
             val constructGenClass = 
                 Invoke(//return new generator instance
-                    New(Ident(defGenClass.name)), 
+                    New(Ident(gsym)), 
                     nme.CONSTRUCTOR
                 )
             
-            val v = tb.eval(Block(defClass, defGenClass, constructGenClass)).asInstanceOf[Generator]
-            val dummy = v.generate
-            MultipartGenerator.registerTileClass(dummy.getClass, types.toSet)
-            println("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-s))
-            return v.asInstanceOf[Generator]
+            val genInst = tb.eval(Block(defGenClass, constructGenClass)).asInstanceOf[Generator]
+            println("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
+            return genInst
         }
     }
     
@@ -188,7 +244,7 @@ object ScalaCompilerFactory extends IMultipartFactory
         val methods = iSymbol.toType.members.filter(_.isJava).map(m => passThroughMethod(tname, m.asMethod))
         val traitDef = 
             normalClassDef(
-                ABSTRACT | INTERFACE | TRAIT, 
+                ABSTRACT | TRAIT, 
                 tname, 
                 List(
                     typeSymbol("codechicken.multipart.TileMultipart"), 
@@ -251,50 +307,38 @@ object ScalaCompilerFactory extends IMultipartFactory
                         )), 
                     DefDef(
                         Modifiers(OVERRIDE), 
-                        "occlusionTest":TermName, 
+                        "canAddPart":TermName, 
                         List(),
                         List(
                             List(
-                                ValDef(Modifiers(PARAM), "parts", 
-                                    AppliedTypeTree(
-                                        PkgIdent("scala.collection.Seq"),
-                                        List(PkgIdent("codechicken.multipart.TMultiPart"))), 
-                                    EmptyTree),
-                                ValDef(Modifiers(PARAM), "npart", PkgIdent("codechicken.multipart.TMultiPart"), EmptyTree)
+                                ValDef(Modifiers(PARAM), "part", PkgIdent("codechicken.multipart.TMultiPart"), EmptyTree)
                             )), 
-                        TypeTree(), 
-                        Invoke(
-                            Invoke(
-                                Select(
-                                    TypeApply(
-                                        Select(Ident("npart"), "isInstanceOf"), 
-                                        Ident(iSymbol)), 
-                                    "unary_$bang"), 
-                                "$bar$bar", 
+                        Ident("Boolean":TypeName), 
+                        Block(
+                            If(//if(part.isInstanceOf[I] && impl != null)
                                 Invoke(
-                                    Select(This(tname), "impl"), 
-                                    "$eq$eq", 
-                                    const(null))), 
-                            "$amp$amp",
-                            Invoke(
+                                    TypeApply(
+                                        Select(Ident("part"), "isInstanceOf"), 
+                                        Ident(iSymbol)),
+                                    "$amp$amp", 
+                                    Invoke(
+                                        Select(This(tname), "impl"), 
+                                        "$bang$eq", 
+                                        const(null))), 
+                                Return(const(false)),//return true
+                                literalUnit),//else nothing
+                            Invoke(//call super
                                 Super(This(tpnme.EMPTY), tpnme.EMPTY), 
-                                "occlusionTest", 
-                                Ident("parts"),
-                                Ident("npart")
+                                "canAddPart", 
+                                Ident("part")
                             )
                         )
                     )
                 )
                 ++methods
             )
-                
-        val retType = 
-            TypeApply(
-                Ident("classOf"), 
-                Ident(tname:TypeName))
         
-        val clazz = tb.eval(Block(traitDef, retType)).asInstanceOf[Class[_]]
-        return clazz.getName
+        return define(traitDef).fullName
     }
     
     def generateTile(types:Seq[String], client:Boolean) = SuperSet(types, client).generate        
