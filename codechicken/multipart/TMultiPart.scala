@@ -94,8 +94,3 @@ abstract class TMultiPart
     def sendDescUpdate() = writeDesc(tile.getWriteStream(this))
     def scheduleTick(ticks:Int) = TickScheduler.scheduleTick(this, ticks)
 }
-
-trait TFacePart extends TMultiPart
-{
-    def solid(side:Int):Boolean = true
-}

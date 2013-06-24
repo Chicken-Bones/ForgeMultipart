@@ -122,8 +122,11 @@ trait TileMultipart extends TileEntity
     
     def isSolid(side:Int):Boolean = 
     {
-        val part = partMap(PartMap.face(side).i)
-        if(part != null) part.asInstanceOf[TFacePart].solid(side) else false
+        val part = partMap(side)
+        if(part != null) 
+            return part.asInstanceOf[TFacePart].solid(side)
+        
+        return false
     }
     
     private def setTicking(tick:Boolean)
