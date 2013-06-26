@@ -13,6 +13,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.asm.IMultipartFactory
 import codechicken.multipart.asm.ScalaCompilerFactory
+import codechicken.multipart.asm.ASMExtensionFactory
 
 object MultipartGenerator
 {
@@ -22,7 +23,7 @@ object MultipartGenerator
     private var partTraitMap_c:Map[Class[_], Seq[String]] = Map()
     private var partTraitMap_s:Map[Class[_], Seq[String]] = Map()
     
-    var factory:IMultipartFactory = ScalaCompilerFactory
+    var factory:IMultipartFactory = ASMExtensionFactory
     
     def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
     
@@ -141,14 +142,20 @@ object MultipartGenerator
             if(interfaceTraitMap_c.contains(s_interface))
                 System.err.println("Trait already registered for "+s_interface)
             else
+            {
                 interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->c_trait)
+                factory.registerTrait(s_interface, c_trait, true)
+            }
         }
         if(s_trait != null)
         {
             if(interfaceTraitMap_s.contains(s_interface))
                 System.err.println("Trait already registered for "+s_interface)
             else
+            {
                 interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->s_trait)
+                factory.registerTrait(s_interface, s_trait, false)
+            }
         }
     }
     

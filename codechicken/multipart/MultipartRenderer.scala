@@ -39,7 +39,7 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
         CCRenderState.useNormals(true)
         
         val pos = new Vector3(x, y, z)
-        tmpart.renderDynamic(pos, f)
+        tmpart.renderDynamic(pos, f, pass)
     }
     
     override def getRenderId = TileMultipartObj.renderID

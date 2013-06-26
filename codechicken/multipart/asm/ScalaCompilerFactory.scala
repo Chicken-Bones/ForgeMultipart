@@ -57,8 +57,8 @@ object ScalaCompilerFactory extends IMultipartFactory
     
     private var ugenid = 0
     
-    var mirror = scala.reflect.runtime.currentMirror
-    var tb = mirror.mkToolBox()
+    val mirror = scala.reflect.runtime.currentMirror
+    val tb = mirror.mkToolBox()
     private val definedTypes = MMap[String, TypeSymbol]()
     
     def getType(obj:Any) = mirror.classSymbol(obj.getClass).toType
@@ -114,7 +114,7 @@ object ScalaCompilerFactory extends IMultipartFactory
         return sym
     }
     
-    abstract class Generator
+    abstract class Constructor
     {
         def generate():TileMultipart
     }
@@ -147,7 +147,7 @@ object ScalaCompilerFactory extends IMultipartFactory
             return generatorMap.getOrElse(this, gen_sync).generate
         }
         
-        def gen_sync():Generator = tb.synchronized
+        def gen_sync():Constructor = tb.synchronized
         {
             return generatorMap.getOrElse(this, {
                 var gen = generator
@@ -156,7 +156,7 @@ object ScalaCompilerFactory extends IMultipartFactory
             })
         }
         
-        def generator():Generator = 
+        def generator():Constructor = 
         {
             val startTime = System.currentTimeMillis
             val defClass = 
@@ -178,7 +178,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                 normalClassDef(
                     FINAL, 
                     uniqueName("TileMultipart_gen"), 
-                    List(typeOf[Generator].typeSymbol.asType), 
+                    List(typeOf[Constructor].typeSymbol.asType), 
                     List(//methods
                         defaultConstructor, 
                         DefDef(
@@ -202,46 +202,49 @@ object ScalaCompilerFactory extends IMultipartFactory
                     nme.CONSTRUCTOR
                 )
             
-            val genInst = tb.eval(Block(defGenClass, constructGenClass)).asInstanceOf[Generator]
+            val genInst = tb.eval(Block(defGenClass, constructGenClass)).asInstanceOf[Constructor]
             println("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
             return genInst
         }
     }
     
-    private var generatorMap:Map[SuperSet, Generator] = Map()
+    private var generatorMap:Map[SuperSet, Constructor] = Map()
     
     SuperSet(Seq(), false).generate//default impl, boots generator
     if(FMLCommonHandler.instance.getEffectiveSide == Side.CLIENT)
         SuperSet(Seq(), true).generate
     
-    private def symbolToValDef(m:Symbol) =
-        ValDef(Modifiers(PARAM), m.asTerm.name.decoded, Ident(m), EmptyTree)
-    
-    private def passThroughMethod(tname:String, vname:String, m:MethodSymbol):Tree =
-        DefDef(
-            Modifiers(Flag.OVERRIDE), 
-            m.name, 
-            List(), 
-            m.paramss.map(_.map(m => symbolToValDef(m))), 
-            TypeTree(), 
-            Apply(
-               Select(
-                   Select(This(tname), vname), 
-                   m.name.toTermName),
-               m.paramss.flatMap(_.map{m => 
-                   Ident(m.name)
-               })
-            )
-        )
-    
-    private def passThroughTraitName(iName:String) = 
-        "T" + (if(iName.startsWith("I")) iName.substring(1) else iName)
+    def registerTrait(s_interface:String, s_trait:String, client:Boolean){}
     
     def generatePassThroughTrait(s_interface:String):String =
     {
+        def passThroughTraitName(iName:String) = 
+                "T" + (if(iName.startsWith("I")) iName.substring(1) else iName)
+        
         val iSymbol = mirror.staticClass(s_interface)
         val tname = uniqueName(passThroughTraitName(iSymbol.name.decoded))
         val vname = tname+"_impl"
+        
+        def symbolToValDef(m:Symbol) =
+            ValDef(Modifiers(PARAM), m.asTerm.name.decoded, Ident(m), EmptyTree)
+    
+        def passThroughMethod(tname:String, vname:String, m:MethodSymbol):Tree =
+            DefDef(
+                Modifiers(Flag.OVERRIDE), 
+                m.name, 
+                List(), 
+                m.paramss.map(_.map(m => symbolToValDef(m))), 
+                TypeTree(), 
+                Apply(
+                   Select(
+                       Select(This(tname), vname), 
+                       m.name.toTermName),
+                   m.paramss.flatMap(_.map{m => 
+                       Ident(m.name)
+                   })
+                )
+            )
+            
         val methods = iSymbol.toType.members.filter(_.isJava).map(m => passThroughMethod(tname, vname, m.asMethod))
         val traitDef = 
             normalClassDef(
@@ -258,7 +261,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                         EmptyTree),
                     DefDef(
                         Modifiers(OVERRIDE), 
-                        "partAdded":TermName, 
+                        "bindPart":TermName, 
                         List(),
                         List(
                             List(
@@ -277,7 +280,7 @@ object ScalaCompilerFactory extends IMultipartFactory
                                         Ident(iSymbol))), 
                                     literalUnit), 
                             Apply(
-                                Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), "partAdded"), 
+                                Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), "bindPart"), 
                                 Ident("part")
                             )
                         )),
@@ -342,5 +345,5 @@ object ScalaCompilerFactory extends IMultipartFactory
         return define(traitDef).fullName
     }
     
-    def generateTile(types:Seq[String], client:Boolean) = SuperSet(types, client).generate        
+    def generateTile(types:Seq[String], client:Boolean) = SuperSet(types, client).generate
 }

@@ -114,7 +114,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     }
     
     @Override
-    public void onNeighbourChanged()
+    public void onNeighborChanged()
     {
         if(!world().isRemote)
         {
@@ -135,7 +135,8 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
         if(isBeingPowered() == active())
             toggle();
     }
-    
+
+    @Override
     public void randomUpdate()
     {
         scheduledTick();
@@ -210,7 +211,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     {
         if(active())
             tile().notifyNeighborChange(1);
-        onNeighbourChanged();
+        onNeighborChanged();
     }
 
     @Override

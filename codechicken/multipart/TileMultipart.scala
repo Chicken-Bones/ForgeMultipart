@@ -39,7 +39,7 @@ import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
 
-trait TileMultipart extends TileEntity
+class TileMultipart extends TileEntity
 {
     var partList = ArrayBuffer[TMultiPart]()
     
@@ -186,6 +186,7 @@ trait TileMultipart extends TileEntity
             
         addPart_do(part)
         part.onAdded()
+        partAdded(part)
         notifyPartChange()
         markDirty()
         markRender()
@@ -209,8 +210,6 @@ trait TileMultipart extends TileEntity
         
         if(!doesTick && part.doesTick)
             setTicking(true)
-        
-        partAdded(part)
     }
     
     /**
@@ -349,19 +348,25 @@ trait TileMultipart extends TileEntity
     }
 }
 
-trait TileMultipartClient extends TileMultipart
+class TileMultipartClient extends TileMultipart
 {
     def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int)
     {
         partList.foreach(part => part.renderStatic(pos, olm, pass))
     }
     
-    def renderDynamic(pos:Vector3, frame:Float)
+    def renderDynamic(pos:Vector3, frame:Float, pass:Int)
     {
-        partList.foreach(part => part.renderDynamic(pos, frame))
+        partList.foreach(part => part.renderDynamic(pos, frame, pass:Int))
     }
     
     def randomDisplayTick(random:Random){}
+    
+    override def shouldRenderInPass(pass:Int) = 
+    {
+        MultipartRenderer.pass = pass
+        true
+    }
 }
 
 object TileMultipartObj

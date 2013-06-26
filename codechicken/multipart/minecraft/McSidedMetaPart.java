@@ -19,7 +19,8 @@ public abstract class McSidedMetaPart extends McMetaPart
     
     public abstract int sideForMeta(int meta);
     
-    public void onNeighbourChanged()
+    @Override
+    public void onNeighborChanged()
     {
         if(!world().isRemote)
             dropIfCantStay();

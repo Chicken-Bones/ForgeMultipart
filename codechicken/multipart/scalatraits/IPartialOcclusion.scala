@@ -5,7 +5,7 @@ import codechicken.multipart.TMultiPart
 import codechicken.multipart.JPartialOcclusion
 import codechicken.multipart.PartialOcclusionTest
 
-trait TPartialOcclusionTile extends TileMultipart
+class TPartialOcclusionTile extends TileMultipart
 {
     override def occlusionTest(parts:Seq[TMultiPart], npart:TMultiPart):Boolean =
     {
@@ -18,11 +18,13 @@ trait TPartialOcclusionTile extends TileMultipart
     def partialOcclusionTest(parts:Seq[TMultiPart]):Boolean =
     {
         val test = new PartialOcclusionTest(parts.length)
-        for(i <- 0 until parts.length)
+        var i = 0
+        while(i < parts.length)
         {
             val part = parts(i)
             if(part.isInstanceOf[JPartialOcclusion])
                 test.fill(i, part.asInstanceOf[JPartialOcclusion])
+            i+=1
         }
         return test()
     }

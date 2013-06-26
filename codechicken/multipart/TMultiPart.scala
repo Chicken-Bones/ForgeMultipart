@@ -58,7 +58,7 @@ abstract class TMultiPart
     @SideOnly(Side.CLIENT)
     def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int){}
     @SideOnly(Side.CLIENT)
-    def renderDynamic(pos:Vector3, frame:Float){}
+    def renderDynamic(pos:Vector3, frame:Float, pass:Int){}
     @SideOnly(Side.CLIENT)
     def drawBreaking(renderBlocks:RenderBlocks){}
     
