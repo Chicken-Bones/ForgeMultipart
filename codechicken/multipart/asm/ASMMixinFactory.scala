@@ -81,13 +81,17 @@ object ASMMixinFactory extends IMultipartFactory
         
         def generator():Constructor = 
         {
+            val startTime = System.currentTimeMillis
+            
             val cmpClass = if(!types.isEmpty)
                 mixinClasses(uniqueName("TileMultipart_cmp"), set.head, set.drop(1))
             else
                 cl.loadClass(baseType)
             
             MultipartGenerator.registerTileClass(cmpClass.asInstanceOf[TMClass], types.toSet)
-            return constructor(cmpClass)
+            val c = constructor(cmpClass)
+            DebugPrinter.log("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
+            return c
         }
     }
         

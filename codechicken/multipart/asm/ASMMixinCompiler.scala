@@ -22,20 +22,38 @@ import java.lang.reflect.Modifier
 
 object DebugPrinter
 {
+    def debug = !obfuscated
+    
+    private var permGenUsed = 0
     val dir = new File("asm/multipart")
-    if(!dir.exists)
-        dir.mkdirs()
-    for(file <- dir.listFiles)
-        file.delete
-        
-    def defined(name:String, bytes:Array[Byte])
+    if(debug)
     {
+        if(!dir.exists)
+            dir.mkdirs()
+        for(file <- dir.listFiles)
+            file.delete
+    }
+    
+    def dump(name:String, bytes:Array[Byte])
+    {
+        if(!debug) return
+        
         val fileout = new File(dir, name.replace('/', '#')+".txt")
         val pout = new PrintWriter(fileout)
         
         new ClassReader(bytes).accept(new TraceClassVisitor(null, new Textifier(), pout), 0)
         pout.close()
     }
+    
+    def defined(name:String, bytes:Array[Byte])
+    {
+        if((permGenUsed+bytes.length)/16000 != permGenUsed/16000)
+            log((permGenUsed+bytes.length)+" bytes of permGen has been used by ASMMixinCompiler");
+        
+        permGenUsed += bytes.length
+    }
+    
+    def log(msg:String) = if(debug) println(msg)
 }
 
 object ASMMixinCompiler
@@ -50,6 +68,7 @@ object ASMMixinCompiler
     def define(name:String, bytes:Array[Byte]) = 
     {
         internalDefine(name, bytes)
+        DebugPrinter.defined(name, bytes)
         m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
     }
     
@@ -57,7 +76,7 @@ object ASMMixinCompiler
     {
         traitByteMap.put(name.replace('.', '/'), bytes)
         BaseNodeInfo.clear(name)
-        DebugPrinter.defined(name, bytes)
+        DebugPrinter.dump(name, bytes)
     }
     
     def classNode(name:String) = traitByteMap.getOrElseUpdate(name.replace('.', '/'), cl.getClassBytes(name.replace('/', '.'))) match {
