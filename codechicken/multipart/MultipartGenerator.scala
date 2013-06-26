@@ -13,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.asm.IMultipartFactory
 import codechicken.multipart.asm.ScalaCompilerFactory
-import codechicken.multipart.asm.ASMExtensionFactory
+import codechicken.multipart.asm.ASMMixinFactory
 
 object MultipartGenerator
 {
@@ -23,7 +23,7 @@ object MultipartGenerator
     private var partTraitMap_c:Map[Class[_], Seq[String]] = Map()
     private var partTraitMap_s:Map[Class[_], Seq[String]] = Map()
     
-    var factory:IMultipartFactory = ASMExtensionFactory
+    var factory:IMultipartFactory = ASMMixinFactory
     
     def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
     

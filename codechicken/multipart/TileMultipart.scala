@@ -51,7 +51,11 @@ class TileMultipart extends TileEntity
         loadFrom(that)
     }
     
-    def copyFrom(that:TileMultipart)//Potentially auto gen this
+    /**
+     * This method should be used for copying all the data from the fields in that container tile. 
+     * This method will be automatically generated on java tile traits with fields if it is not overridden.
+     */
+    def copyFrom(that:TileMultipart)
     {
         partList = that.partList
         doesTick = that.doesTick
