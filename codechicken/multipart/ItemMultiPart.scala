@@ -8,7 +8,9 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.world.World
 import codechicken.core.vec.BlockCoord
 
-abstract class ItemMultiPart(id:Int) extends Item(id)
+abstract class JItemMultiPart(id:Int) extends Item(id) with TItemMultiPart
+
+trait TItemMultiPart extends Item
 {
     def getHitDepth(vhit:Vector3, side:Int):Double = 
         vhit.copy.scalarProject(Rotation.axes(side)) + (side%2^1)

@@ -507,9 +507,9 @@ object TileMultipart
     
     private val operationSync = new OperationSynchroniser
     
-    def startOperation(tile:TileMultipart) = operationSync.startOperation(tile)
+    def startOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.startOperation(tile)
     
-    def finishOperation(tile:TileMultipart) = operationSync.finishOperation(tile)
+    def finishOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.finishOperation(tile)
         
     def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean = operationSync.queueRemoval(tile, part)
     
