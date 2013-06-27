@@ -6,7 +6,6 @@ import net.minecraft.util.MovingObjectPosition
 import codechicken.multipart.TFacePart
 import codechicken.core.vec.BlockCoord
 import codechicken.core.vec.Cuboid6
-import codechicken.core.raytracer.SelectionBox
 import codechicken.core.vec.Rotation
 import codechicken.core.vec.Vector3
 import codechicken.multipart.TNormalOcclusion
@@ -17,6 +16,8 @@ import codechicken.core.render.IconTransformation
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.CCRenderState
 import scala.collection.JavaConversions._
+import Rotation._
+import Vector3._
 
 object HollowPlacement extends PlacementProperties
 {
@@ -37,20 +38,19 @@ object HollowMicroClass extends MicroblockClass
     var occBounds:Array[Cuboid6] = new Array(256)
     for(s <- 0 until 6)
     {
-        val transform = Rotation.sideRotations(s).at(Vector3.center)
+        val transform = sideRotations(s).at(center)
         for(t <- 1 until 8)
         {
             val d = t/8D
             val w1 = 1/8D
             val w2 = 3/16D
             pBoxes(t<<4|s) = Seq(
-                new SelectionBox(new Cuboid6(0, 0, 0, w1, d, 1)),
-                new SelectionBox(new Cuboid6(1-w1, 0, 0, 1, d, 1)),
-                new SelectionBox(new Cuboid6(w1, 0, 0, 1-w1, d, w1)),
-                new SelectionBox(new Cuboid6(w1, 0, 1-w1, 1-w1, d, 1)))
-                .map(_.transform(transform).bound)
-            occBounds(t<<4|s) = new SelectionBox(new Cuboid6(1/8D, 0, 1/8D, 7/8D, d, 7/8D))
-                .transform(transform).bound
+                new Cuboid6(0, 0, 0, w1, d, 1),
+                new Cuboid6(1-w1, 0, 0, 1, d, 1),
+                new Cuboid6(w1, 0, 0, 1-w1, d, w1),
+                new Cuboid6(w1, 0, 1-w1, 1-w1, d, 1))
+                .map(_.transform(transform))
+            occBounds(t<<4|s) = new Cuboid6(1/8D, 0, 1/8D, 7/8D, d, 7/8D).transform(transform)
         }
     }
     
@@ -91,7 +91,7 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
         val icont = new IconTransformation(renderBlocks.overrideBlockTexture)
         renderHollow(Vector3.fromTileEntity(tile), null, null, getBounds, 0, false, 
             (pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)=>
-                RenderUtils.renderBlock(c, sideMask, pos, null, -1, icont))
+                RenderUtils.renderBlock(c, sideMask, pos.translation(), icont, null))
     }
     
     override def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)

@@ -9,6 +9,7 @@ import codechicken.core.vec.Vector3
 import codechicken.core.render.IconTransformation
 import scala.collection.JavaConversions._
 import java.lang.Iterable
+import codechicken.core.vec.Translation
 
 abstract class JCuboidPart extends TCuboidPart
 
@@ -23,6 +24,6 @@ trait TCuboidPart extends TMultiPart
     override def drawBreaking(renderBlocks:RenderBlocks)
     {
         CCRenderState.reset()
-        RenderUtils.renderBlock(getBounds, 0, Vector3.fromTileEntity(tile), null, -1, new IconTransformation(renderBlocks.overrideBlockTexture))
+        RenderUtils.renderBlock(getBounds, 0, new Translation(x, y, z), new IconTransformation(renderBlocks.overrideBlockTexture), null)
     }
 }

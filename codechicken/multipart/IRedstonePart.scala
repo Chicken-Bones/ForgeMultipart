@@ -59,17 +59,17 @@ object RedstoneInteractions
     val vanillaSideMap = Array(-2, -1, 0, 2, 3, 1)
     val sideVanillaMap = Array(1, 2, 5, 3, 4)
     
-    def getWeakPowerTo(p:TMultiPart, side:Int):Int =
+    def getPowerTo(p:TMultiPart, side:Int):Int =
     {
         val tile = p.tile
-        return getWeakPowerTo(tile.worldObj, tile.xCoord, tile.yCoord, tile.zCoord, side, 
+        return getPowerTo(tile.worldObj, tile.xCoord, tile.yCoord, tile.zCoord, side,
                 tile.asInstanceOf[IRedstoneTile].openConnections(side)&connectionMask(p, side))
     }
     
-    def getWeakPowerTo(world:World, x:Int, y:Int, z:Int, side:Int, mask:Int):Int =
-        getWeakPower(world, x+offsetsXForSide(side), y+offsetsYForSide(side), z+offsetsZForSide(side), side^1, mask)
+    def getPowerTo(world:World, x:Int, y:Int, z:Int, side:Int, mask:Int):Int =
+        getPower(world, x+offsetsXForSide(side), y+offsetsYForSide(side), z+offsetsZForSide(side), side^1, mask)
         
-    def getWeakPower(world:World, x:Int, y:Int, z:Int, side:Int, mask:Int):Int =
+    def getPower(world:World, x:Int, y:Int, z:Int, side:Int, mask:Int):Int =
     {
         val tile = world.getBlockTileEntity(x, y, z)
         if(tile.isInstanceOf[IRedstoneConnector])
@@ -84,7 +84,12 @@ object RedstoneInteractions
         
         val vmask = vanillaConnectionMask(block, world, x, y, z, side, true)
         if((vmask&mask) > 0)
-            return world.getIndirectPowerLevelTo(x, y, z, side^1)
+        {
+            var m = world.getIndirectPowerLevelTo(x, y, z, side^1)
+            if(m < 15 && block == Block.redstoneWire)
+                m = Math.max(m, world.getBlockMetadata(x, y, z))//painful vanilla kludge
+            return m
+        }
         return 0
     }
     
@@ -98,7 +103,7 @@ object RedstoneInteractions
         if(p.isInstanceOf[IRedstonePart] && p.asInstanceOf[IRedstonePart].canConnectRedstone(side))
         {
             if(p.isInstanceOf[IFaceRedstonePart])
-                return rotationTo(side, p.asInstanceOf[IFaceRedstonePart].getFace)
+                return 1<<rotationTo(side&6, p.asInstanceOf[IFaceRedstonePart].getFace)
             return 0x1F
         }
         return 0

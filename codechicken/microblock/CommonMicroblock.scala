@@ -85,10 +85,9 @@ import CommonMicroblock._
         if(olm != null)
             lightMatrix = olm.lightMatrix
             
-        RenderUtils.renderBlock(c, sideMask, pos, lightMatrix, 
-            new IFaceRenderer()
+        RenderUtils.renderBlock(c, sideMask, new IFaceRenderer()
             {
-                def renderFace(face:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix) = 
+                def renderFace(face:Array[Vertex5], side:Int) = 
                     mat.renderMicroFace(face, side, pos, lightMatrix, MicroblockClient.this)
             })
     }

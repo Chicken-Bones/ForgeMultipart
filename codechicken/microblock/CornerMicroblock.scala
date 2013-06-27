@@ -3,7 +3,7 @@ package codechicken.microblock
 import codechicken.core.vec.Cuboid6
 import codechicken.core.vec.Scale
 import codechicken.core.vec.Vector3
-import codechicken.core.raytracer.SelectionBox
+import Vector3._
 
 object CornerPlacement extends PlacementProperties
 {
@@ -23,13 +23,12 @@ object CornerMicroClass extends MicroblockClass
         val rx = if((s&4) != 0) -1 else 1
         val ry = if((s&1) != 0) -1 else 1
         val rz = if((s&2) != 0) -1 else 1
-        val transform = new Scale(new Vector3(rx, ry, rz)).at(Vector3.center)
+        val transform = new Scale(new Vector3(rx, ry, rz)).at(center)
         
         for(t <- 1 until 8)
         {
             val d = t/8D
-            aBounds(t<<4|s) = new SelectionBox(new Cuboid6(0, 0, 0, d, d, d))
-                .transform(transform).bound
+            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, d, d, d).transform(transform)
         }
     }
     

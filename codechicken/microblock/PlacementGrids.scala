@@ -4,6 +4,7 @@ import codechicken.core.vec.Vector3
 import org.lwjgl.opengl.GL11
 import codechicken.core.vec.BlockCoord
 import codechicken.core.vec.Rotation
+import Rotation._
 
 trait PlacementGrid
 {
@@ -16,8 +17,8 @@ trait PlacementGrid
         val pos = new BlockCoord(hit)
         GL11.glPushMatrix()
         GL11.glTranslated(pos.x+0.5, pos.y+0.5, pos.z+0.5)
-        Rotation.sideRotations(side).glApply()
-        val rhit = new Vector3(pos.x+0.5, pos.y+0.5, pos.z+0.5).subtract(hit).rotate(Rotation.sideQuatsR(side^1))
+        sideRotations(side).glApply()
+        val rhit = new Vector3(pos.x+0.5, pos.y+0.5, pos.z+0.5).subtract(hit).apply(sideRotations(side^1).inverse)
         GL11.glTranslated(0, rhit.y-0.002, 0)
     }
 }

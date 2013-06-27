@@ -1,6 +1,6 @@
 package codechicken.multipart
 
-trait TEdgePart extends TMultiPart
+trait TEdgePart extends TSlottedPart
 {
     def conductsRedstone = false
 }

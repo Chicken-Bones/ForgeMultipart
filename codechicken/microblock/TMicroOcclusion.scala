@@ -9,69 +9,22 @@ import codechicken.multipart.PartMap._
 
 object MicroOcclusion
 {
-    def shrink(renderBounds:Cuboid6, b:Cuboid6, side:Int)
+    def shrink(renderBounds:Cuboid6, b:Cuboid6, side:Int) = side match
     {
-        side match
-        {
-            case -1 => 
-            case 0 => if(renderBounds.min.y < b.max.y)renderBounds.min.y = b.max.y
-            case 1 => if(renderBounds.max.y > b.min.y)renderBounds.max.y = b.min.y
-            case 2 => if(renderBounds.min.z < b.max.z)renderBounds.min.z = b.max.z
-            case 3 => if(renderBounds.max.z > b.min.z)renderBounds.max.z = b.min.z
-            case 4 => if(renderBounds.min.x < b.max.x)renderBounds.min.x = b.max.x
-            case 5 => if(renderBounds.max.x > b.min.x)renderBounds.max.x = b.min.x
-        }
-    }
-}
-
-trait TMicroOcclusionClient extends TMicroOcclusion
-{
-    var renderBounds:Cuboid6 = _
-    var renderMask:Int = _
-    
-    def isTransparent():Boolean
-    
-    override def onPartChanged()
-    {
-        super.onPartChanged()
-        recalcBounds()
+        case -1 => 
+        case 0 => if(renderBounds.min.y < b.max.y)renderBounds.min.y = b.max.y
+        case 1 => if(renderBounds.max.y > b.min.y)renderBounds.max.y = b.min.y
+        case 2 => if(renderBounds.min.z < b.max.z)renderBounds.min.z = b.max.z
+        case 3 => if(renderBounds.max.z > b.min.z)renderBounds.max.z = b.min.z
+        case 4 => if(renderBounds.min.x < b.max.x)renderBounds.min.x = b.max.x
+        case 5 => if(renderBounds.max.x > b.min.x)renderBounds.max.x = b.min.x
     }
     
-    def recalcBounds()
+    def shrinkFrom(p:JMicroShrinkRender, other:JMicroShrinkRender, renderBounds:Cuboid6):Int =
     {
-        renderBounds = getBounds.copy
-        if(getSlot < 6)
-            shrink(6)
-        else if(getSlot < 15)
-            shrink(15)
-        else 
-            shrink(27)
-    }
-    
-    def thisShrinks(other:TMicroOcclusionClient):Boolean =
-    {
-        val shape1 = shapePriority
-        val shape2 = other.shapePriority
-        
-        if(shape1 != shape2)return shape1 > shape2
-        if(getSlot < 6)//transparency takes precedence for covers
+        if(shrinkTest(p, other))
         {
-            if(isTransparent != other.isTransparent) return isTransparent
-            if(getSize != other.getSize) return getSize < other.getSize
-        }
-        else
-        {
-            if(getSize != other.getSize) return getSize < other.getSize
-            if(isTransparent != other.isTransparent) return isTransparent
-        }
-        return getSlot < other.getSlot
-    }
-    
-    def shrinkThis(other:TMicroOcclusionClient)
-    {
-        if(thisShrinks(other))
-        {
-            MicroOcclusion.shrink(renderBounds, other.getBounds, shrinkSide(getSlot, other.getSlot))
+            shrink(renderBounds, other.getBounds, shrinkSide(p.getSlot, other.getSlot))
         }
         else if(other.getSlot < 6 && !other.isTransparent)//other gets full face, we didn't shrink, flag rendermask
         {
@@ -83,8 +36,24 @@ trait TMicroOcclusionClient extends TMicroOcclusion
                 case 4 => renderBounds.min.x <= 0
                 case 5 => renderBounds.max.x >= 1
             })
-                renderMask|=1<<other.getSlot
+            return 1<<other.getSlot
         }
+        return 0
+    }
+    
+    def shrink(p:JMicroShrinkRender, renderBounds:Cuboid6, m:Int):Int =
+    {
+        var renderMask = 0
+        val part = p.asInstanceOf[TMultiPart]
+        val tile = part.tile
+        for(i <- 0 until m)
+            if(i != p.getSlot)
+                tile.partMap(i) match {
+                    case other:JMicroShrinkRender => 
+                        renderMask |= shrinkFrom(p, other, renderBounds)
+                    case _ =>
+                }
+        return renderMask
     }
     
     def shrinkSide(s1:Int, s2:Int):Int = {
@@ -146,23 +115,76 @@ trait TMicroOcclusionClient extends TMicroOcclusion
         throw new IllegalArgumentException("Switch Falloff")
     }
     
-    def shrink(m:Int)
+    def recalcBounds(p:JMicroShrinkRender, renderBounds:Cuboid6) =
     {
-        renderMask = 0
-        for(i <- 0 until m)
-        {
-            if(i != getSlot)
-            {
-                val part = tile.partMap(i)
-                if(part.isInstanceOf[TMicroOcclusionClient])
-                    shrinkThis(part.asInstanceOf[TMicroOcclusionClient])
-            }
-        }
+        if(p.getSlot < 6)
+            shrink(p, renderBounds, 6)
+        else if(p.getSlot < 15)
+            shrink(p, renderBounds, 15)
+        else 
+            shrink(p, renderBounds, 27)
     }
+    
+    def shapePriority(slot:Int):Int = 
+        if(slot < 6)
+            return 2
+        else if(slot < 15)
+            return 1
+        else
+            return 0
+    
+    def shrinkTest(a:JMicroShrinkRender, b:JMicroShrinkRender):Boolean =
+    {
+        if(a.getPriorityClass != b.getPriorityClass) return a.getPriorityClass < b.getPriorityClass
+        
+        val shape1 = shapePriority(a.getSlot)
+        val shape2 = shapePriority(b.getSlot)
+        
+        if(shape1 != shape2) return shape1 < shape2
+        if(a.getSlot < 6)//transparency takes precedence for covers
+        {
+            if(a.isTransparent != b.isTransparent) return a.isTransparent
+            if(a.getSize != b.getSize) return a.getSize < b.getSize
+        }
+        else
+        {
+            if(a.getSize != b.getSize) return a.getSize < b.getSize
+            if(a.isTransparent != b.isTransparent) return a.isTransparent
+        }
+        return a.getSlot < b.getSlot
+    }
+}
+
+trait JMicroShrinkRender
+{
+    def getPriorityClass():Int
+    def getSlot():Int
+    def getSize():Int
+    def isTransparent():Boolean
+    def getBounds():Cuboid6
+}
+
+trait TMicroOcclusionClient extends TMicroOcclusion with JMicroShrinkRender
+{
+    import MicroOcclusion._
+    
+    var renderBounds:Cuboid6 = _
+    var renderMask:Int = _
+    
+    override def onPartChanged()
+    {
+        super.onPartChanged()
+        renderBounds = getBounds.copy
+        renderMask = recalcBounds(this, renderBounds)
+    }
+    
+    override def getPriorityClass = 0
 }
 
 trait TMicroOcclusion extends TMultiPart
 {
+    import MicroOcclusion._
+    
     def getSlot():Int
     def getSize():Int
     def getMaterial():Int
@@ -177,12 +199,12 @@ trait TMicroOcclusion extends TMultiPart
             return true
         
         val mpart = npart.asInstanceOf[TMicroOcclusion]
-        val shape1 = shapePriority
-        val shape2 = mpart.shapePriority
+        val shape1 = shapePriority(getSlot)
+        val shape2 = shapePriority(mpart.getSlot)
         
         if(mpart.getSize + getSize > 8)//intersecting if opposite
         {
-            if(shape1 == 0 && shape2 == 0)
+            if(shape1 == 2 && shape2 == 2)
                 if(mpart.getSlot == (getSlot^1))
                     return false
             
@@ -195,15 +217,15 @@ trait TMicroOcclusion extends TMultiPart
                         return false
                 }
                 
-                if(shape1 == 2 && shape2 == 1)
+                if(shape1 == 0 && shape2 == 1)
                     if(!edgeCornerOcclusionTest(this, mpart))
                         return false
                 
-                if(shape1 == 1 && shape2 == 2)
+                if(shape1 == 1 && shape2 == 0)
                     if(!edgeCornerOcclusionTest(mpart, this))
                         return false
                 
-                if(shape1 == 2 && shape2 == 2)
+                if(shape1 == 0 && shape2 == 0)
                 {
                     val e1 = getSlot-15
                     val e2 = mpart.getSlot-15
@@ -220,12 +242,4 @@ trait TMicroOcclusion extends TMultiPart
     {
         ((corner.getSlot-7)&edgeAxisMask(edge.getSlot-15)) == unpackEdgeBits(edge.getSlot-15)
     }
-    
-    def shapePriority():Int = 
-        if(getSlot < 6)
-            return 0
-        else if(getSlot < 15)
-            return 1
-        else
-            return 2
 }

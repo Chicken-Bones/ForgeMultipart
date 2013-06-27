@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer
 import codechicken.multipart.TCuboidPart
 import codechicken.multipart.TFacePart
 import codechicken.core.vec.Vector3
-import codechicken.core.raytracer.SelectionBox
 import codechicken.core.vec.Rotation
 import codechicken.multipart.PartMap
 import cpw.mods.fml.relauncher.SideOnly
@@ -26,6 +25,8 @@ import scala.collection.immutable.Vector
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.BlockMultipart
 import codechicken.core.lighting.LazyLightMatrix
+import Rotation._
+import Vector3._
 
 object FacePlacement extends PlacementProperties
 {
@@ -46,12 +47,11 @@ object FaceMicroClass extends MicroblockClass
     
     for(s <- 0 until 6)
     {
-        val transform = Rotation.sideRotations(s).at(Vector3.center)
+        val transform = sideRotations(s).at(center)
         for(t <- 1 until 8)
         {
             val d = t/8D
-            aBounds(t<<4|s) = new SelectionBox(new Cuboid6(0, 0, 0, 1, d, 1))
-                .transform(transform).bound
+            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, 1, d, 1).transform(transform)
         }
     }
     

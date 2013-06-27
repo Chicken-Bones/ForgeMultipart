@@ -126,7 +126,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     public boolean isBeingPowered()
     {
         int side = metaSideMap[meta&7];
-        return RedstoneInteractions.getWeakPowerTo(this, side) > 0;
+        return RedstoneInteractions.getPowerTo(this, side) > 0;
     }
     
     @Override
