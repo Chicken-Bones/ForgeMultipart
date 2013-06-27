@@ -57,7 +57,7 @@ object MultipartGenerator
      */
     private[multipart] def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
-        var loaded = TileMultipartObj.getOrConvertTile2(world, pos)
+        var loaded = TileMultipart.getOrConvertTile2(world, pos)
         var partTraits = traitsForPart(part, world.isRemote)
         val tile = loaded._1
         var ntile = tile
@@ -87,7 +87,7 @@ object MultipartGenerator
             ntile = factory.generateTile(partTraits, world.isRemote)
             world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
         }
-        ntile.addPart(part)
+        ntile.addPart_impl(part)
         return ntile
     }
     

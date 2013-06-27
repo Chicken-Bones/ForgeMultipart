@@ -30,10 +30,10 @@ object ScalaSignature
     {
         def hasFlag(flag:Int):Boolean
         
-        def isProtected = hasFlag(0x00000001)
         def isPrivate = hasFlag(0x00000004)
-        def isAbstract = hasFlag(0x00000008)
-        def isInterface = hasFlag(0x00000080)
+        def isProtected = hasFlag(0x00000008)
+        def isAbstract = hasFlag(0x00000080)
+        def isInterface = hasFlag(0x00000800)
         def isMethod = hasFlag(0x00000200)
         def isParam = hasFlag(0x00002000)
         def isStatic = hasFlag(0x00800000)

@@ -11,7 +11,7 @@ import codechicken.multipart.ControlKeyModifer._
 import net.minecraft.item.ItemStack
 import codechicken.microblock.handler.MicroblockProxy
 import codechicken.multipart.TMultiPart
-import codechicken.multipart.TileMultipartObj
+import codechicken.multipart.TileMultipart
 import codechicken.core.raytracer.ExtendedMOP
 
 abstract class ExecutablePlacement(val pos:BlockCoord, val part:Microblock)
@@ -24,7 +24,7 @@ class AdditionPlacement($pos:BlockCoord, $part:Microblock) extends ExecutablePla
 {
     def place(world:World, player:EntityPlayer, item:ItemStack)
     {
-        TileMultipartObj.addPart(world, pos, part)
+        TileMultipart.addPart(world, pos, part)
     }
     
     def consume(world:World, player:EntityPlayer, item:ItemStack)
@@ -74,7 +74,7 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     val mcrClass = pp.microClass
     val pos = new BlockCoord(hit.blockX, hit.blockY, hit.blockZ)
     val vhit = new Vector3(hit.hitVec).add(-pos.x, -pos.y, -pos.z)
-    val gtile = TileMultipartObj.getOrConvertTile2(world, pos)
+    val gtile = TileMultipart.getOrConvertTile2(world, pos)
     val htile = gtile._1
     val slot = pp.placementGrid.getHitSlot(vhit, hit.sideHit)
     val oslot = pp.opposite(slot, hit.sideHit)
@@ -183,18 +183,13 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     def externalPlacement(npart:Microblock):ExecutablePlacement = 
     {
         val pos = this.pos.copy().offset(side)
-        if(TileMultipartObj.canAddPart(world, pos, npart))
+        if(TileMultipart.canPlacePart(world, pos, npart))
             return new AdditionPlacement(pos, npart)
         return null
     }
     
     def getHitDepth(vhit:Vector3, side:Int):Double = 
-    {
-        var d = vhit.copy().scalarProject(Rotation.axes(side))
-        if(side%2 == 0)
-            d+=1
-        return d
-    }
+        vhit.copy.scalarProject(Rotation.axes(side)) + (side%2^1)
     
     def create(size:Int, slot:Int, material:Int) = mcrClass.create(size, slot, material, world.isRemote)
 }

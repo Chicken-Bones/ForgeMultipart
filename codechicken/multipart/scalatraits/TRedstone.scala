@@ -7,6 +7,9 @@ import codechicken.multipart.RedstoneInteractions._
 import codechicken.multipart.PartMap._
 import codechicken.core.vec.Rotation._
 import codechicken.multipart.IRedstoneTile
+import codechicken.multipart.TFacePart
+import codechicken.multipart.TEdgePart
+import codechicken.multipart.TEdgePart
 
 trait TRedstoneTile extends TileMultipart with IRedstoneTile
 {
@@ -23,21 +26,27 @@ trait TRedstoneTile extends TileMultipart with IRedstoneTile
     
     def openConnections(side:Int):Int =
     {
-        if(blocksRedstone(side))
-            return 0
-        
         var m = 0x10
         var i = 0
         while(i < 4)
         {
-            if(!blocksRedstone(edgeBetween(side, rotateSide(side&6, i))))
+            if(redstoneConductionE(edgeBetween(side, rotateSide(side&6, i))))
                 m|=1<<i
             i+=1
         }
+        m&=redstoneConductionF(side)
         return m
     }
     
-    def blocksRedstone(i:Int) = partMap(i) != null && partMap(i).blocksRedstone
+    def redstoneConductionF(i:Int) = partMap(i) match {
+        case null => 0x1F
+        case p => p.asInstanceOf[TFacePart].redstoneConductionMap
+    }
+    
+    def redstoneConductionE(i:Int) = partMap(i) match {
+        case null => true
+        case p => p.asInstanceOf[TEdgePart].conductsRedstone
+    }
     
     override def weakPowerLevel(side:Int):Int = 
         weakPowerLevel(side, otherConnectionMask(worldObj, xCoord, yCoord, zCoord, side, true))

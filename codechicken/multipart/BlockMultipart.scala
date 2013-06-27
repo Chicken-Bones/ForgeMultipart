@@ -145,7 +145,7 @@ trait BlockMultipart extends Block
     
     override def isOpaqueCube() = false
     
-    override def getRenderType() = TileMultipartObj.renderID
+    override def getRenderType() = TileMultipart.renderID
     
     override def isAirBlock(world:World, x:Int, y:Int, z:Int) = getTile(world, x, y, z) == null || getTile(world, x, y, z).partList.isEmpty
     

@@ -3,7 +3,6 @@ package codechicken.multipart.handler
 import net.minecraft.nbt.NBTTagCompound
 import codechicken.multipart.TileMultipart
 import net.minecraftforge.event.ForgeSubscribe
-import codechicken.multipart.TileMultipartObj
 import cpw.mods.fml.common.network.IConnectionHandler
 import net.minecraft.network.packet.NetHandler
 import net.minecraft.network.INetworkManager

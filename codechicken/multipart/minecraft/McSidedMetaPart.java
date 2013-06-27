@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Vector3;
-import codechicken.multipart.TileMultipartObj;
+import codechicken.multipart.TileMultipart;
 
 public abstract class McSidedMetaPart extends McMetaPart
 {
@@ -40,6 +40,6 @@ public abstract class McSidedMetaPart extends McMetaPart
     public void drop()
     {
         tile().remPart(this);
-        TileMultipartObj.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
+        TileMultipart.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
     }
 }

@@ -23,7 +23,7 @@ import codechicken.core.lighting.LazyLightMatrix
 @SideOnly(Side.CLIENT)
 object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRenderingHandler
 {
-    TileMultipartObj.renderID = RenderingRegistry.getNextAvailableRenderId()
+    TileMultipart.renderID = RenderingRegistry.getNextAvailableRenderId()
     private val olm = new LazyLightMatrix
     
     var pass:Int = 0
@@ -42,7 +42,7 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
         tmpart.renderDynamic(pos, f, pass)
     }
     
-    override def getRenderId = TileMultipartObj.renderID
+    override def getRenderId = TileMultipart.renderID
     
     override def renderWorldBlock(world:IBlockAccess, x:Int, y:Int, z:Int, block:Block, modelId:Int, renderer:RenderBlocks):Boolean =
     {

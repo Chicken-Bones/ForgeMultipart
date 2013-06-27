@@ -10,7 +10,7 @@ import net.minecraft.network.NetServerHandler
 import net.minecraft.entity.player.EntityPlayerMP
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.ControlKeyModifer
-import codechicken.multipart.TileMultipartObj
+import codechicken.multipart.TileMultipart
 import net.minecraft.network.packet.Packet255KickDisconnect
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.World
@@ -53,7 +53,7 @@ object MultipartCPH extends IClientPacketHandler
     {
         val cc = new ChunkCoordIntPair(packet.readInt, packet.readInt)
         while(packet.more)
-            TileMultipartObj.handleDescPacket(world, indexInChunk(cc, packet.readShort), packet)
+            TileMultipart.handleDescPacket(world, indexInChunk(cc, packet.readShort), packet)
     }
     
     def handleCompressedTileData(packet:PacketCustom, world:World)
@@ -64,7 +64,7 @@ object MultipartCPH extends IClientPacketHandler
             var i = packet.readUnsignedByte
             while(i < 255)
             {
-                TileMultipartObj.handlePacket(pos, world, i, packet)
+                TileMultipart.handlePacket(pos, world, i, packet)
                 i = packet.readUnsignedByte
             }
         }

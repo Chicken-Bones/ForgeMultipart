@@ -179,18 +179,19 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
     
     override def getPartialOcclusionBoxes = HollowMicroClass.pBoxes(shape)
     
-    def getHollowSize = 
+    def getHollowSize = tile match
     {
-        val part = tile.partMap(6)
-        if(part.isInstanceOf[IHollowConnect])
-            part.asInstanceOf[IHollowConnect].getSize
-        else
-            8
+        case null => 8
+        case _ => tile.partMap(6) match
+        {
+            case part:IHollowConnect => part.getSize
+            case _ => 8
+        }
     }
     
     def getOcclusionBoxes:JSeq[Cuboid6] = 
     {
-        val size = getSize
+        val size = getHollowSize
         val c = HollowMicroClass.occBounds(shape)
         val d1 = 0.5-size/32D
         val d2 = 0.5+size/32D
@@ -230,4 +231,6 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
     override def allowCompleteOcclusion = true
     
     override def solid(side:Int) = false
+    
+    override def redstoneConductionMap() = 0x10
 }

@@ -79,9 +79,9 @@ class TileMultipart extends TileEntity
     {
         super.updateEntity()
         
-        TileMultipartObj.startOperation(this)
+        TileMultipart.startOperation(this)
         partList.foreach(_.update())
-        TileMultipartObj.finishOperation(this)
+        TileMultipart.finishOperation(this)
     }
     
     override def onChunkUnload()
@@ -111,9 +111,9 @@ class TileMultipart extends TileEntity
     
     def notifyPartChange()
     {
-        TileMultipartObj.startOperation(this)
+        TileMultipart.startOperation(this)
         partList.foreach(_.onPartChanged())
-        TileMultipartObj.finishOperation(this)
+        TileMultipart.finishOperation(this)
         
         worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType().blockID)
         worldObj.updateAllLightTypes(xCoord, yCoord, zCoord)
@@ -121,9 +121,9 @@ class TileMultipart extends TileEntity
     
     def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)
     {
-        TileMultipartObj.startOperation(this)
+        TileMultipart.startOperation(this)
         partList.foreach(_.onNeighborChanged())
-        TileMultipartObj.finishOperation(this)
+        TileMultipart.finishOperation(this)
     }
     
     def getLightValue() = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
@@ -183,7 +183,7 @@ class TileMultipart extends TileEntity
     
     private[multipart] def getWriteStream = MultipartSPH.getTileStream(worldObj, new BlockCoord(this))
     
-    private[multipart] def addPart(part:TMultiPart)
+    private[multipart] def addPart_impl(part:TMultiPart)
     {
         if(!worldObj.isRemote)
             writeAddPart(part)
@@ -205,8 +205,7 @@ class TileMultipart extends TileEntity
     
     private[multipart] def addPart_do(part:TMultiPart)
     {
-        if(partList.size >= 250)
-            throw new IllegalArgumentException("Tried to add more than 250 parts to the one tile. You're doing it wrong")
+        assert(partList.size < 250, "Tried to add more than 250 parts to the one tile. You're doing it wrong")
         
         partList+=part
         bindPart(part)
@@ -225,9 +224,16 @@ class TileMultipart extends TileEntity
     
     def remPart(part:TMultiPart):TileMultipart =
     {
-        if(TileMultipartObj.queueRemoval(this, part))
+        assert(!worldObj.isRemote, "Cannot remove multi parts from a client tile")
+        
+        if(TileMultipart.queueRemoval(this, part))
             return null
         
+        remPart_impl(part)
+    }
+    
+    private[multipart] def remPart_impl(part:TMultiPart):TileMultipart =
+    {
         val i = remPart_do(part)
         if(!isInvalid())
         {
@@ -311,7 +317,7 @@ class TileMultipart extends TileEntity
     def dropItems(items:Seq[ItemStack])
     {
         val pos = Vector3.fromTileEntityCenter(this)
-        items.foreach(item => TileMultipartObj.dropItem(item, worldObj, pos))
+        items.foreach(item => TileMultipart.dropItem(item, worldObj, pos))
     }
     
     def markRender()
@@ -334,9 +340,9 @@ class TileMultipart extends TileEntity
     
     def onEntityCollision(entity:Entity)
     {
-        TileMultipartObj.startOperation(this)
+        TileMultipart.startOperation(this)
         partList.foreach(_.onEntityCollision(entity))
-        TileMultipartObj.finishOperation(this)
+        TileMultipart.finishOperation(this)
     }
     
     def strongPowerLevel(side:Int) = 0
@@ -373,7 +379,7 @@ class TileMultipartClient extends TileMultipart
     }
 }
 
-object TileMultipartObj
+object TileMultipart
 {
     var renderID:Int = -1
     
@@ -411,7 +417,7 @@ object TileMultipartObj
             val world = tile.worldObj
             val pos = new BlockCoord(tile)
             while(!removalQueue.isEmpty)
-                otile = otile.remPart(removalQueue.dequeue)
+                otile = otile.remPart_impl(removalQueue.dequeue)
             
             while(!additionQueue.isEmpty)
                 MultipartGenerator.addPart(world, pos, additionQueue.dequeue)
@@ -499,17 +505,7 @@ object TileMultipartObj
         }
     }
     
-    private var operationSync_ = new ThreadLocal[OperationSynchroniser]
-    private def operationSync():OperationSynchroniser = 
-    {
-        var r = operationSync_.get
-        if(r == null)
-        {
-            r = new OperationSynchroniser
-            operationSync_.set(r)
-        }
-        return r
-    }
+    private val operationSync = new OperationSynchroniser
     
     def startOperation(tile:TileMultipart) = operationSync.startOperation(tile)
     
@@ -550,7 +546,7 @@ object TileMultipartObj
         return null
     }
     
-    def canAddPart(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
+    def canPlacePart(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
     {
         part.getCollisionBoxes.foreach{b => 
             if(!world.checkNoEntityCollision(b.toAABB().offset(pos.x, pos.y, pos.z)))
@@ -575,6 +571,8 @@ object TileMultipartObj
     
     def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
+        assert(!world.isRemote, "Cannot add multi parts to a client tile.")
+        
         if(queueAddition(world, pos, part))
             return null
         
@@ -613,10 +611,10 @@ object TileMultipartObj
             case 253 => {
                 val part = MultiPartRegistry.readPart(packet)
                 part.readDesc(packet)
-                addPart(world, pos, part)
+                MultipartGenerator.addPart(world, pos, part)
             }
             case 254 => if(tilemp != null) {
-                tilemp.remPart(tilemp.partList(packet.readUnsignedByte()))
+                tilemp.remPart_impl(tilemp.partList(packet.readUnsignedByte()))
             }
             case _ => if(tilemp != null) {
                 tilemp.partList(i).read(packet)

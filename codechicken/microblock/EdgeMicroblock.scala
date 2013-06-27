@@ -19,6 +19,7 @@ import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.scala.ScalaBridge._
 import codechicken.core.raytracer.ExtendedMOP
+import codechicken.multipart.TEdgePart
 
 object EdgePlacement extends PlacementProperties
 {
@@ -116,7 +117,7 @@ class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicro
     def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
 }
 
-class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$)
+class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$) with TEdgePart
 {
     def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
     

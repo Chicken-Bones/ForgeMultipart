@@ -5,7 +5,6 @@ import codechicken.core.raytracer.RayTracer;
 import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Vector3;
 import codechicken.multipart.TileMultipart;
-import codechicken.multipart.TileMultipartObj;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -65,13 +64,13 @@ public class EventHandler
             }
         }
         
-        TileMultipart tile = TileMultipartObj.getOrConvertTile(world, pos);
+        TileMultipart tile = TileMultipart.getOrConvertTile(world, pos);
         if(tile == null || !tile.canAddPart(part))
             return false;
         
         if(!world.isRemote)
         {
-            TileMultipartObj.addPart(world, pos, part);
+            TileMultipart.addPart(world, pos, part);
             world.playSoundEffect(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 
                     part.getBlock().stepSound.getPlaceSound(), 
                     (part.getBlock().stepSound.getVolume() + 1.0F) / 2.0F, 

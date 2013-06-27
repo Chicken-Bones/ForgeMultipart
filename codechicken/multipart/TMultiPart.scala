@@ -41,8 +41,6 @@ abstract class TMultiPart
         tile = t
     }
     
-    def blocksRedstone:Boolean = false//Not necessarily sure this is the best way to test this
-    
     def occlusionTest(npart:TMultiPart):Boolean = true
     def getSubParts:JSeq[IndexedCuboid6] = Seq()
     def getCollisionBoxes:JSeq[Cuboid6] = Seq()

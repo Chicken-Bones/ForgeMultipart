@@ -86,7 +86,11 @@ object ASMMixinCompiler
     
     def isScala(cnode:ClassNode) = ScalaSigReader.ann(cnode).isDefined
     
-    def isTrait(cnode:ClassNode) = ScalaSigReader.read(ScalaSigReader.ann(cnode).get).evalT[ClassSymbol](0).isTrait
+    def isTrait(cnode:ClassNode) = 
+    {
+        val csym:ClassSymbol = ScalaSigReader.read(ScalaSigReader.ann(cnode).get).evalT(0)
+        csym.isTrait && !csym.isInterface
+    }
     
     def getMixinInfo(name:String) = mixinMap.get(name)
     
@@ -517,8 +521,11 @@ object ASMMixinCompiler
     def registerScalaTrait(cnode:ClassNode)
     {
         for(i <- cnode.interfaces)
-            if(classNode(i+"$class") != null)
+        {
+            val inode = classNode(i)
+            if(isScala(inode) && isTrait(inode))
                 throw new IllegalArgumentException("Multipart trait "+cnode.name+" cannot extend other traits")
+        }
         
         val fieldAccessors = MMap[String, MethodSymbol]()
         val fields = MList[MethodSymbol]()

@@ -5,7 +5,7 @@ import net.minecraft.nbt.NBTTagCompound
 import java.util.Map
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
-import codechicken.multipart.TileMultipartObj
+import codechicken.multipart.TileMultipart
 
 
 /**
@@ -54,7 +54,7 @@ object MultipartSaveLoad
             val e = iterator.next
             if(e.getValue.isInstanceOf[TileNBTContainer])
             {
-                val t = TileMultipartObj.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
+                val t = TileMultipart.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
                 if(t != null)
                 {
                     t.setWorldObj(e.getValue.worldObj)

@@ -52,21 +52,7 @@ class ItemMicroPart(id:Int) extends Item(id)
     
     override def registerIcons(register:IconRegister){}
     
-    override def onItemUseFirst(item:ItemStack, player:EntityPlayer, world:World, x:Int, y:Int, z:Int, s:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
-    {
-        if(player.isSneaking)
-            return useItem(item, player, world, x, y, z) && !world.isRemote
-        return false
-    }
-    
     override def onItemUse(item:ItemStack, player:EntityPlayer, world:World, x:Int, y:Int, z:Int, s:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
-    {
-        if(!player.isSneaking)
-            return useItem(item, player, world, x, y, z)
-        return false
-    }
-    
-    def useItem(item:ItemStack, player:EntityPlayer, world:World, x:Int, y:Int, z:Int):Boolean =
     {
         val material = getMaterialID(item)
         val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
