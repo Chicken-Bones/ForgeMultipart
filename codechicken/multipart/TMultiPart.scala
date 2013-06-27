@@ -18,12 +18,12 @@ import codechicken.core.vec.BlockCoord
 import net.minecraft.world.World
 import net.minecraft.tileentity.TileEntity
 import codechicken.core.render.CCRenderState
-import codechicken.scala.JSeq
-import codechicken.scala.ScalaBridge._
 import codechicken.core.lighting.LazyLightMatrix
 import codechicken.core.data.MCDataOutput
 import codechicken.core.data.MCDataInput
 import net.minecraft.entity.Entity
+import java.lang.Iterable
+import scala.collection.JavaConversions._
 
 abstract class TMultiPart
 {
@@ -42,10 +42,10 @@ abstract class TMultiPart
     }
     
     def occlusionTest(npart:TMultiPart):Boolean = true
-    def getSubParts:JSeq[IndexedCuboid6] = Seq()
-    def getCollisionBoxes:JSeq[Cuboid6] = Seq()
+    def getSubParts:Iterable[IndexedCuboid6] = Seq()
+    def getCollisionBoxes:Iterable[Cuboid6] = Seq()
     
-    def getDrops:JSeq[ItemStack] = Seq()
+    def getDrops:Iterable[ItemStack] = Seq()
     def getStrength(hit:MovingObjectPosition, player:EntityPlayer):Float = 1
     def getLightValue = 0
     

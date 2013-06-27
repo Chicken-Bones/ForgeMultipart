@@ -17,9 +17,9 @@ import codechicken.core.lighting.LazyLightMatrix
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.scala.ScalaBridge._
 import codechicken.core.raytracer.ExtendedMOP
 import codechicken.multipart.TEdgePart
+import scala.collection.JavaConversions._
 
 object EdgePlacement extends PlacementProperties
 {

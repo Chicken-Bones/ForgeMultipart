@@ -1,8 +1,8 @@
 package codechicken.multipart
 
 import codechicken.core.vec.Cuboid6
-import codechicken.scala.JSeq
-import codechicken.scala.ScalaBridge._
+import scala.collection.JavaConversions._
+import java.lang.Iterable
 
 object NormalOcclusionTest
 {
@@ -24,7 +24,7 @@ object NormalOcclusionTest
 
 trait JNormalOcclusion
 {
-    def getOcclusionBoxes():JSeq[Cuboid6]
+    def getOcclusionBoxes():Iterable[Cuboid6]
 }
 
 trait TNormalOcclusion extends TMultiPart with JNormalOcclusion

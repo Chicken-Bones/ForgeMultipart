@@ -16,8 +16,7 @@ import net.minecraft.client.renderer.RenderBlocks
 import codechicken.core.render.IconTransformation
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.CCRenderState
-import codechicken.scala.ScalaBridge._
-import codechicken.scala.JSeq
+import scala.collection.JavaConversions._
 
 object HollowPlacement extends PlacementProperties
 {
@@ -189,7 +188,7 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
         }
     }
     
-    def getOcclusionBoxes:JSeq[Cuboid6] = 
+    def getOcclusionBoxes = 
     {
         val size = getHollowSize
         val c = HollowMicroClass.occBounds(shape)
@@ -202,7 +201,7 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
         val z1 = c.min.z
         val z2 = c.max.z
         
-        return getSlot match 
+        getSlot match 
         {
             case 0 | 1 => 
             {

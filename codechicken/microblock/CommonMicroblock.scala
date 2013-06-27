@@ -24,13 +24,12 @@ import codechicken.core.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.TMultiPart
-import codechicken.scala.JSeq
-import codechicken.scala.ScalaBridge._
 import codechicken.core.data.MCDataOutput
 import codechicken.core.data.MCDataInput
 import codechicken.core.render.RenderUtils
 import codechicken.core.render.IFaceRenderer
 import codechicken.multipart.TSlottedPart
+import scala.collection.JavaConversions._
 
 object CommonMicroblock
 {
@@ -121,7 +120,7 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     
     def sizeToVolume(size:Int):Int = size
     
-    override def getDrops():JSeq[ItemStack] =
+    override def getDrops() =
     {
         var size = getSize
         val items = ListBuffer[ItemStack]()
@@ -136,7 +135,7 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
                 items+=ItemMicroPart.create(k, s|itemClassID<<8, MicroMaterialRegistry.materialName(material))
             }
         }
-        return items
+        items
     }
     
     override def pickItem(hit:MovingObjectPosition):ItemStack = 

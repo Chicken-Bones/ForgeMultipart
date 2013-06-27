@@ -27,7 +27,6 @@ import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.MovingObjectPosition
 import scala.collection.mutable.ArrayBuffer
-import codechicken.scala.ScalaBridge._
 import java.util.Random
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
@@ -38,6 +37,7 @@ import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
+import scala.collection.JavaConversions._
 
 class TileMultipart extends TileEntity
 {
@@ -71,7 +71,7 @@ class TileMultipart extends TileEntity
      */
     def partMap(slot:Int):TMultiPart = null
     
-    def jPartList():List[TMultiPart] = partList.asJava
+    def jPartList():List[TMultiPart] = partList
     
     override def canUpdate() = doesTick//TODO: part merging true
     
@@ -314,7 +314,7 @@ class TileMultipart extends TileEntity
         return true
     }
     
-    def dropItems(items:Seq[ItemStack])
+    def dropItems(items:Iterable[ItemStack])
     {
         val pos = Vector3.fromTileEntityCenter(this)
         items.foreach(item => TileMultipart.dropItem(item, worldObj, pos))

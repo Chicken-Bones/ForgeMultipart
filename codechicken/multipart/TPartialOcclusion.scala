@@ -1,12 +1,12 @@
 package codechicken.multipart
 
 import codechicken.core.vec.Cuboid6
-import codechicken.scala.JSeq
-import codechicken.scala.ScalaBridge._
+import scala.collection.JavaConversions._
+import java.lang.Iterable
 
 trait JPartialOcclusion
 {
-    def getPartialOcclusionBoxes():JSeq[Cuboid6]
+    def getPartialOcclusionBoxes():Iterable[Cuboid6]
     
     def allowCompleteOcclusion = false
 }
@@ -22,7 +22,7 @@ class PartialOcclusionTest(size:Int)
         fill(i, part.getPartialOcclusionBoxes, part.allowCompleteOcclusion)
     }
     
-    def fill(i:Int, boxes:Seq[Cuboid6], complete:Boolean)
+    def fill(i:Int, boxes:Iterable[Cuboid6], complete:Boolean)
     {
         partial(i) = !complete
         boxes.foreach(box => fill(i+1, box))

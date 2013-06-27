@@ -1,5 +1,8 @@
 package codechicken.multipart.minecraft;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,8 +16,6 @@ import codechicken.multipart.JIconHitEffects;
 import codechicken.multipart.JNormalOcclusion;
 import codechicken.multipart.NormalOcclusionTest;
 import codechicken.multipart.TMultiPart;
-import codechicken.scala.JSeq;
-import codechicken.scala.ScalaBridge;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -29,21 +30,21 @@ public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusio
     }
 
     @Override
-    public JSeq<Cuboid6> getOcclusionBoxes()
+    public Iterable<Cuboid6> getOcclusionBoxes()
     {
-        return ScalaBridge.seq(getBounds());
+        return Arrays.asList(getBounds());
     }
     
     @Override
-    public JSeq<Cuboid6> getCollisionBoxes()
+    public Iterable<Cuboid6> getCollisionBoxes()
     {
-        return ScalaBridge.seq();
+        return Collections.EMPTY_LIST;
     }
     
     @Override
-    public JSeq<ItemStack> getDrops()
+    public Iterable<ItemStack> getDrops()
     {
-        return ScalaBridge.seq(new ItemStack(getBlock()));
+        return Arrays.asList(new ItemStack(getBlock()));
     }
     
     @Override
