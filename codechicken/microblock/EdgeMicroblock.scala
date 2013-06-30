@@ -102,8 +102,6 @@ object EdgeMicroClass extends MicroblockClass
     
     def placementProperties = EdgePlacement
     
-    override def sizeToVolume(size:Int) = size*size
-    
     def getDisplayName(size:Int):String = size match
     {
         case 1 => "Strip"
@@ -250,11 +248,7 @@ class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shap
     
     def getPartialOcclusionBoxes = getOcclusionBoxes
     
-    override def itemSizes = EdgeMicroClass.itemSizes
-    
     override def itemClassID = EdgeMicroClass.classID
-    
-    override def sizeToVolume(size:Int) = EdgeMicroClass.sizeToVolume(size)
     
     override def occlusionTest(npart:TMultiPart): Boolean = 
     {

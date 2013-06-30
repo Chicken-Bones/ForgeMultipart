@@ -90,6 +90,8 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     def getStrength(player:EntityPlayer) = player.getCurrentPlayerStrVsBlock(block, false, meta)/block.blockHardness
     
     def isTransparent = !block.isOpaqueCube
+    
+    def getLightValue = Block.lightValue(block.blockID)
 }
 
 object BlockMicroMaterial

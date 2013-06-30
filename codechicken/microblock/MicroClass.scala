@@ -18,8 +18,6 @@ trait MicroblockClass
     
     def getDisplayName(size:Int):String
     
-    def itemSizes() = Seq(1, 2, 4)
-    
     def itemSlot() = 3
     
     @SideOnly(Side.CLIENT)
@@ -39,8 +37,6 @@ trait MicroblockClass
     def create(client:Boolean):CommonMicroblock
     
     def create(size:Int, slot:Int, material:Int, client:Boolean):CommonMicroblock
-    
-    def sizeToVolume(size:Int) = size
     
     def placementProperties():PlacementProperties
     

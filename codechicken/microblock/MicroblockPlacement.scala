@@ -140,30 +140,10 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
         return ret
     }
     
-    def materialCheck(sizea:Int):Boolean =
-    {
-        if(!checkMaterial)
-            return true
-        
-        val mUnits = mcrClass.sizeToVolume(sizea) - mcrClass.sizeToVolume(sizea+size)
-        var mat = 0
-        player.inventory.mainInventory.foreach(item =>
-            if(item != null && item.itemID == MicroblockProxy.item.itemID)
-            {
-                val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
-                if(ItemMicroPart.getMaterialID(item) == material)
-                    mat+=mcrClass.sizeToVolume(item.getItemDamage&0xFF)
-            })
-        return mat >= mUnits
-    }
-    
     def expand(mpart:CommonMicroblock):ExecutablePlacement = expand(mpart, create(mpart.getSize+size, mpart.getSlot, mpart.material))
     
     def expand(mpart:Microblock, npart:Microblock):ExecutablePlacement = 
     {
-        if(!materialCheck(mpart.getSize))
-            return null
-        
         if(mpart.tile.canReplacePart(mpart, npart))
             return new ExpandingPlacement(new BlockCoord(mpart.tile), npart, mpart)
         return null

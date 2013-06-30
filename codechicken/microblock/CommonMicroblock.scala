@@ -113,26 +113,18 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     
     def getMaterial = material
     
-    def itemSizes():Seq[Int] = Seq()
-    
     def itemClassID:Int = -1
-    
-    def sizeToVolume(size:Int):Int = size
     
     override def getDrops() =
     {
         var size = getSize
         val items = ListBuffer[ItemStack]()
-        for(s <- itemSizes.reverseIterator)
+        for(s <- Seq(4, 2, 1))
         {
-            var m = size/sizeToVolume(s)
-            size-=m*sizeToVolume(s)
-            while(m > 0)
-            {
-                val k = Math.min(m, 64)
-                m-=k
-                items+=ItemMicroPart.create(k, s|itemClassID<<8, MicroMaterialRegistry.materialName(material))
-            }
+            var m = size/s
+            size-=m*s
+            if(m > 0)
+                items+=ItemMicroPart.create(m, s|itemClassID<<8, MicroMaterialRegistry.materialName(material))
         }
         items
     }
@@ -140,7 +132,7 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     override def pickItem(hit:MovingObjectPosition):ItemStack = 
     {
         val size = getSize
-        for(s <- itemSizes.reverseIterator)
+        for(s <- Seq(4, 2, 1))
             if(size%s == 0 && size/s >= 1)
                 return ItemMicroPart.create(s|itemClassID<<8, MicroMaterialRegistry.materialName(material))
         return null//unreachable
@@ -178,6 +170,8 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     }
     
     def isTransparent = MicroMaterialRegistry.getMaterial(material).isTransparent
+    
+    override def getLightValue = MicroMaterialRegistry.getMaterial(material).getLightValue
 }
 
 trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with TMicroOcclusionClient
@@ -203,8 +197,4 @@ abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Micr
     def getPartialOcclusionBoxes = Seq(getBounds)
     
     override def itemClassID = microClass.classID
-    
-    override def itemSizes = microClass.itemSizes
-    
-    override def sizeToVolume(size:Int) = microClass.sizeToVolume(size)
 }

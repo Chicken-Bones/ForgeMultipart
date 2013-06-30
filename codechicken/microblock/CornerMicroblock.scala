@@ -50,8 +50,6 @@ object CornerMicroClass extends MicroblockClass
     
     def placementProperties = CornerPlacement
     
-    override def sizeToVolume(size:Int) = (size+1)*(size+1)*(size+1)
-    
     def getDisplayName(size:Int):String = size match
     {
         case 1 => "Nook"

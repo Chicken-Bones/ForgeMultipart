@@ -34,6 +34,8 @@ object MicroMaterialRegistry
         
         def isTransparent():Boolean
         
+        def getLightValue():Int
+        
         def getStrength(player:EntityPlayer):Float
         
         def getLocalizedName:String

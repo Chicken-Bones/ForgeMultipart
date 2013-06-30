@@ -32,7 +32,7 @@ class ItemMicroPart(id:Int) extends Item(id)
         val material = getMaterial(stack)
         val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
         val size = stack.getItemDamage&0xFF
-        if(material == null || mcrClass == null || !mcrClass.itemSizes.contains(size))
+        if(material == null || mcrClass == null)
             return "Unnamed"
         
         return material.getLocalizedName+" "+mcrClass.getDisplayName(size)
@@ -45,8 +45,8 @@ class ItemMicroPart(id:Int) extends Item(id)
         {
             val mcrClass = classes(classId)
             if(mcrClass != null)
-                mcrClass.itemSizes.foreach(size => 
-                    MicroMaterialRegistry.materials_foreach((s, m) => list.add(create(classId<<8|size, s))))
+                for(size <- Seq(1, 2, 4))
+                    MicroMaterialRegistry.materials_foreach((s, m) => list.add(create(classId<<8|size, s)))
         }
     }
     
@@ -57,7 +57,7 @@ class ItemMicroPart(id:Int) extends Item(id)
         val material = getMaterialID(item)
         val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
         val size = item.getItemDamage&0xFF
-        if(material < 0 || mcrClass == null || !mcrClass.itemSizes.contains(size))
+        if(material < 0 || mcrClass == null)
             return false
             
         val hit = RayTracer.retraceBlock(world, player, x, y, z)
@@ -137,7 +137,7 @@ object ItemMicroPartRenderer extends IItemRenderer
         val material = getMaterial(item)
         val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
         val size = item.getItemDamage&0xFF
-        if(material == null || mcrClass == null || !mcrClass.itemSizes.contains(size))
+        if(material == null || mcrClass == null)
             return
         
         CCRenderState.reset()
@@ -157,7 +157,7 @@ object ItemMicroPartRenderer extends IItemRenderer
         val material = getMaterialID(stack)
         val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
         val size = stack.getItemDamage&0xFF
-        if(material < 0 || mcrClass == null || !mcrClass.itemSizes.contains(size))
+        if(material < 0 || mcrClass == null)
             return false
             
         return mcrClass.renderHighlight(world, player, hit, size, material)
