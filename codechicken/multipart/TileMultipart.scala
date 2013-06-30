@@ -311,7 +311,7 @@ class TileMultipart extends TileEntity
         if(drop)
             dropItems(part.getDrops)
         remPart(part)
-        return true
+        return partList.isEmpty
     }
     
     def dropItems(items:Iterable[ItemStack])
