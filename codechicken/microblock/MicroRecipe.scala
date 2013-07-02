@@ -150,7 +150,10 @@ object MicroRecipe extends IRecipe
         }
         else
         {
-            MicroMaterialRegistry.getIdMap.find(m => ItemStack.areItemStacksEqual(m._2.getItem, item)) match {
+            MicroMaterialRegistry.getIdMap.find{m => val mitem = m._2.getItem; 
+                    item.itemID == mitem.itemID && 
+                    item.getItemDamage == mitem.getItemDamage && 
+                    ItemStack.areItemStacksEqual(item, mitem)} match {
                 case None => return null
                 case Some((name, m)) => {
                     material = MicroMaterialRegistry.materialID(name)

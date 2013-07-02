@@ -92,6 +92,7 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
         MinecraftForgeClient.registerItemRenderer(itemMicro.itemID, ItemMicroPartRenderer)
     }
     
+    @SideOnly(Side.CLIENT)
     override def createSaw(config:ConfigFile, name:String, strength:Int, localized:String) = 
     {
         val saw = super.createSaw(config, name, strength, localized)
