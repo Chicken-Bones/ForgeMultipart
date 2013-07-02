@@ -2,7 +2,7 @@ package codechicken.microblock
 
 import codechicken.core.vec.Cuboid6
 import codechicken.multipart.IDWriter
-import codechicken.core.lighting.LightMatrix;
+import codechicken.core.lighting.LightMatrix
 import codechicken.core.packet.PacketCustom
 import scala.collection.mutable.HashMap
 import codechicken.core.data.MCDataOutput
@@ -15,6 +15,7 @@ import codechicken.core.vec.Vector3
 import net.minecraft.util.Icon
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.core.render.Vertex5
+import net.minecraft.item.ItemStack
 
 object MicroMaterialRegistry
 {
@@ -39,6 +40,10 @@ object MicroMaterialRegistry
         def getStrength(player:EntityPlayer):Float
         
         def getLocalizedName:String
+        
+        def getItem:ItemStack
+        
+        def getCutterStrength:Int
         //todo, get material properties
     }
     
@@ -116,5 +121,5 @@ object MicroMaterialRegistry
     
     def getMaterial(id:Int) = idMap(id)._2
     
-    def materials_foreach(func:(String, IMicroMaterial) => Unit) = idMap.foreach(e => func(e._1, e._2))
+    def getIdMap = idMap
 }

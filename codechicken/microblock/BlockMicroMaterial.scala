@@ -4,8 +4,8 @@ import net.minecraft.block.Block
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import net.minecraft.util.Icon
 import codechicken.core.vec.Cuboid6
-import codechicken.core.lighting.LC;
-import codechicken.core.lighting.LightMatrix;
+import codechicken.core.lighting.LC
+import codechicken.core.lighting.LightMatrix
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.core.render.MultiIconTransformation
@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.Tessellator
 import codechicken.core.render.CCRenderState
 import codechicken.core.vec.Rotation
 import net.minecraft.tileentity.TileEntity
+import net.minecraftforge.common.MinecraftForge
 
 class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMaterial
 {
@@ -83,15 +84,19 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     @SideOnly(Side.CLIENT)
     def getBreakingIcon(side:Int) = block.getIcon(side, meta)
     
-    def getItem = Item.itemsList(block.blockID)
+    def getItem = new ItemStack(block, 1, meta)
     
-    def getLocalizedName = getItem.getItemDisplayName(new ItemStack(getItem, 1, meta))
+    def getLocalizedName = getItem.getDisplayName
     
     def getStrength(player:EntityPlayer) = player.getCurrentPlayerStrVsBlock(block, false, meta)/block.blockHardness
     
     def isTransparent = !block.isOpaqueCube
     
     def getLightValue = Block.lightValue(block.blockID)
+    
+    def toolClasses = Seq("axe", "pickaxe", "shovel")
+    
+    def getCutterStrength = toolClasses.foldLeft(0)((level, tool) => Math.max(level, MinecraftForge.getBlockHarvestLevel(block, meta, tool)))
 }
 
 object BlockMicroMaterial

@@ -46,7 +46,7 @@ class ItemMicroPart(id:Int) extends Item(id)
             val mcrClass = classes(classId)
             if(mcrClass != null)
                 for(size <- Seq(1, 2, 4))
-                    MicroMaterialRegistry.materials_foreach((s, m) => list.add(create(classId<<8|size, s)))
+                    MicroMaterialRegistry.getIdMap.foreach(e => list.add(create(classId<<8|size, e._1)))
         }
     }
     
@@ -95,7 +95,7 @@ object ItemMicroPart
     
     def create(amount:Int, damage:Int, material:String):ItemStack = 
     {
-        val stack = new ItemStack(MicroblockProxy.item, amount, damage)
+        val stack = new ItemStack(MicroblockProxy.itemMicro, amount, damage)
         checkTagCompound(stack)
         stack.getTagCompound().setString("mat", material)
         return stack

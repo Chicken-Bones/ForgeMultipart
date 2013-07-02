@@ -21,14 +21,14 @@ object MicroblockEventHandler
     def postTextureStitch(event:TextureStitchEvent.Post)
     {
         if(Loader.instance.hasReachedState(LoaderState.POSTINITIALIZATION))
-            MicroMaterialRegistry.materials_foreach((s, m) => m.loadIcons())
+            MicroMaterialRegistry.getIdMap.foreach(e => e._2.loadIcons())
     }
     
     @ForgeSubscribe
     @SideOnly(Side.CLIENT)
     def drawBlockHighlight(event:DrawBlockHighlightEvent)
     {
-        if(event.currentItem != null && event.currentItem.getItem== MicroblockProxy.item && 
+        if(event.currentItem != null && event.currentItem.getItem == MicroblockProxy.itemMicro && 
                 event.target != null && event.target.typeOfHit == EnumMovingObjectType.TILE)
         {
             GL11.glPushMatrix()
