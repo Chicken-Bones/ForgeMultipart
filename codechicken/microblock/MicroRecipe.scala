@@ -142,18 +142,20 @@ object MicroRecipe extends IRecipe
         if(item == null) return null
         var size = 0
         var material = 0
+        var mcrClass = 0
         if(item.getItem == itemMicro)
         {
             size = microSize(item)
             if(size == 1) return null
             material = microMaterial(item)
+            mcrClass = microClass(item)
         }
         else
         {
             MicroMaterialRegistry.getIdMap.find{m => val mitem = m._2.getItem; 
                     item.itemID == mitem.itemID && 
                     item.getItemDamage == mitem.getItemDamage && 
-                    ItemStack.areItemStacksEqual(item, mitem)} match {
+                    ItemStack.areItemStackTagsEqual(item, mitem)} match {
                 case None => return null
                 case Some((name, m)) => {
                     material = MicroMaterialRegistry.materialID(name)
@@ -169,7 +171,7 @@ object MicroRecipe extends IRecipe
                         icraft.getStackInRowAndColumn(c, r) != null)
                     return null
         
-        return create(2, microClass(item), size/2, material)
+        return create(2, mcrClass, size/2, material)
     }
     
     val splitMap = Map(0 -> 3, 1 -> 3, 3 -> 2)
