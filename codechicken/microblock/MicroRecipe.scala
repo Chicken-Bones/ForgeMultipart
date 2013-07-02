@@ -5,7 +5,6 @@ import net.minecraft.world.World
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import codechicken.microblock.handler.MicroblockProxy._
-import codechicken.core.inventory.InventoryUtils
 
 object MicroRecipe extends IRecipe
 {
@@ -107,9 +106,13 @@ object MicroRecipe extends IRecipe
             case 1|0 => {
                 val base = Seq(1, 2, 4).find(s => (s&size) != 0)
                 if(base.isEmpty)
-                    InventoryUtils.copyStack(MicroMaterialRegistry.getMaterial(material).getItem, size/8)
+                {
+                    val stack = MicroMaterialRegistry.getMaterial(material).getItem
+                    stack.stackSize = size/8
+                    stack
+                }
                 else if(base.get <= smallest)
-                    return null
+                    null
                 else
                     create(size/base.get, mcrClass, base.get, material)
             }
@@ -147,7 +150,7 @@ object MicroRecipe extends IRecipe
         }
         else
         {
-            MicroMaterialRegistry.getIdMap.find(m => InventoryUtils.canStack(m._2.getItem, item)) match {
+            MicroMaterialRegistry.getIdMap.find(m => ItemStack.areItemStacksEqual(m._2.getItem, item)) match {
                 case None => return null
                 case Some((name, m)) => {
                     material = MicroMaterialRegistry.materialID(name)
