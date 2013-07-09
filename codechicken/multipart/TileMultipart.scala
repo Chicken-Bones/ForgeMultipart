@@ -294,7 +294,7 @@ class TileMultipart extends TileEntity
         partList.clear()
     }
     
-    def writeDesc(packet:PacketCustom)
+    def writeDesc(packet:MCDataOutput)
     {
         packet.writeByte(partList.size)
         partList.foreach{part =>
@@ -614,7 +614,7 @@ object TileMultipart
                 MultipartGenerator.addPart(world, pos, part)
             }
             case 254 => if(tilemp != null) {
-                tilemp.remPart_impl(tilemp.partList(packet.readUnsignedByte()))
+                tilemp.remPart_impl(tilemp.partList(packet.readUnsignedByte))
             }
             case _ => if(tilemp != null) {
                 tilemp.partList(i).read(packet)

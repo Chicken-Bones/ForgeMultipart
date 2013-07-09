@@ -52,21 +52,24 @@ object MultipartCPH extends IClientPacketHandler
     def handleCompressedTileDesc(packet:PacketCustom, world:World)
     {
         val cc = new ChunkCoordIntPair(packet.readInt, packet.readInt)
-        while(packet.more)
+        val num = packet.readUnsignedShort
+        for(i <- 0 until num)
             TileMultipart.handleDescPacket(world, indexInChunk(cc, packet.readShort), packet)
     }
     
     def handleCompressedTileData(packet:PacketCustom, world:World)
     {
-        while(packet.more)
+        var x = packet.readInt
+        while(x != Int.MaxValue)
         {
-            val pos = packet.readCoord
+            val pos = new BlockCoord(x, packet.readInt, packet.readInt)
             var i = packet.readUnsignedByte
             while(i < 255)
             {
                 TileMultipart.handlePacket(pos, world, i, packet)
                 i = packet.readUnsignedByte
             }
+            x = packet.readInt
         }
     }
 }
@@ -122,10 +125,13 @@ object MultipartSPH extends IServerPacketHandler
                     {
                         send = true
                         packet.writeByteArray(e._2.getBytes)
-                        packet.writeByte(255)
+                        packet.writeByte(255)//terminator
                     })
                 if(send)
+                {
+                    packet.writeInt(Int.MaxValue)//terminator
                     packet.sendToPlayer(p)
+                }
             }
         }
         updateMap.foreach(_._2.clear())
@@ -134,21 +140,26 @@ object MultipartSPH extends IServerPacketHandler
     def onChunkWatch(player:EntityPlayer, chunk:Chunk)
     {
         val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[_, TileEntity]].values.iterator
-        val packet = new PacketCustom(channel, 2).setChunkDataPacket().compressed()
-            .writeInt(chunk.xPosition).writeInt(chunk.zPosition)
+        val s = new MCByteStream(new ByteArrayOutputStream)
         
-        var empty = true
+        var num = 0
         while(iterator.hasNext)
         {
             val tile = iterator.next
             if(tile.isInstanceOf[TileMultipart])
             {
-                packet.writeShort(indexInChunk(new BlockCoord(tile)))
-                tile.asInstanceOf[TileMultipart].writeDesc(packet)
-                empty = false
+                s.writeShort(indexInChunk(new BlockCoord(tile)))
+                tile.asInstanceOf[TileMultipart].writeDesc(s)
+                num+=1
             }
         }
-        if(!empty)
-            packet.sendToPlayer(player)
+        if(num != 0)
+        {
+            new PacketCustom(channel, 2).setChunkDataPacket().compressed()
+                .writeInt(chunk.xPosition).writeInt(chunk.zPosition)
+                .writeShort(num)
+                .writeByteArray(s.getBytes)
+                .sendToPlayer(player)
+        }
     }
 }
