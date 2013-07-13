@@ -28,10 +28,14 @@ import net.minecraft.world.WorldServer
 import net.minecraft.world.ChunkCoordIntPair
 import MultipartProxy._
 
-object MultipartCPH extends IClientPacketHandler
+class MultipartPH
 {
-    val channel = MultipartMod;
-    
+    val channel = MultipartMod
+    val registryChannel = "ForgeMultipart"//Must use the 250 system for ID registry as the NetworkMod idMap hasn't been properly initialized from the server yet.
+}
+
+object MultipartCPH extends MultipartPH with IClientPacketHandler
+{
     def handlePacket(packet:PacketCustom, netHandler:NetClientHandler, mc:Minecraft)
     {
         packet.getType match
@@ -74,14 +78,13 @@ object MultipartCPH extends IClientPacketHandler
     }
 }
 
-object MultipartSPH extends IServerPacketHandler
+object MultipartSPH extends MultipartPH with IServerPacketHandler
 {
     class MCByteStream(bout:ByteArrayOutputStream) extends MCOutputStreamWrapper(new DataOutputStream(bout))
     {
         def getBytes = bout.toByteArray
     }
     
-    val channel = MultipartMod
     private val updateMap = mutable.Map[World, mutable.Map[BlockCoord, MCByteStream]]()
     
     def handlePacket(packet:PacketCustom, netHandler:NetServerHandler, sender:EntityPlayerMP)

@@ -77,6 +77,7 @@ class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
         super.postInit()
         RenderingRegistry.registerBlockHandler(MultipartRenderer);
         PacketCustom.assignHandler(MultipartCPH.channel, MultipartCPH)
+        PacketCustom.assignHandler(MultipartCPH.registryChannel, 1, 127, MultipartCPH)
         KeyBindingRegistry.registerKeyBinding(ControlKeyHandler)
     }
     

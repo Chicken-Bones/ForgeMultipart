@@ -50,7 +50,7 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     
     def connectionReceived(loginHandler:NetLoginHandler, netManager:INetworkManager):String = 
     {
-        val packet = new PacketCustom(MultipartSPH.channel, 1)
+        val packet = new PacketCustom(MultipartSPH.registryChannel, 1)
         MultiPartRegistry.writeIDMap(packet)
         netManager.addToSendQueue(packet.toPacket)
         return null

@@ -19,10 +19,11 @@ import java.io.PrintWriter
 import ScalaSignature._
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import codechicken.multipart.handler.MultipartProxy
 
 object DebugPrinter
 {
-    def debug = !obfuscated
+    def debug = MultipartProxy.config.getTag("debug_asm").getBooleanValue(!obfuscated)
     
     private var permGenUsed = 0
     val dir = new File("asm/multipart")
