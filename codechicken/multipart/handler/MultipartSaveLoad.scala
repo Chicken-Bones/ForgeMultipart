@@ -6,6 +6,7 @@ import java.util.Map
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
 import codechicken.multipart.TileMultipart
+import codechicken.core.asm.ObfuscationMappings
 
 
 /**
@@ -27,7 +28,10 @@ object MultipartSaveLoad
     hookLoader()
     def hookLoader()
     {
-        val field = classOf[TileEntity].getDeclaredFields()(0)
+        //hacky stuff for mcpc until I get a proper obfuscator on the build
+        val fieldName = if(ObfuscationMappings.obfuscated) "a" else "nameToClassMap"
+        
+        val field = classOf[TileEntity].getDeclaredField(fieldName)
         field.setAccessible(true)
         val map = field.get(null).asInstanceOf[Map[String, Class[_ <: TileEntity]]]
         map.put("savedMultipart", classOf[TileNBTContainer])
