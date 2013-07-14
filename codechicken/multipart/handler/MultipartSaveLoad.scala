@@ -29,7 +29,7 @@ object MultipartSaveLoad
     def hookLoader()
     {
         //hacky stuff for mcpc until I get a proper obfuscator on the build
-        val fieldName = if(ObfuscationMappings.obfuscated) "a" else "nameToClassMap"
+        val fieldName = if(ObfuscationMappings.obfuscated) "field_70326_a" else "nameToClassMap"
         
         val field = classOf[TileEntity].getDeclaredField(fieldName)
         field.setAccessible(true)
