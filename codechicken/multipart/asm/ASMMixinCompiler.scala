@@ -3,7 +3,6 @@ package codechicken.multipart.asm
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList, Set => MSet}
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import cpw.mods.fml.relauncher.RelaunchClassLoader
 import org.objectweb.asm.tree._
 import org.objectweb.asm.Opcodes._
 import org.objectweb.asm.ClassReader
@@ -13,17 +12,18 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.MethodVisitor
 import Type._
 import codechicken.core.asm.ASMHelper._
-import codechicken.core.asm.ObfuscationMappings._
+import codechicken.core.asm.ObfMapping
 import java.io.File
 import java.io.PrintWriter
 import ScalaSignature._
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import net.minecraft.launchwrapper.LaunchClassLoader
 import codechicken.multipart.handler.MultipartProxy
 
 object DebugPrinter
 {
-    def debug = MultipartProxy.config.getTag("debug_asm").getBooleanValue(!obfuscated)
+    def debug = MultipartProxy.config.getTag("debug_asm").getBooleanValue(!ObfMapping.obfuscated)
     
     private var permGenUsed = 0
     val dir = new File("asm/multipart")
@@ -59,7 +59,7 @@ object DebugPrinter
 
 object ASMMixinCompiler
 {
-    val cl = getClass.getClassLoader.asInstanceOf[RelaunchClassLoader]
+    val cl = getClass.getClassLoader.asInstanceOf[LaunchClassLoader]
     val m_defineClass = classOf[ClassLoader].getDeclaredMethod("defineClass", classOf[Array[Byte]], Integer.TYPE, Integer.TYPE)
     m_defineClass.setAccessible(true)
     
@@ -558,7 +558,7 @@ object ASMMixinCompiler
                     }
                     else if(!sym.name.equals("$init$") && !sym.isPrivate)
                     {
-                        methods+=findMethod(new DescriptorMapping(cnode.name, sym.name, desc), cnode)
+                        methods+=findMethod(new ObfMapping(cnode.name, sym.name, desc), cnode)
                     }
                 }
                 else

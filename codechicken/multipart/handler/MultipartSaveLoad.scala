@@ -6,8 +6,7 @@ import java.util.Map
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
 import codechicken.multipart.TileMultipart
-import codechicken.core.asm.ObfuscationMappings
-
+import codechicken.core.asm.ObfMapping
 
 /**
  * Hack due to lack of TileEntityLoadEvent in forge
@@ -29,7 +28,7 @@ object MultipartSaveLoad
     def hookLoader()
     {
         //hacky stuff for mcpc until I get a proper obfuscator on the build
-        val fieldName = if(ObfuscationMappings.obfuscated) "field_70326_a" else "nameToClassMap"
+        val fieldName = if(ObfMapping.obfuscated) "a" else "nameToClassMap"
         
         val field = classOf[TileEntity].getDeclaredField(fieldName)
         field.setAccessible(true)

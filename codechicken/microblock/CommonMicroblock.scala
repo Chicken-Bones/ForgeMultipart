@@ -30,6 +30,7 @@ import codechicken.core.render.RenderUtils
 import codechicken.core.render.IFaceRenderer
 import codechicken.multipart.TSlottedPart
 import scala.collection.JavaConversions._
+import codechicken.core.render.TextureUtils
 
 object CommonMicroblock
 {
@@ -47,7 +48,7 @@ object CommonMicroblock
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
         
         CCRenderState.reset()
-        CCRenderState.changeTexture("/terrain.png")
+        TextureUtils.bindAtlas(0);
         CCRenderState.useNormals(true)
         CCRenderState.setBrightness(world, pos.x, pos.y, pos.z)
         CCRenderState.setAlpha(80)

@@ -45,7 +45,8 @@ class MicroblockProxy_serverImpl
         sawStone = createSaw(config, "sawStone", 1, "Stone Handsaw")
         sawIron = createSaw(config, "sawIron", 2, "Iron Handsaw")
         sawDiamond = createSaw(config, "sawDiamond", 3, "Diamond Handsaw")
-        stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID)).setUnlocalizedName("microblock:stoneRod")
+        stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
+            .setUnlocalizedName("microblock:stoneRod").func_111206_d("microblock:stoneRod")
         LanguageRegistry.addName(stoneRod, "Stone Rod")
         OreDictionary.registerOre("stoneRod", stoneRod)
         

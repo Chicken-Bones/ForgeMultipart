@@ -12,7 +12,8 @@ import codechicken.multipart.MultiPartRegistry
 import cpw.mods.fml.relauncher.SideOnly
 import codechicken.core.packet.PacketCustom.CustomTinyPacketHandler
 
-@Mod(name="Multipart API", version="b.0.0.0", useMetadata = false, modid = "CCMultipart", acceptedMinecraftVersions = "[1.5.2]", modLanguage="scala")
+@Mod(name="Multipart API", version="b.0.0.0", useMetadata = false, modid = "ForgeMultipart", acceptedMinecraftVersions = "[1.6.2]", 
+        modLanguage="scala")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, tinyPacketHandler=classOf[CustomTinyPacketHandler])
 object MultipartMod
 {

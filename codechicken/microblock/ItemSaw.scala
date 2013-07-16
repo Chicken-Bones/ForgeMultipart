@@ -19,6 +19,8 @@ import org.lwjgl.opengl.GL11
 import codechicken.core.render.UVTranslation
 import ItemRenderType._
 import codechicken.core.alg.MathHelper._
+import net.minecraft.util.ResourceLocation
+import net.minecraft.client.renderer.texture.IconRegister
 
 trait Saw
 {
@@ -44,11 +46,13 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
     override def doesContainerItemLeaveCraftingGrid(stack:ItemStack) = false
     
     def getCuttingStrength = harvestLevel
+    
+    override def registerIcons(register:IconRegister){}
 }
 
 object ItemSawRenderer extends IItemRenderer
 {
-    val models = CCModel.parseObjModels("/mods/microblock/models/saw.obj", 7, new SwapYZ())
+    val models = CCModel.parseObjModels(new ResourceLocation("microblock", "models/saw.obj"), 7, new SwapYZ())
     val handle = models.get("Handle");
     val holder = models.get("BaldeSupport")
     val blade = models.get("Blade")
@@ -70,7 +74,7 @@ object ItemSawRenderer extends IItemRenderer
         CCRenderState.reset()
         CCRenderState.useNormals(true)
         CCRenderState.pullLightmap()
-        CCRenderState.changeTexture("/mods/microblock/textures/items/saw.png")
+        CCRenderState.changeTexture("microblock:textures/items/saw.png")
         CCRenderState.setColour(0xFFFFFFFF)
         CCRenderState.startDrawing(7)
         handle.render(t, null)

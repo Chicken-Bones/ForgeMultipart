@@ -22,6 +22,7 @@ import net.minecraft.world.World
 import codechicken.core.raytracer.RayTracer
 import net.minecraft.util.EnumMovingObjectType
 import codechicken.core.vec.Vector3
+import codechicken.core.render.TextureUtils
 
 class ItemMicroPart(id:Int) extends Item(id)
 {
@@ -141,7 +142,7 @@ object ItemMicroPartRenderer extends IItemRenderer
             return
         
         CCRenderState.reset()
-        CCRenderState.changeTexture("/terrain.png")
+        TextureUtils.bindAtlas(0);
         CCRenderState.useNormals(true)
         CCRenderState.useModelColours(true)
         CCRenderState.pullLightmap()

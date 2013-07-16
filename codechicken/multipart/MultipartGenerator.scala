@@ -12,7 +12,6 @@ import net.minecraft.network.packet.Packet53BlockChange
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.asm.IMultipartFactory
-import codechicken.multipart.asm.ScalaCompilerFactory
 import codechicken.multipart.asm.ASMMixinFactory
 
 object MultipartGenerator

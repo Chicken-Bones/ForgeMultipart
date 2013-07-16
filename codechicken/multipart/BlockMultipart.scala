@@ -185,9 +185,8 @@ trait BlockMultipart extends Block
     {
         val n = getUnlocalizedName();
         val icon = TextureUtils.getBlankIcon(16, register);
-        setUnlocalizedName(icon.getIconName)
+        setTextureName(icon.getIconName)
         super.registerIcons(register)
-        setUnlocalizedName(n)
     }
     
     override def getLightValue(world:IBlockAccess, x:Int, y:Int, z:Int):Int = 

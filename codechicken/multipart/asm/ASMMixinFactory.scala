@@ -20,7 +20,7 @@ import org.objectweb.asm.Type
 import Type._
 import scala.collection.immutable.Range
 import codechicken.core.asm.ASMHelper._
-import codechicken.core.asm.ObfuscationMappings._
+import codechicken.core.asm.ObfMapping
 import codechicken.multipart.MultipartGenerator
 import ASMMixinCompiler._
 
@@ -129,7 +129,7 @@ object ASMMixinFactory extends IMultipartFactory
     
     private def autoCompleteJavaTrait(cnode:ClassNode)
     {
-        if(!cnode.fields.isEmpty && findMethod(new DescriptorMapping(cnode.name, "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V"), cnode) == null)
+        if(!cnode.fields.isEmpty && findMethod(new ObfMapping(cnode.name, "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V"), cnode) == null)
         {
             val mv = cnode.visitMethod(ACC_PUBLIC, "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V", null, null)
             mv.visitVarInsn(ALOAD, 0)
