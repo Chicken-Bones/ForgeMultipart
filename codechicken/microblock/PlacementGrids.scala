@@ -1,9 +1,9 @@
 package codechicken.microblock
 
-import codechicken.core.vec.Vector3
+import codechicken.lib.vec.Vector3
 import org.lwjgl.opengl.GL11
-import codechicken.core.vec.BlockCoord
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.BlockCoord
+import codechicken.lib.vec.Rotation
 import Rotation._
 
 trait PlacementGrid

@@ -10,7 +10,7 @@ import net.minecraft.util.EnumMovingObjectType
 import codechicken.microblock.ItemMicroPart
 import codechicken.microblock.ItemMicroPartRenderer
 import org.lwjgl.opengl.GL11
-import codechicken.core.render.RenderUtils
+import codechicken.lib.render.RenderUtils
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 

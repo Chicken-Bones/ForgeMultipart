@@ -1,8 +1,8 @@
 package codechicken.microblock
 
-import codechicken.core.vec.Cuboid6
-import codechicken.core.vec.Scale
-import codechicken.core.vec.Vector3
+import codechicken.lib.vec.Cuboid6
+import codechicken.lib.vec.Scale
+import codechicken.lib.vec.Vector3
 import Vector3._
 
 object CornerPlacement extends PlacementProperties

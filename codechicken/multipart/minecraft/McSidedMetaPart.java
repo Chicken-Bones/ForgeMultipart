@@ -2,8 +2,8 @@ package codechicken.multipart.minecraft;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeDirection;
-import codechicken.core.vec.BlockCoord;
-import codechicken.core.vec.Vector3;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Vector3;
 import codechicken.multipart.TileMultipart;
 
 public abstract class McSidedMetaPart extends McMetaPart

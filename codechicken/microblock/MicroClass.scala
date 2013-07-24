@@ -1,11 +1,11 @@
 package codechicken.microblock
 
-import codechicken.core.lighting.CCRBModel
+import codechicken.lib.lighting.CCRBModel
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.World
-import codechicken.core.vec.BlockCoord
-import codechicken.core.vec.Vector3
-import codechicken.core.render.CCModel
+import codechicken.lib.vec.BlockCoord
+import codechicken.lib.vec.Vector3
+import codechicken.lib.render.CCModel
 import codechicken.multipart.TMultiPart
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.multipart.TileMultipart

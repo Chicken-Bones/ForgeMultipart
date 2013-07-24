@@ -7,8 +7,8 @@ import net.minecraft.block.BlockTorch;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.multipart.IRandomDisplayTick;
-import codechicken.core.vec.BlockCoord;
-import codechicken.core.vec.Cuboid6;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Cuboid6;
 
 public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
 {

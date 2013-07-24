@@ -6,7 +6,7 @@ import net.minecraft.block.BlockRedstoneWire
 import net.minecraft.world.IBlockAccess
 import net.minecraft.util.Direction
 import PartMap._
-import codechicken.core.vec.Rotation._
+import codechicken.lib.vec.Rotation._
 
 trait IRedstonePart
 {

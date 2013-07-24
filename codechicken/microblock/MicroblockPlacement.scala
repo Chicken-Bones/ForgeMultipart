@@ -3,16 +3,16 @@ package codechicken.microblock
 import net.minecraft.world.World
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MovingObjectPosition
-import codechicken.core.vec.Vector3
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.BlockCoord
 import codechicken.multipart.TileMultipart
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.Rotation
 import codechicken.multipart.ControlKeyModifer._
 import net.minecraft.item.ItemStack
 import codechicken.microblock.handler.MicroblockProxy
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TileMultipart
-import codechicken.core.raytracer.ExtendedMOP
+import codechicken.lib.raytracer.ExtendedMOP
 
 abstract class ExecutablePlacement(val pos:BlockCoord, val part:Microblock)
 {

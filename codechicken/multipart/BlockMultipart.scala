@@ -10,11 +10,11 @@ import net.minecraftforge.common.ForgeDirection
 import net.minecraft.util.Vec3
 import net.minecraft.util.MovingObjectPosition
 import java.util.LinkedList
-import codechicken.core.raytracer.IndexedCuboid6
-import codechicken.core.vec.Cuboid6
-import codechicken.core.raytracer.RayTracer
-import codechicken.core.vec.Vector3
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.raytracer.IndexedCuboid6
+import codechicken.lib.vec.Cuboid6
+import codechicken.lib.raytracer.RayTracer
+import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.BlockCoord
 import net.minecraft.entity.player.EntityPlayer
 import java.util.Random
 import java.util.ArrayList
@@ -23,10 +23,10 @@ import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.client.Minecraft
 import net.minecraft.util.Icon
 import net.minecraft.client.renderer.texture.IconRegister
-import codechicken.core.render.TextureSpecial
-import codechicken.core.render.TextureUtils
+import codechicken.lib.render.TextureSpecial
+import codechicken.lib.render.TextureUtils
 import net.minecraft.world.IBlockAccess
-import codechicken.core.raytracer.ExtendedMOP
+import codechicken.lib.raytracer.ExtendedMOP
 import scala.collection.JavaConversions._
 
 object BlockMultipart
@@ -185,7 +185,7 @@ trait BlockMultipart extends Block
     {
         val n = getUnlocalizedName();
         val icon = TextureUtils.getBlankIcon(16, register);
-        setTextureName(icon.getIconName)
+        func_111022_d(icon.getIconName)
         super.registerIcons(register)
     }
     

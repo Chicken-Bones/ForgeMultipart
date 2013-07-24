@@ -1,9 +1,9 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.core.packet.PacketCustom;
-import codechicken.core.raytracer.RayTracer;
-import codechicken.core.vec.BlockCoord;
-import codechicken.core.vec.Vector3;
+import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.raytracer.RayTracer;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Vector3;
 import codechicken.multipart.TileMultipart;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;

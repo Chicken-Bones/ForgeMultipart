@@ -1,6 +1,6 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.core.vec.BlockCoord;
+import codechicken.lib.vec.BlockCoord;
 import net.minecraft.world.World;
 
 public interface IPartMeta

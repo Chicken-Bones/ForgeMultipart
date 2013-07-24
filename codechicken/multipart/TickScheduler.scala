@@ -1,14 +1,14 @@
 package codechicken.multipart
 
-import codechicken.core.world.WorldExtensionInstantiator
-import codechicken.core.world.WorldExtension
-import codechicken.core.world.ChunkExtension
+import codechicken.lib.world.WorldExtensionInstantiator
+import codechicken.lib.world.WorldExtension
+import codechicken.lib.world.ChunkExtension
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.World
 import net.minecraft.nbt.NBTTagCompound
 import scala.collection.mutable.ListBuffer
 import net.minecraft.nbt.NBTTagList
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.world.ChunkPosition
 import scala.collection.mutable.HashSet

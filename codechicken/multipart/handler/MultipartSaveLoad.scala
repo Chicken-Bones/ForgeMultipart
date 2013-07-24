@@ -6,7 +6,7 @@ import java.util.Map
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
 import codechicken.multipart.TileMultipart
-import codechicken.core.asm.ObfMapping
+import codechicken.lib.asm.ObfMapping
 
 /**
  * Hack due to lack of TileEntityLoadEvent in forge

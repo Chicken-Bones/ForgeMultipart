@@ -1,9 +1,9 @@
 package codechicken.multipart
 
-import codechicken.core.lighting.LightMatrix
-import codechicken.core.render.CCRenderState
-import codechicken.core.vec.Cuboid6
-import codechicken.core.vec.Vector3
+import codechicken.lib.lighting.LightMatrix
+import codechicken.lib.render.CCRenderState
+import codechicken.lib.vec.Cuboid6
+import codechicken.lib.vec.Vector3
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler
 import cpw.mods.fml.client.registry.RenderingRegistry
 import net.minecraft.block.Block
@@ -11,14 +11,14 @@ import net.minecraft.client.renderer.RenderBlocks
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.IBlockAccess
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.IWorldAccess
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.client.Minecraft
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.core.raytracer.ExtendedMOP
-import codechicken.core.lighting.LazyLightMatrix
+import codechicken.lib.raytracer.ExtendedMOP
+import codechicken.lib.lighting.LazyLightMatrix
 
 @SideOnly(Side.CLIENT)
 object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRenderingHandler

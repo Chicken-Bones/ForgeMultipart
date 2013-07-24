@@ -5,7 +5,7 @@ import codechicken.multipart.TileMultipart
 import codechicken.multipart.IRedstonePart
 import codechicken.multipart.RedstoneInteractions._
 import codechicken.multipart.PartMap._
-import codechicken.core.vec.Rotation._
+import codechicken.lib.vec.Rotation._
 import codechicken.multipart.IRedstoneTile
 import codechicken.multipart.TFacePart
 import codechicken.multipart.TEdgePart

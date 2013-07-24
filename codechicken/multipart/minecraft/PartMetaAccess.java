@@ -1,6 +1,6 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.core.vec.BlockCoord;
+import codechicken.lib.vec.BlockCoord;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;

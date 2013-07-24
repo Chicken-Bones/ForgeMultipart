@@ -1,16 +1,16 @@
 package codechicken.microblock
 
 import net.minecraft.nbt.NBTTagCompound
-import codechicken.core.lighting.LightMatrix
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.lighting.LightMatrix
+import codechicken.lib.packet.PacketCustom
 import codechicken.microblock.MicroMaterialRegistry._
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 import org.lwjgl.opengl.GL11
-import codechicken.core.render.CCRenderState
+import codechicken.lib.render.CCRenderState
 import net.minecraft.world.World
-import codechicken.core.vec.Cuboid6
-import codechicken.core.vec.Vector3
-import codechicken.core.lighting.LazyLightMatrix
+import codechicken.lib.vec.Cuboid6
+import codechicken.lib.vec.Vector3
+import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.multipart.TIconHitEffects
 import net.minecraft.util.Icon
 import net.minecraft.block.Block
@@ -18,19 +18,19 @@ import codechicken.multipart.TCuboidPart
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.multipart.JPartialOcclusion
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.Rotation
 import codechicken.multipart.TileMultipart
-import codechicken.core.render.Vertex5
+import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
 import codechicken.multipart.TMultiPart
-import codechicken.core.data.MCDataOutput
-import codechicken.core.data.MCDataInput
-import codechicken.core.render.RenderUtils
-import codechicken.core.render.IFaceRenderer
+import codechicken.lib.data.MCDataOutput
+import codechicken.lib.data.MCDataInput
+import codechicken.lib.render.RenderUtils
+import codechicken.lib.render.IFaceRenderer
 import codechicken.multipart.TSlottedPart
 import scala.collection.JavaConversions._
-import codechicken.core.render.TextureUtils
+import codechicken.lib.render.TextureUtils
 
 object CommonMicroblock
 {

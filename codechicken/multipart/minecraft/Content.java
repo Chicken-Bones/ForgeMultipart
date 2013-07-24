@@ -2,7 +2,7 @@ package codechicken.multipart.minecraft;
 
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
-import codechicken.core.vec.BlockCoord;
+import codechicken.lib.vec.BlockCoord;
 import codechicken.multipart.MultiPartRegistry.IPartConverter;
 import codechicken.multipart.MultiPartRegistry.IPartFactory;
 import codechicken.multipart.MultiPartRegistry;

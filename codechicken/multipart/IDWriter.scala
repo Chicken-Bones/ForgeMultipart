@@ -1,7 +1,7 @@
 package codechicken.multipart
 
-import codechicken.core.data.MCDataOutput
-import codechicken.core.data.MCDataInput
+import codechicken.lib.data.MCDataOutput
+import codechicken.lib.data.MCDataInput
 
 trait IDWriter
 {
@@ -19,12 +19,12 @@ trait IDWriter
         else if(l > 0xFF)
         {
             write = (data, i) => data.writeShort(i)
-            read = (data) => data.readUnsignedShort()
+            read = (data) => data.readUShort()
         }
         else
         {
             write = (data, i) => data.writeByte(i)
-            read = (data) => data.readUnsignedByte()
+            read = (data) => data.readUByte()
         }
     }
 }

@@ -1,8 +1,8 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.core.vec.BlockCoord;
-import codechicken.core.vec.Cuboid6;
-import codechicken.core.vec.Vector3;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.lib.vec.Vector3;
 import codechicken.multipart.IRedstonePart;
 import codechicken.multipart.TickScheduler;
 import net.minecraft.block.Block;

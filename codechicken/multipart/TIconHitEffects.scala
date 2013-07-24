@@ -1,14 +1,14 @@
 package codechicken.multipart
 
-import codechicken.core.vec.Cuboid6
+import codechicken.lib.vec.Cuboid6
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraft.util.Icon
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.client.particle.EffectRenderer
-import codechicken.core.vec.Vector3
-import codechicken.core.raytracer.ExtendedMOP
-import codechicken.core.render.EntityDigIconFX
+import codechicken.lib.vec.Vector3
+import codechicken.lib.raytracer.ExtendedMOP
+import codechicken.lib.render.EntityDigIconFX
 
 object IconHitEffects
 {

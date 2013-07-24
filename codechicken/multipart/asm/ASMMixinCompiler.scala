@@ -11,8 +11,8 @@ import org.objectweb.asm.util.Textifier
 import org.objectweb.asm.Type
 import org.objectweb.asm.MethodVisitor
 import Type._
-import codechicken.core.asm.ASMHelper._
-import codechicken.core.asm.ObfMapping
+import codechicken.lib.asm.ASMHelper._
+import codechicken.lib.asm.ObfMapping
 import java.io.File
 import java.io.PrintWriter
 import ScalaSignature._
@@ -537,7 +537,7 @@ object ASMMixinCompiler
         val csym:ClassSymbol = sig.evalT(0)
         for(i <- 0 until sig.table.length)
         {
-            import ScalaSignature._
+import ScalaSignature._
             
             val e = sig.table(i)
             if(e.id == 8)//method

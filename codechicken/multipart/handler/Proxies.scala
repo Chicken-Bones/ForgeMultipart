@@ -5,7 +5,7 @@ import cpw.mods.fml.common.network.PacketDispatcher
 import cpw.mods.fml.client.registry.RenderingRegistry
 import cpw.mods.fml.client.registry.ClientRegistry
 import net.minecraft.tileentity.TileEntity
-import codechicken.core.config.ConfigFile
+import codechicken.lib.config.ConfigFile
 import cpw.mods.fml.common.registry.GameRegistry
 import java.io.File
 import codechicken.multipart.handler.MultipartProxy._
@@ -16,7 +16,7 @@ import net.minecraftforge.common.MinecraftForge
 import codechicken.multipart.MultipartGenerator
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.packet.PacketCustom
 import codechicken.multipart.TileMultipart
 import cpw.mods.fml.client.registry.KeyBindingRegistry
 import codechicken.multipart.ControlKeyHandler
@@ -24,8 +24,8 @@ import cpw.mods.fml.common.network.NetworkRegistry
 import cpw.mods.fml.common.registry.TickRegistry
 import net.minecraft.block.Block
 import net.minecraft.world.ChunkCoordIntPair
-import codechicken.core.vec.BlockCoord
-import codechicken.core.world.WorldExtensionManager
+import codechicken.lib.vec.BlockCoord
+import codechicken.lib.world.WorldExtensionManager
 import codechicken.multipart.TickScheduler
 
 class MultipartProxy_serverImpl

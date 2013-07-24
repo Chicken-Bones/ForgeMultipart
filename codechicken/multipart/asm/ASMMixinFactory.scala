@@ -7,7 +7,7 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.objectweb.asm.Opcodes._
 import org.objectweb.asm.ClassWriter
-import codechicken.core.asm.CC_ClassWriter
+import codechicken.lib.asm.CC_ClassWriter
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Label
@@ -19,8 +19,8 @@ import org.objectweb.asm.tree._
 import org.objectweb.asm.Type
 import Type._
 import scala.collection.immutable.Range
-import codechicken.core.asm.ASMHelper._
-import codechicken.core.asm.ObfMapping
+import codechicken.lib.asm.ASMHelper._
+import codechicken.lib.asm.ObfMapping
 import codechicken.multipart.MultipartGenerator
 import ASMMixinCompiler._
 
@@ -53,7 +53,7 @@ object ASMMixinFactory extends IMultipartFactory
     
     class SuperSet(types:Seq[String], client:Boolean)
     {
-        import SuperSet._
+import SuperSet._
         val set = baseType+:types.sorted
         
         def baseType = if(client) TileMultipartClientType else TileMultipartType

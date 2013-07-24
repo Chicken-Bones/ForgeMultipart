@@ -3,9 +3,9 @@ package codechicken.multipart.minecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.client.multiplayer.WorldClient;
-import codechicken.core.packet.PacketCustom;
-import codechicken.core.packet.PacketCustom.IClientPacketHandler;
-import codechicken.core.vec.BlockCoord;
+import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.packet.PacketCustom.IClientPacketHandler;
+import codechicken.lib.vec.BlockCoord;
 
 public class McMultipartCPH implements IClientPacketHandler
 {

@@ -3,9 +3,9 @@ package codechicken.multipart
 import net.minecraft.tileentity.TileEntity
 import scala.collection.mutable.ListBuffer
 import net.minecraft.network.packet.Packet
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.packet.PacketCustom
 import codechicken.multipart.handler.MultipartCPH
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.World
 import java.util.List
 import scala.collection.JavaConverters._
@@ -13,16 +13,16 @@ import net.minecraft.nbt.NBTTagCompound
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.DataInputStream
-import codechicken.core.data.MCDataInputStream
-import codechicken.core.data.MCDataOutput
-import codechicken.core.data.MCDataOutputStream
+import codechicken.lib.data.MCDataInputStream
+import codechicken.lib.data.MCDataOutput
+import codechicken.lib.data.MCDataOutputStream
 import net.minecraft.client.multiplayer.NetClientHandler
-import codechicken.core.vec.Cuboid6
+import codechicken.lib.vec.Cuboid6
 import scala.collection.mutable.HashSet
 import codechicken.multipart.handler.MultipartProxy
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
-import codechicken.core.vec.Vector3
+import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.MovingObjectPosition
@@ -32,7 +32,7 @@ import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
-import codechicken.core.lighting.LazyLightMatrix
+import codechicken.lib.lighting.LazyLightMatrix
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
@@ -581,7 +581,7 @@ object TileMultipart
     
     def handleDescPacket(world:World, pos:BlockCoord, packet:PacketCustom)
     {
-        val nparts = packet.readUnsignedByte
+        val nparts = packet.readUByte
         val parts = new ListBuffer[TMultiPart]()
         for(i <- 0 until nparts)
         {
@@ -614,7 +614,7 @@ object TileMultipart
                 MultipartGenerator.addPart(world, pos, part)
             }
             case 254 => if(tilemp != null) {
-                tilemp.remPart_impl(tilemp.partList(packet.readUnsignedByte))
+                tilemp.remPart_impl(tilemp.partList(packet.readUByte))
             }
             case _ => if(tilemp != null) {
                 tilemp.partList(i).read(packet)

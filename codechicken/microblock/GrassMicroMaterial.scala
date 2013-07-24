@@ -1,16 +1,16 @@
 package codechicken.microblock
 
 import net.minecraft.util.Icon
-import codechicken.core.vec.Vector3
+import codechicken.lib.vec.Vector3
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.block.Block
-import codechicken.core.render.Vertex5
-import codechicken.core.render.IconTransformation
+import codechicken.lib.render.Vertex5
+import codechicken.lib.render.IconTransformation
 import net.minecraft.block.BlockGrass
-import codechicken.core.render.IUVTransformation
-import codechicken.core.render.UV
-import codechicken.core.lighting.LightMatrix
+import codechicken.lib.render.IUVTransformation
+import codechicken.lib.render.UV
+import codechicken.lib.lighting.LightMatrix
 
 class TopIconTransformation(h:Double, uvt:IUVTransformation) extends IUVTransformation
 {

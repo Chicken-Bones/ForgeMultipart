@@ -1,10 +1,10 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.core.data.MCDataInput;
-import codechicken.core.data.MCDataOutput;
-import codechicken.core.lighting.LazyLightMatrix;
-import codechicken.core.vec.BlockCoord;
-import codechicken.core.vec.Vector3;
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.lighting.LazyLightMatrix;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;

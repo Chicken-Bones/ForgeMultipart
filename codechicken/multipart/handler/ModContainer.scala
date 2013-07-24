@@ -10,7 +10,7 @@ import cpw.mods.fml.common.Mod.ServerAboutToStart
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent
 import codechicken.multipart.MultiPartRegistry
 import cpw.mods.fml.relauncher.SideOnly
-import codechicken.core.packet.PacketCustom.CustomTinyPacketHandler
+import codechicken.lib.packet.PacketCustom.CustomTinyPacketHandler
 
 @Mod(name="Multipart API", version="b.0.0.0", useMetadata = false, modid = "ForgeMultipart", acceptedMinecraftVersions = "[1.6.2]", 
         modLanguage="scala")

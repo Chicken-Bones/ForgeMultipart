@@ -10,7 +10,7 @@ import net.minecraft.network.packet.Packet1Login
 import cpw.mods.fml.common.network.Player
 import net.minecraft.network.NetLoginHandler
 import net.minecraft.server.MinecraftServer
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.packet.PacketCustom
 import codechicken.multipart.MultiPartRegistry
 import net.minecraftforge.event.world._
 import cpw.mods.fml.common.ITickHandler

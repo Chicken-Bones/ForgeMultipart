@@ -7,7 +7,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry
 import java.util.EnumSet
 import cpw.mods.fml.common.TickType
 import net.minecraft.client.Minecraft
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.packet.PacketCustom
 import codechicken.multipart.handler.MultipartCPH
 import scala.collection.mutable.HashMap
 import net.minecraft.entity.player.EntityPlayer

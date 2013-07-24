@@ -13,16 +13,16 @@ import net.minecraft.util.StatCollector
 import java.util.List
 import net.minecraft.creativetab.CreativeTabs
 import codechicken.microblock.MicroblockClassRegistry._
-import codechicken.core.render.CCRenderState
+import codechicken.lib.render.CCRenderState
 import net.minecraft.client.renderer.texture.IconRegister
 import codechicken.microblock.handler.MicroblockProxy
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.world.World
-import codechicken.core.raytracer.RayTracer
+import codechicken.lib.raytracer.RayTracer
 import net.minecraft.util.EnumMovingObjectType
-import codechicken.core.vec.Vector3
-import codechicken.core.render.TextureUtils
+import codechicken.lib.vec.Vector3
+import codechicken.lib.render.TextureUtils
 
 class ItemMicroPart(id:Int) extends Item(id)
 {

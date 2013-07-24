@@ -1,11 +1,11 @@
 package codechicken.multipart;
 
 import scala.collection.mutable.HashMap
-import codechicken.core.packet.PacketCustom
-import codechicken.core.data.MCDataOutput
-import codechicken.core.data.MCDataInput
+import codechicken.lib.packet.PacketCustom
+import codechicken.lib.data.MCDataOutput
+import codechicken.lib.data.MCDataInput
 import net.minecraft.world.World
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 import scala.collection.mutable.ListBuffer
 
 object MultiPartRegistry

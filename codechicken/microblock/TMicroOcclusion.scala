@@ -1,7 +1,7 @@
 package codechicken.microblock
 
 import codechicken.multipart.TMultiPart
-import codechicken.core.vec.Cuboid6
+import codechicken.lib.vec.Cuboid6
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.multipart.TileMultipart

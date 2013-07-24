@@ -1,6 +1,6 @@
 package codechicken.multipart
 
-import codechicken.core.vec.Cuboid6
+import codechicken.lib.vec.Cuboid6
 import scala.collection.JavaConversions._
 import java.lang.Iterable
 

@@ -1,8 +1,8 @@
 package codechicken.multipart.minecraft;
 
 import net.minecraftforge.common.MinecraftForge;
-import codechicken.core.packet.PacketCustom;
-import codechicken.core.packet.PacketCustom.CustomTinyPacketHandler;
+import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.packet.PacketCustom.CustomTinyPacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Instance;
@@ -23,7 +23,7 @@ public class MinecraftMultipartMod
         new Content().init();
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         PacketCustom.assignHandler(this, new McMultipartSPH());
-        if(FMLCommonHandler.instance().getSide() == Side.CLIENT)
+        if(FMLCommonHandler.instance().getSide().isClient())
             PacketCustom.assignHandler(this, new McMultipartCPH());
             
     }

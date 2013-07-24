@@ -1,20 +1,20 @@
 package codechicken.microblock
 
-import codechicken.core.vec.Cuboid6
+import codechicken.lib.vec.Cuboid6
 import codechicken.multipart.IDWriter
-import codechicken.core.lighting.LightMatrix
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.lighting.LightMatrix
+import codechicken.lib.packet.PacketCustom
 import scala.collection.mutable.HashMap
-import codechicken.core.data.MCDataOutput
-import codechicken.core.data.MCDataInput
+import codechicken.lib.data.MCDataOutput
+import codechicken.lib.data.MCDataInput
 import codechicken.multipart.MultiPartRegistry
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.microblock.handler.MicroblockProxy
-import codechicken.core.vec.Vector3
+import codechicken.lib.vec.Vector3
 import net.minecraft.util.Icon
 import net.minecraft.entity.player.EntityPlayer
-import codechicken.core.render.Vertex5
+import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
 
 object MicroMaterialRegistry

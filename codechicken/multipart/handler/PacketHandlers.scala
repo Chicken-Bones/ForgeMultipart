@@ -1,8 +1,8 @@
 package codechicken.multipart.handler
 
-import codechicken.core.packet.PacketCustom.IClientPacketHandler
-import codechicken.core.packet.PacketCustom.IServerPacketHandler
-import codechicken.core.packet.PacketCustom
+import codechicken.lib.packet.PacketCustom.IClientPacketHandler
+import codechicken.lib.packet.PacketCustom.IServerPacketHandler
+import codechicken.lib.packet.PacketCustom
 import net.minecraft.client.multiplayer.NetClientHandler
 import net.minecraft.client.Minecraft
 import codechicken.multipart.MultiPartRegistry
@@ -20,8 +20,8 @@ import net.minecraft.tileentity.TileEntity
 import codechicken.multipart.TileMultipart
 import net.minecraft.entity.player.EntityPlayer
 import scala.collection._
-import codechicken.core.vec.BlockCoord
-import codechicken.core.data.MCOutputStreamWrapper
+import codechicken.lib.vec.BlockCoord
+import codechicken.lib.data.MCOutputStreamWrapper
 import java.io.DataOutputStream
 import java.io.ByteArrayOutputStream
 import net.minecraft.world.WorldServer
@@ -56,7 +56,7 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
     def handleCompressedTileDesc(packet:PacketCustom, world:World)
     {
         val cc = new ChunkCoordIntPair(packet.readInt, packet.readInt)
-        val num = packet.readUnsignedShort
+        val num = packet.readUShort
         for(i <- 0 until num)
             TileMultipart.handleDescPacket(world, indexInChunk(cc, packet.readShort), packet)
     }
@@ -67,11 +67,11 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
         while(x != Int.MaxValue)
         {
             val pos = new BlockCoord(x, packet.readInt, packet.readInt)
-            var i = packet.readUnsignedByte
+            var i = packet.readUByte
             while(i < 255)
             {
                 TileMultipart.handlePacket(pos, world, i, packet)
-                i = packet.readUnsignedByte
+                i = packet.readUByte
             }
             x = packet.readInt
         }

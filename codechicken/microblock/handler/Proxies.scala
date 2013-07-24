@@ -19,13 +19,15 @@ import codechicken.microblock.ItemSaw
 import net.minecraft.item.crafting.IRecipe
 import java.util.{List => JList}
 import cpw.mods.fml.common.registry.LanguageRegistry
-import codechicken.core.config.ConfigTag
-import codechicken.core.config.ConfigFile
+import codechicken.lib.config.ConfigTag
+import codechicken.lib.config.ConfigFile
 import net.minecraftforge.oredict.OreDictionary
 import codechicken.microblock.ItemSawRenderer
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
 import net.minecraft.block.Block
+import codechicken.lib.lang.LangUtil
+import net.minecraft.util.ResourceLocation
 
 class MicroblockProxy_serverImpl
 {
@@ -42,23 +44,19 @@ class MicroblockProxy_serverImpl
     def preInit()
     {
         itemMicro = new ItemMicroPart(config.getTag("itemMicro.id").getIntValue(nextItemID))
-        sawStone = createSaw(config, "sawStone", 1, "Stone Handsaw")
-        sawIron = createSaw(config, "sawIron", 2, "Iron Handsaw")
-        sawDiamond = createSaw(config, "sawDiamond", 3, "Diamond Handsaw")
+        sawStone = createSaw(config, "sawStone", 1)
+        sawIron = createSaw(config, "sawIron", 2)
+        sawDiamond = createSaw(config, "sawDiamond", 3)
         stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
             .setUnlocalizedName("microblock:stoneRod").func_111206_d("microblock:stoneRod")
-        LanguageRegistry.addName(stoneRod, "Stone Rod")
-        OreDictionary.registerOre("stoneRod", stoneRod)
         
+        OreDictionary.registerOre("stoneRod", stoneRod)
+        LangUtil.instance.addLangDir(new ResourceLocation("microblock:lang"))
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
     }
     
-    def createSaw(config:ConfigFile, name:String, strength:Int, localized:String) = 
-    {
-        val saw = new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:"+name)
-        LanguageRegistry.addName(saw, localized)
-        saw
-    }
+    def createSaw(config:ConfigFile, name:String, strength:Int) = 
+        new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:"+name)
     
     def addSawRecipe(saw:Item, blade:Item)
     {
@@ -94,9 +92,9 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     }
     
     @SideOnly(Side.CLIENT)
-    override def createSaw(config:ConfigFile, name:String, strength:Int, localized:String) = 
+    override def createSaw(config:ConfigFile, name:String, strength:Int) = 
     {
-        val saw = super.createSaw(config, name, strength, localized)
+        val saw = super.createSaw(config, name, strength)
         MinecraftForgeClient.registerItemRenderer(saw.itemID, ItemSawRenderer)
         saw
     }

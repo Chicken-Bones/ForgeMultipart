@@ -1,24 +1,24 @@
 package codechicken.microblock
 
 import net.minecraft.item.Item
-import codechicken.core.config.ConfigTag
+import codechicken.lib.config.ConfigTag
 import codechicken.microblock.handler.MicroblockProxy._
 import net.minecraft.item.ItemStack
 import net.minecraftforge.client.IItemRenderer
-import codechicken.core.render.CCModel
+import codechicken.lib.render.CCModel
 import net.minecraftforge.client.IItemRenderer.ItemRenderType
 import net.minecraftforge.client.IItemRenderer.ItemRendererHelper
-import codechicken.core.vec.SwapYZ
-import codechicken.core.render.CCRenderState
-import codechicken.core.vec.Transformation
-import codechicken.core.vec.TransformationList
-import codechicken.core.vec.Translation
-import codechicken.core.vec.Scale
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.SwapYZ
+import codechicken.lib.render.CCRenderState
+import codechicken.lib.vec.Transformation
+import codechicken.lib.vec.TransformationList
+import codechicken.lib.vec.Translation
+import codechicken.lib.vec.Scale
+import codechicken.lib.vec.Rotation
 import org.lwjgl.opengl.GL11
-import codechicken.core.render.UVTranslation
+import codechicken.lib.render.UVTranslation
 import ItemRenderType._
-import codechicken.core.alg.MathHelper._
+import codechicken.lib.math.MathHelper._
 import net.minecraft.util.ResourceLocation
 import net.minecraft.client.renderer.texture.IconRegister
 
@@ -54,7 +54,7 @@ object ItemSawRenderer extends IItemRenderer
 {
     val models = CCModel.parseObjModels(new ResourceLocation("microblock", "models/saw.obj"), 7, new SwapYZ())
     val handle = models.get("Handle");
-    val holder = models.get("BaldeSupport")
+    val holder = models.get("BladeSupport")
     val blade = models.get("Blade")
     
     def handleRenderType(item:ItemStack, renderType:ItemRenderType) = true

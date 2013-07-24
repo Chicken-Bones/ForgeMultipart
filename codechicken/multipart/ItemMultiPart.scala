@@ -1,12 +1,12 @@
 package codechicken.multipart
 
 import net.minecraft.item.Item
-import codechicken.core.vec.Vector3
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.Rotation
 import net.minecraft.item.ItemStack
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.world.World
-import codechicken.core.vec.BlockCoord
+import codechicken.lib.vec.BlockCoord
 
 abstract class JItemMultiPart(id:Int) extends Item(id) with TItemMultiPart
 

@@ -1,11 +1,11 @@
 package codechicken.microblock
 
-import codechicken.core.vec.Cuboid6
-import codechicken.core.vec.Scale
-import codechicken.core.vec.Vector3
-import codechicken.core.vec.TransformationList
-import codechicken.core.vec.AxisCycle
-import codechicken.core.vec.Rotation
+import codechicken.lib.vec.Cuboid6
+import codechicken.lib.vec.Scale
+import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.TransformationList
+import codechicken.lib.vec.AxisCycle
+import codechicken.lib.vec.Rotation
 import Vector3._
 import Rotation._
 import codechicken.multipart.TMultiPart
@@ -14,11 +14,11 @@ import codechicken.multipart.JPartialOcclusion
 import codechicken.multipart.NormalOcclusionTest
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.MultiPartRegistry
-import codechicken.core.lighting.LazyLightMatrix
+import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.core.raytracer.ExtendedMOP
+import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.multipart.TEdgePart
 import scala.collection.JavaConversions._
 
