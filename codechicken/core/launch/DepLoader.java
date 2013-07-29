@@ -18,6 +18,9 @@ import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,6 +45,7 @@ import argo.saj.InvalidSyntaxException;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import cpw.mods.fml.common.versioning.ComparableVersion;
+import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
@@ -243,11 +247,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         }
     }
     
-    public class Dependancy
+    public static class Dependancy
     {
         public String url;
         public String[] filesplit;
         public ComparableVersion version;
+        
+        public String existing;
         
         public Dependancy(String url, String[] filesplit)
         {
@@ -267,48 +273,32 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         }
     }
     
-    public class DepLoadInst
+    public static class DepLoadInst
     {
         private File modsDir;
+        private File v_modsDir;
         private IDownloadDisplay downloadMonitor;
         private JDialog popupWindow;
-        
-        private Map<String, Dependancy> dependancies = new HashMap<String, Dependancy>();
+
+        private Map<String, Dependancy> depMap = new HashMap<String, Dependancy>();
+        private HashSet<String> depSet = new HashSet<String>();
         
         public DepLoadInst()
         {
+            String mcVer = (String) FMLInjectionData.data()[4];
+            File mcDir = (File) FMLInjectionData.data()[6];
+            
             modsDir = new File(mcDir, "mods");
+            v_modsDir = new File(mcDir, "mods/"+mcVer);
+            if(!v_modsDir.exists())
+                v_modsDir.mkdirs();
         }
         
-        public void load(Dependancy dep)
-        {
-            downloadMonitor = FMLLaunchHandler.side().isClient() ? new Downloader() : new DummyDownloader();
-            
-            try
-            {
-                String existing = checkExisting(dep.filesplit);
-                if(existing == null)//download dep
-                {
-                    download(dep);
-                    existing = dep.fileName();
-                }
-                addClasspath(existing);
-            }
-            finally
-            {
-                if (popupWindow != null)
-                {
-                    popupWindow.setVisible(false);
-                    popupWindow.dispose();
-                }
-            }
-        }
-
         private void addClasspath(String name)
         {
             try
             {
-                ((LaunchClassLoader)DepLoader.class.getClassLoader()).addURL(new File(modsDir, name).toURI().toURL());
+                ((LaunchClassLoader)DepLoader.class.getClassLoader()).addURL(new File(v_modsDir, name).toURI().toURL());
             }
             catch(MalformedURLException e)
             {
@@ -319,7 +309,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         private void download(Dependancy dep)
         {
             popupWindow = (JDialog) downloadMonitor.makeDialog();
-            File libFile = new File(modsDir, dep.fileName());
+            File libFile = new File(v_modsDir, dep.fileName());
             try
             {
                 URL libDownload = new URL(dep.url+'/'+dep.fileName());
@@ -333,6 +323,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
                 download(connection.getInputStream(), sizeGuess, libFile);
                 downloadMonitor.updateProgressString("Download complete");
                 System.out.println("Download complete");
+                
+                scanDepInfo(libFile);
             }
             catch (Exception e)
             {
@@ -423,6 +415,21 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
                 String[] split = splitFileName(f.getName());
                 if(split == null || !split[0].equals(dependancy[0]))
                     continue;
+
+                if(f.renameTo(new File(v_modsDir, f.getName())))
+                    continue;
+                
+                if(f.delete())
+                    continue;
+                
+                f.deleteOnExit();
+            }
+            
+            for(File f : v_modsDir.listFiles())
+            {
+                String[] split = splitFileName(f.getName());
+                if(split == null || !split[0].equals(dependancy[0]))
+                    continue;
                 
                 ComparableVersion found = new ComparableVersion(split[1]);
                 ComparableVersion requested = new ComparableVersion(dependancy[1]);
@@ -447,38 +454,87 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         public void load()
         {
             scanDepInfos();
+            if(depMap.isEmpty())
+                return;
+            
             loadDeps();
+            activateDeps();
+        }
+
+        private void activateDeps()
+        {
+            for(Dependancy dep : depMap.values())
+                addClasspath(dep.existing);
         }
 
         private void loadDeps()
         {
-            for(Dependancy dep : dependancies.values())
-                load(dep);
-        }
-
-        private void scanDepInfos()
-        {
-            File modsDir = new File(mcDir, "mods");
-            for(File file : modsDir.listFiles())
+            downloadMonitor = FMLLaunchHandler.side().isClient() ? new Downloader() : new DummyDownloader();
+            try
             {
-                if(!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip"))
-                    continue;
-                
-                try
+                while(!depSet.isEmpty())
                 {
-                    ZipFile zip = new ZipFile(file);
-                    ZipEntry e = zip.getEntry("dependancies.info");
-                    if(e != null)
-                        loadJSon(zip.getInputStream(e));
-                    zip.close();
+                    Iterator<String> it = depSet.iterator();
+                    Dependancy dep = depMap.get(it.next());
+                    it.remove();
+                    load(dep);
                 }
-                catch(Exception e)
+            }
+            finally
+            {
+                if (popupWindow != null)
                 {
-                    throw new RuntimeException("Failed to load dependancies.info from "+file.getName()+" as JSON", e);
+                    popupWindow.setVisible(false);
+                    popupWindow.dispose();
                 }
             }
         }
         
+        private void load(Dependancy dep)
+        {
+            dep.existing = checkExisting(dep.filesplit);
+            if(dep.existing == null)//download dep
+            {
+                download(dep);
+                dep.existing = dep.fileName();
+            }
+        }
+
+        private List<File> modFiles()
+        {
+            List<File> list = new LinkedList<File>();
+            list.addAll(Arrays.asList(modsDir.listFiles()));
+            list.addAll(Arrays.asList(v_modsDir.listFiles()));
+            return list;
+        }
+
+        private void scanDepInfos()
+        {
+            for(File file : modFiles())
+            {
+                if(!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip"))
+                    continue;
+                
+                scanDepInfo(file);
+            }
+        }
+        
+        private void scanDepInfo(File file)
+        {
+            try
+            {
+                ZipFile zip = new ZipFile(file);
+                ZipEntry e = zip.getEntry("dependancies.info");
+                if(e != null)
+                    loadJSon(zip.getInputStream(e));
+                zip.close();
+            }
+            catch(Exception e)
+            {
+                throw new RuntimeException("Failed to load dependancies.info from "+file.getName()+" as JSON", e);
+            }
+        }
+
         private void loadJSon(InputStream input) throws IOException, InvalidSyntaxException
         {
             InputStreamReader reader = new InputStreamReader(input);
@@ -529,17 +585,22 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
 
         private void addDep(Dependancy dep)
         {
-            Dependancy old = dependancies.get(dep.getName());
+            Dependancy old = depMap.get(dep.getName());
             if(old == null || dep.version.compareTo(old.version) > 0)
-                dependancies.put(dep.getName(), dep);
+            {
+                depMap.put(dep.getName(), dep);
+                depSet.add(dep.getName());
+            }
         }
     }
     
-    public static void load(File mcDir)
+    public static void load()
     {
-        DepLoader inst = new DepLoader();
-        inst.mcDir = mcDir;
-        inst.call();
+        if(inst == null)
+        {
+            inst = new DepLoadInst();
+            inst.load();
+        }
     }
 
     private static String[] splitFileName(String filename)
@@ -570,21 +631,16 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         return getClass().getName();
     }
 
-    private File mcDir;
     @Override
     public void injectData(Map<String, Object> data)
     {
-        mcDir = (File) data.get("mcLocation");
     }
     
     @Override
     public Void call()
     {
-        if(inst == null)
-        {
-            inst = new DepLoadInst();
-            inst.load();
-        }
+        load();
+        
         return null;
     }
     
