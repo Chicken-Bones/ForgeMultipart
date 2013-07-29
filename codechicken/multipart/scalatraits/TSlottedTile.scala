@@ -3,7 +3,6 @@ package codechicken.multipart.scalatraits
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TSlottedPart
-import codechicken.multipart.TSlottedPart
 
 trait TSlottedTile extends TileMultipart
 {

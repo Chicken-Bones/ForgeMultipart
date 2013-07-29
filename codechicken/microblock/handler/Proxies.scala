@@ -51,7 +51,6 @@ class MicroblockProxy_serverImpl
             .setUnlocalizedName("microblock:stoneRod").func_111206_d("microblock:stoneRod")
         
         OreDictionary.registerOre("stoneRod", stoneRod)
-        LangUtil.instance.addLangDir(new ResourceLocation("microblock:lang"))
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
     }
     
@@ -86,8 +85,16 @@ class MicroblockProxy_serverImpl
 class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
 {
     @SideOnly(Side.CLIENT)
+    override def preInit()
+    {
+        super.preInit()
+        LangUtil.loadBaseLangDir(new ResourceLocation("microblock:lang"))
+    }
+    
+    @SideOnly(Side.CLIENT)
     override def postInit()
     {
+        super.postInit()
         MinecraftForgeClient.registerItemRenderer(itemMicro.itemID, ItemMicroPartRenderer)
     }
     
