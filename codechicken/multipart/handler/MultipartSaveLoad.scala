@@ -27,10 +27,9 @@ object MultipartSaveLoad
     hookLoader()
     def hookLoader()
     {
-        //hacky stuff for mcpc until I get a proper obfuscator on the build
-        val fieldName = if(ObfMapping.obfuscated) "a" else "nameToClassMap"
-        
-        val field = classOf[TileEntity].getDeclaredField(fieldName)
+        val field = classOf[TileEntity].getDeclaredField(
+                new ObfMapping("net/minecraft/tileentity/TileEntity", "nameToClassMap", "Ljava/util/Map;")
+                .toRuntime().s_name);
         field.setAccessible(true)
         val map = field.get(null).asInstanceOf[Map[String, Class[_ <: TileEntity]]]
         map.put("savedMultipart", classOf[TileNBTContainer])
