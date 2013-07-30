@@ -18,12 +18,16 @@ import codechicken.lib.render.CCRenderState
 import scala.collection.JavaConversions._
 import Rotation._
 import Vector3._
+import codechicken.lib.raytracer.IndexedCuboid6
+import org.lwjgl.opengl.GL11
 
 object HollowPlacement extends PlacementProperties
 {
+    object HollowPlacementGrid extends FaceEdgeGrid(3/8D)
+    
     def microClass = HollowMicroClass
     
-    def placementGrid = FacePlacementGrid
+    def placementGrid = HollowPlacementGrid
     
     def opposite(slot:Int, side:Int) = slot^1
     
@@ -166,6 +170,34 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
             }
         }
     }
+    
+    override def drawHighlight(hit:MovingObjectPosition, player:EntityPlayer, frame:Float):Boolean = 
+    {
+        val size = getHollowSize
+        val d1 = 0.5-size/32D
+        val d2 = 0.5+size/32D
+        val t = (shape>>4)/8D
+        
+        import GL11._
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDisable(GL_TEXTURE_2D)
+        glColor4f(0, 0, 0, 0.4F)
+        glLineWidth(2)
+        glDepthMask(false)
+        glPushMatrix()
+            RenderUtils.translateToWorldCoords(player, frame)
+            glTranslated(x, y, z)
+            sideRotations(shape&0xF).at(center).glApply()
+            
+            RenderUtils.drawCuboidOutline(new Cuboid6(0, 0, 0, 1, t, 1).expand(0.001))
+            RenderUtils.drawCuboidOutline(new Cuboid6(d1, 0, d1, d2, t, d2).expand(-0.001))
+        glPopMatrix()
+        glDepthMask(true)
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        return true
+    }
 }
 
 class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$) with TFacePart with TNormalOcclusion
@@ -226,6 +258,23 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
             }
         }
     }
+    
+    override def getCollisionBoxes = 
+    {
+        val size = getHollowSize
+        val d1 = 0.5-size/32D
+        val d2 = 0.5+size/32D
+        val t = (shape>>4)/8D
+        
+        val tr = sideRotations(shape&0xF).at(center)
+        Seq(new Cuboid6(0, 0, 0, 1, t, d1),
+            new Cuboid6(0, 0, d2, 1, t, 1),
+            new Cuboid6(0, 0, d1, d1, t, d2),
+            new Cuboid6(d2, 0, d1, 1, t, d2))
+            .map(c => c.transform(tr))
+    }
+    
+    override def getSubParts = getCollisionBoxes.map(c => new IndexedCuboid6(0, c))
     
     override def allowCompleteOcclusion = true
     

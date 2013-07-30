@@ -23,7 +23,7 @@ trait PlacementGrid
     }
 }
 
-object FacePlacementGrid extends PlacementGrid
+class FaceEdgeGrid(size:Double) extends PlacementGrid
 {
     def render(hit:Vector3, side:Int)
     {
@@ -45,28 +45,28 @@ object FacePlacementGrid extends PlacementGrid
             GL11.glVertex3d(-0.5, 0,-0.5)
             
             GL11.glVertex3d(0.5, 0, 0.5)
-            GL11.glVertex3d(0.25, 0, 0.25)
+            GL11.glVertex3d(size, 0, size)
             
             GL11.glVertex3d(-0.5, 0, 0.5)
-            GL11.glVertex3d(-0.25, 0, 0.25)
+            GL11.glVertex3d(-size, 0, size)
             
             GL11.glVertex3d(0.5, 0, -0.5)
-            GL11.glVertex3d(0.25, 0, -0.25)
+            GL11.glVertex3d(size, 0, -size)
             
             GL11.glVertex3d(-0.5, 0, -0.5)
-            GL11.glVertex3d(-0.25, 0, -0.25)
+            GL11.glVertex3d(-size, 0, -size)
             
-            GL11.glVertex3d(-0.25, 0,-0.25)
-            GL11.glVertex3d(-0.25, 0, 0.25)
+            GL11.glVertex3d(-size, 0,-size)
+            GL11.glVertex3d(-size, 0, size)
             
-            GL11.glVertex3d(-0.25, 0, 0.25)
-            GL11.glVertex3d( 0.25, 0, 0.25)
+            GL11.glVertex3d(-size, 0, size)
+            GL11.glVertex3d( size, 0, size)
             
-            GL11.glVertex3d( 0.25, 0, 0.25)
-            GL11.glVertex3d( 0.25, 0,-0.25)
+            GL11.glVertex3d( size, 0, size)
+            GL11.glVertex3d( size, 0,-size)
             
-            GL11.glVertex3d( 0.25, 0,-0.25)
-            GL11.glVertex3d(-0.25, 0,-0.25)
+            GL11.glVertex3d( size, 0,-size)
+            GL11.glVertex3d(-size, 0,-size)
         GL11.glEnd();
         GL11.glPopMatrix()
     }
@@ -78,7 +78,7 @@ object FacePlacementGrid extends PlacementGrid
         val u = vhit.copy().add(-0.5, -0.5, -0.5).scalarProject(Rotation.axes(s1))
         val v = vhit.copy().add(-0.5, -0.5, -0.5).scalarProject(Rotation.axes(s2))
         
-        if(Math.abs(u) < 4/16D && Math.abs(v) < 4/16D)
+        if(Math.abs(u) < size && Math.abs(v) < size)
             return side^1
         if(Math.abs(u) > Math.abs(v))
             return if(u > 0) s1 else s1^1
@@ -86,6 +86,8 @@ object FacePlacementGrid extends PlacementGrid
             return if(v > 0) s2 else s2^1
     }
 }
+
+object FacePlacementGrid extends FaceEdgeGrid(1/4D)
 
 object CornerPlacementGrid extends PlacementGrid
 {
@@ -136,11 +138,9 @@ object CornerPlacementGrid extends PlacementGrid
     }
 }
 
-object EdgePlacementGrid extends PlacementGrid
+object EdgePlacementGrid extends FaceEdgeGrid(1/4D)
 {
-    def render(hit:Vector3, side:Int) = FacePlacementGrid.render(hit, side)
-    
-    def getHitSlot(vhit:Vector3, side:Int):Int =
+    override def getHitSlot(vhit:Vector3, side:Int):Int =
     {
         val s1 = (side+2)%6
         val s2 = (side+4)%6

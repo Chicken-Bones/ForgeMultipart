@@ -3,5 +3,5 @@
 	"file": "CodeChickenLib-universal-@MCVERSION@-@VERSION@.jar",
 	"dev": "CodeChickenLib-dev-@MCVERSION@-@VERSION@.jar",
 	"class": "codechicken.lib.asm.ASMHelper",
-	"version": "1.0.0.10"
+	"version": "1.0.0.11"
 }
