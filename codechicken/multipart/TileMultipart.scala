@@ -261,6 +261,7 @@ class TileMultipart extends TileEntity
         
         partRemoved(part, r)
         part.onRemoved()
+        part.tile = null
         
         if(partList.isEmpty)
         {

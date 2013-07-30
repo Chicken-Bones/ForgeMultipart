@@ -94,6 +94,6 @@ object MultipartProxy extends MultipartProxy_clientImpl
     var block:BlockMultipart = _
     var config:ConfigFile = _
     
-    def indexInChunk(cc:ChunkCoordIntPair, i:Int) = new BlockCoord(cc.chunkXPos<<4|i&0xF, i>>8, cc.chunkZPos<<4|(i&0xF0)>>4)
+    def indexInChunk(cc:ChunkCoordIntPair, i:Int) = new BlockCoord(cc.chunkXPos<<4|i&0xF, (i>>8)&0xFF, cc.chunkZPos<<4|(i&0xF0)>>4)
     def indexInChunk(pos:BlockCoord) = pos.x&0xF|pos.y<<8|(pos.z&0xF)<<4
 }

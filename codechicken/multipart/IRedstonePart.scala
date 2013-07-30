@@ -103,7 +103,13 @@ object RedstoneInteractions
         if(p.isInstanceOf[IRedstonePart] && p.asInstanceOf[IRedstonePart].canConnectRedstone(side))
         {
             if(p.isInstanceOf[IFaceRedstonePart])
-                return 1<<rotationTo(side&6, p.asInstanceOf[IFaceRedstonePart].getFace)
+            {
+                val fside = p.asInstanceOf[IFaceRedstonePart].getFace
+                if((side&6) == (fside&6))
+                    return 0x10
+                
+                return 1<<rotationTo(side&6, fside)
+            }
             return 0x1F
         }
         return 0
