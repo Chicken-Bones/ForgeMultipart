@@ -15,7 +15,8 @@ import codechicken.microblock.MicroMaterialRegistry
 import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
 
-@Mod(name="Microblocks", version="b.0.0.0", useMetadata = false, modid = "CCMicroblock", acceptedMinecraftVersions = "[1.5.2]", dependencies="required-after:CCMultipart", modLanguage="scala")
+@Mod(modid = "CCMicroblock", acceptedMinecraftVersions = "[1.5.2]", 
+            dependencies="required-after:CCMultipart", modLanguage="scala")
 object MicroblockMod
 {
     @PreInit

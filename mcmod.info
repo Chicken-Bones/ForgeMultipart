@@ -1,6 +1,6 @@
 [
 {
-  "modid": "ForgeMultipart",
+  "modid": "CCMultipart",
   "name": "Forge Multipart",
   "description": "Open source library for facilitation of multiple functional parts in the one block space.",
   "version": "@VERSION@",
@@ -18,7 +18,7 @@
   "authors": [ "ChickenBones" ]
 },
 {
-  "modid": "ForgeMicroblock",
+  "modid": "CCMicroblock",
   "name": "Forge Microblocks",
   "description": "Microblocks for Forge Multipart.",
   "version": "@VERSION@",

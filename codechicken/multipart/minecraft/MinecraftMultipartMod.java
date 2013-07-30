@@ -11,7 +11,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(name="Minecraft Multipart", version="1.0.0.0", useMetadata = false, modid = "McMultipart", acceptedMinecraftVersions="[1.5.2]")
+@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.5.2]")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, tinyPacketHandler=CustomTinyPacketHandler.class)
 public class MinecraftMultipartMod
 {

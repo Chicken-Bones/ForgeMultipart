@@ -20,6 +20,11 @@ import scala.collection.JavaConverters._
 import java.util.List
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraftforge.event.EventPriority
+import cpw.mods.fml.relauncher.SideOnly
+import cpw.mods.fml.relauncher.Side
+import net.minecraftforge.client.event.DrawBlockHighlightEvent
+import net.minecraft.util.EnumMovingObjectType
+import codechicken.multipart.BlockMultipart
 
 object MultipartEventHandler extends IConnectionHandler with ITickHandler
 {
@@ -46,6 +51,18 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     {
         val cc = event.chunk
         MultipartSPH.onChunkWatch(event.player, event.player.worldObj.getChunkFromChunkCoords(cc.chunkXPos, cc.chunkZPos))
+    }
+    
+    @ForgeSubscribe
+    @SideOnly(Side.CLIENT)
+    def drawBlockHighlight(event:DrawBlockHighlightEvent)
+    {
+        if(event.target != null && event.target.typeOfHit == EnumMovingObjectType.TILE && 
+            event.player.worldObj.getBlockTileEntity(event.target.blockX, event.target.blockY, event.target.blockZ).isInstanceOf[TileMultipart])
+        {
+            if(BlockMultipart.drawHighlight(event.player.worldObj, event.player, event.target, event.partialTicks))
+                event.setCanceled(true)
+        }
     }
     
     def connectionReceived(loginHandler:NetLoginHandler, netManager:INetworkManager):String = 

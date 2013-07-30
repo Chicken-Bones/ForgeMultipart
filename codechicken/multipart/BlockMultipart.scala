@@ -48,6 +48,16 @@ object BlockMultipart
         else
             null
     }
+    
+    def drawHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, frame:Float):Boolean =
+    {
+        val tile = getTile(world, hit.blockX, hit.blockY, hit.blockZ)
+        if(tile == null)
+            return false
+        
+        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
+        return tile.partList(hitInfo._1).drawHighlight(hit, player, frame)
+    }
 }
 
 trait BlockMultipart extends Block

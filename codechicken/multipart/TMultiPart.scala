@@ -59,6 +59,8 @@ abstract class TMultiPart
     def renderDynamic(pos:Vector3, frame:Float, pass:Int){}
     @SideOnly(Side.CLIENT)
     def drawBreaking(renderBlocks:RenderBlocks){}
+    @SideOnly(Side.CLIENT)
+    def drawHighlight(hit:MovingObjectPosition, player:EntityPlayer, frame:Float) = false
     
     def read(packet:MCDataInput)
     {
