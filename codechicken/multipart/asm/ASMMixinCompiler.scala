@@ -61,7 +61,9 @@ object ASMMixinCompiler
 {
     val cl = getClass.getClassLoader.asInstanceOf[RelaunchClassLoader]
     val m_defineClass = classOf[ClassLoader].getDeclaredMethod("defineClass", classOf[Array[Byte]], Integer.TYPE, Integer.TYPE)
+    val m_runTransformers = classOf[RelaunchClassLoader].getDeclaredMethod("runTransformers", classOf[String], classOf[String], classOf[Array[Byte]])
     m_defineClass.setAccessible(true)
+    m_runTransformers.setAccessible(true)
     
     private val traitByteMap = MMap[String, Array[Byte]]()
     private val mixinMap = MMap[String, MixinInfo]()
@@ -73,6 +75,12 @@ object ASMMixinCompiler
         m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
     }
     
+    def getBytes(name:String) =
+    {
+        val jName = name.replace('/', '.')
+        m_runTransformers.invoke(cl, jName, jName, cl.getClassBytes(jName)).asInstanceOf[Array[Byte]]
+    }
+    
     def internalDefine(name:String, bytes:Array[Byte])
     {
         traitByteMap.put(name.replace('.', '/'), bytes)
@@ -80,7 +88,7 @@ object ASMMixinCompiler
         DebugPrinter.dump(name, bytes)
     }
     
-    def classNode(name:String) = traitByteMap.getOrElseUpdate(name.replace('.', '/'), cl.getClassBytes(name.replace('/', '.'))) match {
+    def classNode(name:String) = traitByteMap.getOrElseUpdate(name.replace('.', '/'), getBytes(name)) match {
         case null => null
         case v => createClassNode(v, ClassReader.EXPAND_FRAMES)
     }
