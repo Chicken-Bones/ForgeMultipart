@@ -64,6 +64,8 @@ class TileMultipart extends TileEntity
     def loadFrom(that:TileMultipart)
     {
         partList.foreach(_.bind(this))
+        if(doesTick)
+            setTicking(true)
     }
     
     /**
