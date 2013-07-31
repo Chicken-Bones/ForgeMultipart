@@ -95,13 +95,14 @@ trait BlockMultipart extends Block
 
     override def removeBlockByPlayer(world:World, player:EntityPlayer, x:Int, y:Int, z:Int):Boolean =
     {
-        val hit = RayTracer.retraceBlock(world, player, x, y, z);
-        if(hit == null)
-            return false;
-        
+        val hit = RayTracer.retraceBlock(world, player, x, y, z)
         val tile = getTile(world, x, y, z)
-        if(tile == null)
-            return false
+        
+        if(hit == null || tile == null)
+        {
+            dropAndDestroy(world, x, y, z)
+            return true
+        }
         
         val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
         if(world.isRemote)
@@ -111,6 +112,15 @@ trait BlockMultipart extends Block
         }
         
         return tile.harvestPart(hitInfo._1, !player.capabilities.isCreativeMode);
+    }
+    
+    def dropAndDestroy(world:World, x:Int, y:Int, z:Int)
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null && !world.isRemote)
+            tile.dropItems(getBlockDropped(world, x, y, z, 0, 0))
+        
+        world.setBlockToAir(x, y, z)
     }
     
     override def quantityDropped(meta:Int, fortune:Int, random:Random) = 0

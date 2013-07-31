@@ -19,11 +19,20 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
 public class EventHandler
 {
+    private ThreadLocal<Object> placing = new ThreadLocal<Object>();
+    
     @ForgeSubscribe
     public void playerInteract(PlayerInteractEvent event)
     {
-        if(event.action == Action.RIGHT_CLICK_BLOCK && event.entityPlayer.worldObj.isRemote && place(event.entityPlayer, event.entityPlayer.worldObj))
-            event.setCanceled(true);
+        if(event.action == Action.RIGHT_CLICK_BLOCK && event.entityPlayer.worldObj.isRemote)
+        {
+            if(placing.get() != null)
+                return;//for mods that do dumb stuff and call this event like MFR
+            placing.set(event);
+            if(place(event.entityPlayer, event.entityPlayer.worldObj))
+                event.setCanceled(true);
+            placing.set(null);
+        }
     }
     
     public static boolean place(EntityPlayer player, World world)
