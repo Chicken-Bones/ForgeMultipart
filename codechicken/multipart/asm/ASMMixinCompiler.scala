@@ -78,7 +78,10 @@ object ASMMixinCompiler
     def getBytes(name:String) =
     {
         val jName = name.replace('/', '.')
-        m_runTransformers.invoke(cl, jName, jName, cl.getClassBytes(jName)).asInstanceOf[Array[Byte]]
+        cl.getClassBytes(jName) match {
+            case null => null
+            case v => m_runTransformers.invoke(cl, jName, jName, v).asInstanceOf[Array[Byte]]
+        }
     }
     
     def internalDefine(name:String, bytes:Array[Byte])
