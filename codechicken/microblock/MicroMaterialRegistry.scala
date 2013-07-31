@@ -39,11 +39,13 @@ object MicroMaterialRegistry
         
         def getStrength(player:EntityPlayer):Float
         
-        def getLocalizedName:String
+        def getLocalizedName():String
         
-        def getItem:ItemStack
+        def getItem():ItemStack
         
-        def getCutterStrength:Int
+        def getCutterStrength():Int
+        
+        def isSolid() = !isTransparent
         //todo, get material properties
     }
     

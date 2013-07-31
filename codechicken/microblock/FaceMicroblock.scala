@@ -103,5 +103,5 @@ class FaceMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobloc
     
     def getBounds = FaceMicroClass.aBounds(shape)
     
-    override def solid(side:Int) = !MicroMaterialRegistry.getMaterial(material).isTransparent
+    override def solid(side:Int) = MicroMaterialRegistry.getMaterial(material).isSolid
 }
