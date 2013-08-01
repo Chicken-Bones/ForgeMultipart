@@ -65,13 +65,36 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
         return metaSideMap[meta];
     }
     
+    @Override
+    public boolean canStay()
+    {
+        if(sideForMeta(meta) == 0)
+        {
+            Block block = Block.blocksList[world().getBlockId(x(), y()-1, z())];
+            if(block != null && block.canPlaceTorchOnTop(world(), x(), y()-1, z()))
+                return true;
+        }
+        return super.canStay();
+    }
+    
     public static McBlockPart placement(World world, BlockCoord pos, int side)
     {
         if(side == 0)
             return null;
         pos = pos.copy().offset(side^1);
         if(!world.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
-            return null;
+        {
+            if(side == 1)
+            {
+                Block block = Block.blocksList[world.getBlockId(pos.x, pos.y, pos.z)];
+                if(block == null || !block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z))
+                    return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
         
         return new TorchPart(sideMetaMap[side^1]);
     }
