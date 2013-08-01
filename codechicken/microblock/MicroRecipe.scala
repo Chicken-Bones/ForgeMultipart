@@ -28,16 +28,34 @@ object MicroRecipe extends IRecipe
         return res
     }
     
-    def create(amount:Int, mcrClass:Int, size:Int, material:Int) =
+    def create(amount:Int, mcrClass:Int, size:Int, material:Int):ItemStack =
     {
-        ItemMicroPart.create(amount, mcrClass<<8|size, MicroMaterialRegistry.materialName(material))
+        if(size == 8)
+        {
+            val item = MicroMaterialRegistry.getMaterial(material).getItem.copy
+            item.stackSize = amount
+            return item
+        }
+        return ItemMicroPart.create(amount, mcrClass<<8|size, MicroMaterialRegistry.materialName(material))
     }
     
-    def microMaterial(item:ItemStack) = ItemMicroPart.getMaterialID(item)
+    def microMaterial(item:ItemStack) = 
+        if(item.getItem == itemMicro)
+            ItemMicroPart.getMaterialID(item)
+        else
+            findMaterial(item)
     
-    def microClass(item:ItemStack) = item.getItemDamage >> 8
+    def microClass(item:ItemStack) = 
+        if(item.getItem == itemMicro)
+            item.getItemDamage >> 8
+        else
+            0
     
-    def microSize(item:ItemStack) = item.getItemDamage & 0xFF
+    def microSize(item:ItemStack) = 
+        if(item.getItem == itemMicro)
+            item.getItemDamage & 0xFF
+        else
+            8
     
     def getHollowResult(icraft:InventoryCrafting):ItemStack =
     {
@@ -83,7 +101,7 @@ object MicroRecipe extends IRecipe
                 else if(mcrClass >= 2 && microSize(item) != smallest) return null
                 else
                 {
-                    smallest= Math.min(count, microSize(item))
+                    smallest= Math.min(smallest, microSize(item))
                     count+=1
                     size+=microSize(item)
                 }
@@ -106,11 +124,7 @@ object MicroRecipe extends IRecipe
             case 1|0 => {
                 val base = Seq(1, 2, 4).find(s => (s&size) != 0)
                 if(base.isEmpty)
-                {
-                    val stack = MicroMaterialRegistry.getMaterial(material).getItem
-                    stack.stackSize = size/8
-                    stack
-                }
+                    create(size/8, 0, 8, material)
                 else if(base.get <= smallest)
                     null
                 else
@@ -137,33 +151,18 @@ object MicroRecipe extends IRecipe
     def getThinningResult(icraft:InventoryCrafting):ItemStack = 
     {
         val saw = getSaw(icraft)
-        if(saw == null) return null
+        if(saw == null)
+            return null
+            
         val item = icraft.getStackInRowAndColumn(saw._3, saw._2+1)
-        if(item == null) return null
-        var size = 0
-        var material = 0
-        var mcrClass = 0
-        if(item.getItem == itemMicro)
-        {
-            size = microSize(item)
-            if(size == 1) return null
-            material = microMaterial(item)
-            mcrClass = microClass(item)
-        }
-        else
-        {
-            MicroMaterialRegistry.getIdMap.find{m => val mitem = m._2.getItem; 
-                    item.itemID == mitem.itemID && 
-                    item.getItemDamage == mitem.getItemDamage && 
-                    ItemStack.areItemStackTagsEqual(item, mitem)} match {
-                case None => return null
-                case Some((name, m)) => {
-                    material = MicroMaterialRegistry.materialID(name)
-                    size = 8
-                }
-            }
-        }
-        if(!canCut(saw._1, material)) return null
+        if(item == null)
+            return null
+        
+        val size = microSize(item)
+        val material = microMaterial(item)
+        val mcrClass = microClass(item)
+        if(size == 1 || material < 0 || !canCut(saw._1, material))
+            return null
         
         for(r <- 0 until 3)
             for(c <- 0 until 3)
@@ -173,6 +172,15 @@ object MicroRecipe extends IRecipe
         
         return create(2, mcrClass, size/2, material)
     }
+    
+    def findMaterial(item:ItemStack):Int =
+        MicroMaterialRegistry.getIdMap.find{m => val mitem = m._2.getItem
+                item.itemID == mitem.itemID && 
+                item.getItemDamage == mitem.getItemDamage && 
+                ItemStack.areItemStackTagsEqual(item, mitem)} match {
+            case None => -1
+            case Some((name, m)) => MicroMaterialRegistry.materialID(name)
+        }
     
     val splitMap = Map(0 -> 3, 1 -> 3, 3 -> 2)
     def getSplittingResult(icraft:InventoryCrafting):ItemStack = 
