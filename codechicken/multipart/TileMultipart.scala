@@ -64,6 +64,8 @@ class TileMultipart extends TileEntity
     def loadFrom(that:TileMultipart)
     {
         partList.foreach(_.bind(this))
+        if(!isInvalid)
+            partList.foreach(_.onWorldJoin())
         if(doesTick)
             setTicking(true)
     }
@@ -98,7 +100,7 @@ class TileMultipart extends TileEntity
     
     override def validate()
     {
-        val wasInvalid = isInvalid()
+        val wasInvalid = isInvalid
         super.validate()
         if(wasInvalid)
             partList.foreach(_.onWorldJoin())
