@@ -16,6 +16,7 @@ import net.minecraft.util.Icon
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
+import scala.collection.mutable.ListBuffer
 
 object MicroMaterialRegistry
 {
@@ -82,20 +83,22 @@ object MicroMaterialRegistry
         idMap.foreach(e => packet.writeString(e._1))
     }
     
-    def readIDMap(packet:PacketCustom)
+    def readIDMap(packet:PacketCustom):Seq[String] =
     {
         val k = packet.readInt()
         idWriter.setMax(k)
         idMap = new Array(k)
+        val missing = ListBuffer[String]()
         for(i <- 0 until k)
         {
             val s = packet.readString()
             val v = typeMap.get(s)
             if(v.isEmpty)
-                throw new IllegalArgumentException("The microblock with ID "+s+" is not installed on the client");//TODO: fancy FML thingy
-            
-            idMap(i) = (s, v.get)
+                missing+=s
+            else
+                idMap(i) = (s, v.get)
         }
+        return missing
     }
     
     def writePartID(data:MCDataOutput, id:Int)
