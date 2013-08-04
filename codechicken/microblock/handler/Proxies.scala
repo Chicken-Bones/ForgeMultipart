@@ -30,6 +30,7 @@ import codechicken.lib.lang.LangUtil
 import net.minecraft.util.ResourceLocation
 import codechicken.lib.packet.PacketCustom
 import cpw.mods.fml.common.network.NetworkRegistry
+import net.minecraft.client.renderer.RenderBlocks
 
 class MicroblockProxy_serverImpl
 {
@@ -89,6 +90,8 @@ class MicroblockProxy_serverImpl
 
 class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
 {
+    val renderBlocks = new RenderBlocks
+    
     @SideOnly(Side.CLIENT)
     override def preInit()
     {
