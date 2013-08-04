@@ -22,6 +22,8 @@ import codechicken.core.render.CCRenderState
 import codechicken.core.vec.Rotation
 import net.minecraft.tileentity.TileEntity
 import net.minecraftforge.common.MinecraftForge
+import net.minecraft.client.renderer.RenderBlocks
+import codechicken.microblock.handler.MicroblockProxy
 
 class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMaterial
 {
@@ -31,9 +33,16 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     @SideOnly(Side.CLIENT)
     override def loadIcons()
     {
+        var iblock = Block.blocksList(block.blockID)//Reacquire the block instance incase a mod replaced it.
         val icons = new Array[Icon](6)
-        for(i <- 0 until 6)
-            icons(i) = block.getIcon(i, meta)
+        
+        if(iblock == null)
+            for(i <- 0 until 6)
+                icons(i) = MicroblockProxy.renderBlocks.getBlockIcon(null)
+        else
+            for(i <- 0 until 6)
+                icons(i) = MicroblockProxy.renderBlocks.getIconSafe(iblock.getIcon(i, meta))
+        
         icont = new MultiIconTransformation(icons)
     }
     
