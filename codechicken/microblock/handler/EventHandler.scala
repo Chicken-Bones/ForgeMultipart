@@ -13,8 +13,16 @@ import org.lwjgl.opengl.GL11
 import codechicken.core.render.RenderUtils
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
+import cpw.mods.fml.common.network.IConnectionHandler
+import cpw.mods.fml.common.network.Player
+import net.minecraft.network.INetworkManager
+import net.minecraft.network.NetLoginHandler
+import codechicken.core.packet.PacketCustom
+import net.minecraft.network.packet.NetHandler
+import net.minecraft.network.packet.Packet1Login
+import net.minecraft.server.MinecraftServer
 
-object MicroblockEventHandler
+object MicroblockEventHandler extends IConnectionHandler
 {
     @ForgeSubscribe
     @SideOnly(Side.CLIENT)
@@ -38,4 +46,18 @@ object MicroblockEventHandler
             GL11.glPopMatrix()
         }
     }
+    
+    def connectionReceived(loginHandler:NetLoginHandler, netManager:INetworkManager):String = 
+    {
+        val packet = new PacketCustom(MicroblockSPH.registryChannel, 1)
+        MicroMaterialRegistry.writeIDMap(packet)
+        netManager.addToSendQueue(packet.toPacket)
+        return null
+    }
+    
+    def clientLoggedIn(netHandler:NetHandler, netManager:INetworkManager, packet:Packet1Login){}
+    def playerLoggedIn(player:Player, netHandler:NetHandler, netManager:INetworkManager){}
+    def connectionOpened(netHandler:NetHandler, server:String, port:Int, netManager:INetworkManager){}
+    def connectionOpened(netHandler:NetHandler, server:MinecraftServer, netManager:INetworkManager){}
+    def connectionClosed(netManager:INetworkManager){}
 }

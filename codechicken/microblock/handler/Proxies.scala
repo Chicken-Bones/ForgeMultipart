@@ -26,6 +26,8 @@ import codechicken.microblock.ItemSawRenderer
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
 import net.minecraft.block.Block
+import codechicken.core.packet.PacketCustom
+import cpw.mods.fml.common.network.NetworkRegistry
 
 class MicroblockProxy_serverImpl
 {
@@ -50,8 +52,8 @@ class MicroblockProxy_serverImpl
         stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID)).setUnlocalizedName("microblock:stoneRod")
         LanguageRegistry.addName(stoneRod, "Stone Rod")
         OreDictionary.registerOre("stoneRod", stoneRod)
-        
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
+        NetworkRegistry.instance.registerConnectionHandler(MicroblockEventHandler)
     }
     
     def createSaw(config:ConfigFile, name:String, strength:Int, localized:String) = 
@@ -91,7 +93,9 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     @SideOnly(Side.CLIENT)
     override def postInit()
     {
+        super.postInit()
         MinecraftForgeClient.registerItemRenderer(itemMicro.itemID, ItemMicroPartRenderer)
+        PacketCustom.assignHandler(MicroblockCPH.registryChannel, 1, 127, MicroblockCPH)
     }
     
     @SideOnly(Side.CLIENT)
