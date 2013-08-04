@@ -6,6 +6,7 @@ import codechicken.core.vec.BlockCoord;
 import codechicken.core.vec.Vector3;
 import codechicken.multipart.TileMultipart;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFence;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet15Place;
@@ -62,7 +63,7 @@ public class EventHandler
         {
             Vector3 f = new Vector3(hit.hitVec).add(-hit.blockX, -hit.blockY, -hit.blockZ);
             Block block = Block.blocksList[world.getBlockId(hit.blockX, hit.blockY, hit.blockZ)];
-            if(block != null && block.onBlockActivated(world, hit.blockX, hit.blockY, hit.blockZ, player, hit.sideHit, (float)f.x, (float)f.y, (float)f.z))
+            if(block != null && !ignoreActivate(block) && block.onBlockActivated(world, hit.blockX, hit.blockY, hit.blockZ, player, hit.sideHit, (float)f.x, (float)f.y, (float)f.z))
             {
                 player.swingItem();
                 PacketCustom.sendToServer(new Packet15Place(
@@ -100,5 +101,15 @@ public class EventHandler
             new PacketCustom(McMultipartSPH.channel, 1).sendToServer();
         }
         return true;
+    }
+
+    /**
+     * Because vanilla is weird.
+     */
+    private static boolean ignoreActivate(Block block)
+    {
+        if(block instanceof BlockFence)
+            return true;
+        return false;
     }
 }

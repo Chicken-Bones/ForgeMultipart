@@ -42,6 +42,8 @@ class MicroblockProxy_serverImpl
     def preInit()
     {
         itemMicro = new ItemMicroPart(config.getTag("itemMicro.id").getIntValue(nextItemID))
+        itemMicro.setUnlocalizedName("microblock")
+
         sawStone = createSaw(config, "sawStone", 1, "Stone Handsaw")
         sawIron = createSaw(config, "sawIron", 2, "Iron Handsaw")
         sawDiamond = createSaw(config, "sawDiamond", 3, "Diamond Handsaw")

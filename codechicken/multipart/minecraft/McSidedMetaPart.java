@@ -26,10 +26,15 @@ public abstract class McSidedMetaPart extends McMetaPart
             dropIfCantStay();
     }
     
-    public boolean dropIfCantStay()
+    public boolean canStay()
     {
         BlockCoord pos = new BlockCoord(getTile()).offset(sideForMeta(meta));
-        if(!world().isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1)))
+        return world().isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1));
+    }
+    
+    public boolean dropIfCantStay()
+    {
+        if(!canStay())
         {
             drop();
             return true;
