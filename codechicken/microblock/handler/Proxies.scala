@@ -90,7 +90,15 @@ class MicroblockProxy_serverImpl
 
 class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
 {
-    val renderBlocks = new RenderBlocks
+    @SideOnly(Side.CLIENT)
+    private var _renderBlocks:RenderBlocks = _
+    @SideOnly(Side.CLIENT)
+    def renderBlocks() =
+    {
+        if(_renderBlocks == null)
+            _renderBlocks = new RenderBlocks
+        _renderBlocks
+    }
     
     @SideOnly(Side.CLIENT)
     override def preInit()
