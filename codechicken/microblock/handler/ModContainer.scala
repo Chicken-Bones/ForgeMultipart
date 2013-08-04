@@ -14,11 +14,9 @@ import cpw.mods.fml.common.Mod.Instance
 import codechicken.microblock.MicroMaterialRegistry
 import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
-import codechicken.lib.packet.PacketCustom.CustomTinyPacketHandler
 
 @Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.2]", 
             dependencies="required-after:ForgeMultipart", modLanguage="scala")
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, tinyPacketHandler=classOf[CustomTinyPacketHandler])
 object MicroblockMod
 {
     @PreInit
