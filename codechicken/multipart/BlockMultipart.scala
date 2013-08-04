@@ -277,6 +277,8 @@ trait BlockMultipart extends Block
         if(tile != null)
             tile.onEntityCollision(entity)
     }
+    
+    override def canProvidePower = true
 }
 
 class BlockMultipartImpl(id:Int) extends Block(id, Material.rock) with BlockMultipart
