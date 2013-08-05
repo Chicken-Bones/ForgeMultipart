@@ -14,9 +14,10 @@ import cpw.mods.fml.common.Mod.Instance
 import codechicken.microblock.MicroMaterialRegistry
 import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
+import codechicken.microblock.ConfigContent
 
 @Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.2]", 
-            dependencies="required-after:ForgeMultipart", modLanguage="scala")
+            dependencies="required-after:ForgeMultipart;after:*", modLanguage="scala")
 object MicroblockMod
 {
     @PreInit
@@ -24,12 +25,14 @@ object MicroblockMod
     {
         MicroblockProxy.preInit()
         DefaultContent.load()
+        ConfigContent.parse(event.getModConfigurationDirectory)
     }
     
     @Init
     def init(event:FMLInitializationEvent)
     {
         MicroblockProxy.init()
+        ConfigContent.load()
         MicroMaterialRegistry.setupIDMap()
     }
     

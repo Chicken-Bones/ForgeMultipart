@@ -31,6 +31,7 @@ import net.minecraft.util.ResourceLocation
 import codechicken.lib.packet.PacketCustom
 import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
+import java.io.File
 
 class MicroblockProxy_serverImpl
 {

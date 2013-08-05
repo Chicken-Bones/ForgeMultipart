@@ -44,6 +44,9 @@ object DefaultContent
         createAndRegister(blockEmerald)
         createAndRegister(blockRedstone)
         createAndRegister(blockNetherQuartz)
+        createAndRegister(field_111039_cA, 0 to 15)
+        createAndRegister(field_111032_cD)
+        createAndRegister(field_111034_cE)
         registerMaterial(new GrassMicroMaterial, grass.getUnlocalizedName)
         registerMaterial(new TopMicroMaterial(mycelium), mycelium.getUnlocalizedName)
     }
