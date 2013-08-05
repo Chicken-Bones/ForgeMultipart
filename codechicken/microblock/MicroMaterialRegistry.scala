@@ -17,6 +17,7 @@ import net.minecraft.entity.player.EntityPlayer
 import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
+import net.minecraft.block.StepSound
 
 object MicroMaterialRegistry
 {
@@ -45,6 +46,8 @@ object MicroMaterialRegistry
         def getItem():ItemStack
         
         def getCutterStrength():Int
+        
+        def getSound():StepSound
         
         def isSolid() = !isTransparent
         //todo, get material properties
