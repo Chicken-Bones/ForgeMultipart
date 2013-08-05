@@ -106,6 +106,8 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     def toolClasses = Seq("axe", "pickaxe", "shovel")
     
     def getCutterStrength = toolClasses.foldLeft(0)((level, tool) => Math.max(level, MinecraftForge.getBlockHarvestLevel(block, meta, tool)))
+    
+    def getSound = block.stepSound
 }
 
 object BlockMicroMaterial
