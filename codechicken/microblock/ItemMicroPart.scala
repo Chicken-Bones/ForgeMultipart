@@ -72,6 +72,10 @@ class ItemMicroPart(id:Int) extends Item(id)
                 placement.place(world, player, item)
                 if(!player.capabilities.isCreativeMode)
                     placement.consume(world, player, item)
+                
+                val sound = MicroMaterialRegistry.getMaterial(material).getSound
+                if(sound != null)
+                    world.playSoundEffect(placement.pos.x + 0.5D, placement.pos.y + 0.5D, placement.pos.z + 0.5D, sound.getPlaceSound, (sound.getVolume + 1.0F) / 2.0F, sound.getPitch * 0.8F)
             }
             
             return true
