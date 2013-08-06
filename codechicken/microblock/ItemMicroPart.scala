@@ -133,17 +133,17 @@ object ItemMicroPartRenderer extends IItemRenderer
     
     def renderItem(t:ItemRenderType, item:ItemStack, data:Object*)
     {
-        GL11.glPushMatrix()
-        if(t == ItemRenderType.ENTITY)
-            GL11.glScaled(0.5, 0.5, 0.5)
-        if(t == ItemRenderType.INVENTORY || t == ItemRenderType.ENTITY)
-            GL11.glTranslatef(-0.5F, -0.5F, -0.5F)
-        
         val material = getMaterial(item)
         val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
         val size = item.getItemDamage&0xFF
         if(material == null || mcrClass == null)
             return
+        
+        GL11.glPushMatrix()
+        if(t == ItemRenderType.ENTITY)
+            GL11.glScaled(0.5, 0.5, 0.5)
+        if(t == ItemRenderType.INVENTORY || t == ItemRenderType.ENTITY)
+            GL11.glTranslatef(-0.5F, -0.5F, -0.5F)
         
         CCRenderState.reset()
         TextureUtils.bindAtlas(0);
