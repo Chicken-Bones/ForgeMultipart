@@ -29,7 +29,7 @@ object MultipartSaveLoad
     {
         val field = classOf[TileEntity].getDeclaredField(
                 new ObfMapping("net/minecraft/tileentity/TileEntity", "nameToClassMap", "Ljava/util/Map;")
-                .toRuntime().s_name);
+                .toRuntime.s_name)
         field.setAccessible(true)
         val map = field.get(null).asInstanceOf[Map[String, Class[_ <: TileEntity]]]
         map.put("savedMultipart", classOf[TileNBTContainer])
@@ -43,7 +43,9 @@ object MultipartSaveLoad
     
     def getClassToNameMap() =
     {
-        val field = classOf[TileEntity].getDeclaredFields()(1)
+        val field = classOf[TileEntity].getDeclaredField(
+                new ObfMapping("net/minecraft/tileentity/TileEntity", "classToNameMap", "Ljava/util/Map;")
+                .toRuntime.s_name)
         field.setAccessible(true)
         field.get(null).asInstanceOf[Map[Class[_ <: TileEntity], String]]
     }
