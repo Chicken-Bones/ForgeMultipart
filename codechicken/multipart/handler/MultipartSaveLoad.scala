@@ -28,9 +28,8 @@ object MultipartSaveLoad
     hookLoader()
     def hookLoader()
     {
-        //hacky stuff for mcpc until I get a proper obfuscator on the build
+        //fix for mcpc with 1.5 backport
         val fieldName = if(ObfuscationMappings.obfuscated) "field_70326_a" else "nameToClassMap"
-        
         val field = classOf[TileEntity].getDeclaredField(fieldName)
         field.setAccessible(true)
         val map = field.get(null).asInstanceOf[Map[String, Class[_ <: TileEntity]]]
@@ -45,7 +44,9 @@ object MultipartSaveLoad
     
     def getClassToNameMap() =
     {
-        val field = classOf[TileEntity].getDeclaredFields()(1)
+        //fix for mcpc with 1.5 backport
+        val fieldName = if(ObfuscationMappings.obfuscated) "field_70323_b" else "classToNameMap"
+        val field = classOf[TileEntity].getDeclaredField(fieldName)
         field.setAccessible(true)
         field.get(null).asInstanceOf[Map[Class[_ <: TileEntity], String]]
     }
