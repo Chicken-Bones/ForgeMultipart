@@ -242,15 +242,16 @@ class TileMultipart extends TileEntity
     private[multipart] def remPart_impl(part:TMultiPart):TileMultipart =
     {
         val i = remPart_do(part)
+        
+        if(!worldObj.isRemote)
+            getWriteStream.writeByte(254).writeByte(i)
+        
         if(!isInvalid())
         {
             notifyPartChange(part)
             markDirty()
             markRender()
         }
-        
-        if(!worldObj.isRemote)
-            getWriteStream.writeByte(254).writeByte(i)
         
         if(!isInvalid())
             return MultipartGenerator.partRemoved(this, part)
