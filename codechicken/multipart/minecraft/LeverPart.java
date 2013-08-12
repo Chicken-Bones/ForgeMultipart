@@ -97,7 +97,7 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
         world.playSoundEffect(x() + 0.5, y() + 0.5, z() + 0.5, "random.click", 0.3F, !active() ? 0.6F : 0.5F);
         meta ^= 8;
         sendDescUpdate();
-        tile().notifyPartChange();
+        tile().notifyPartChange(this);
         tile().notifyNeighborChange(metaSideMap[meta&7]);
         tile().markDirty();
         return true;

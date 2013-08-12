@@ -20,6 +20,7 @@ import Rotation._
 import Vector3._
 import codechicken.lib.raytracer.IndexedCuboid6
 import org.lwjgl.opengl.GL11
+import codechicken.multipart.TMultiPart
 
 object HollowPlacement extends PlacementProperties
 {
@@ -83,9 +84,9 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
     
     def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
     
-    override def onPartChanged()
+    override def onPartChanged(part:TMultiPart)
     {
-        super.onPartChanged()
+        super.onPartChanged(part)
         renderMask = renderMask&0xFF | getHollowSize<<8
     }
     

@@ -72,7 +72,10 @@ abstract class TMultiPart
     def save(tag:NBTTagCompound){}
     def load(tag:NBTTagCompound){}
     
-    def onPartChanged(){}
+    /**
+     * The part parameter may be null if several things have changed.
+     */
+    def onPartChanged(part:TMultiPart){}
     def onNeighborChanged(){}
     def onAdded() = onWorldJoin()
     def onRemoved() = onWorldSeparate()

@@ -179,7 +179,7 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
             renderCuboid(pos, olm, mat, renderBounds2, 0)
     }
     
-    override def onPartChanged()
+    override def onPartChanged(part:TMultiPart)
     {
         if(tile.worldObj.isRemote)
             recalcBounds()

@@ -134,7 +134,7 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
             TickScheduler.scheduleTick(this, delay());
         
         sendDescUpdate();
-        tile().notifyPartChange();
+        tile().notifyPartChange(this);
         tile().notifyNeighborChange(metaSideMap[meta&7]);
         tile().markDirty();
     }

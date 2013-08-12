@@ -136,10 +136,14 @@ object RedstoneInteractions
     
     def vanillaConnectionMask(block:Block, world:IBlockAccess, x:Int, y:Int, z:Int, side:Int, power:Boolean):Int =
     {
+        if(block == Block.torchRedstoneActive || block == Block.torchRedstoneIdle || block == Block.lever || block == Block.stoneButton || block == Block.woodenButton)
+            return 0x1F
+        
         if(side == 0)//vanilla doesn't handle side 0
         {
             if(power)
                 return 0x1F
+            
             return 0
         }
         

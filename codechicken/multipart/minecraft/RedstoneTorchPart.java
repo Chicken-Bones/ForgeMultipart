@@ -195,7 +195,7 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
         meta ^= 0x10;
         sendDescUpdate();
         tile().markDirty();
-        tile().notifyPartChange();
+        tile().notifyPartChange(this);
         tile().notifyNeighborChange(1);
     }
 

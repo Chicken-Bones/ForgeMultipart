@@ -154,7 +154,7 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     override def read(packet:MCDataInput)
     {
         readDesc(packet)
-        tile.notifyPartChange()
+        tile.notifyPartChange(this)
         tile.markRender()
     }
     

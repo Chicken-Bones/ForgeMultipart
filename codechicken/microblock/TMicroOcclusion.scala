@@ -166,16 +166,25 @@ trait JMicroShrinkRender
 
 trait TMicroOcclusionClient extends TMicroOcclusion with JMicroShrinkRender
 {
-    import MicroOcclusion._
-    
     var renderBounds:Cuboid6 = _
     var renderMask:Int = _
     
-    override def onPartChanged()
+    override def onPartChanged(part:TMultiPart)
     {
-        super.onPartChanged()
+        super.onPartChanged(part)
+        recalcBounds()
+    }
+    
+    override def onAdded()
+    {
+        super.onAdded()
+        recalcBounds()
+    }
+    
+    def recalcBounds()
+    {
         renderBounds = getBounds.copy
-        renderMask = recalcBounds(this, renderBounds)
+        renderMask = MicroOcclusion.recalcBounds(this, renderBounds)
     }
     
     override def getPriorityClass = 0

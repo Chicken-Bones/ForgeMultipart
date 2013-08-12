@@ -64,11 +64,12 @@ object MultipartGenerator
         {
             if(loaded._2)//perform client conversion
             {
-                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 1)
+                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
                 PacketCustom.sendToChunk(new Packet53BlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)
                 ntile.partList(0).onConverted()
                 ntile.writeAddPart(ntile.partList(0))
+                world.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
             }
             
             val tileTraits = tileTraitMap(tile.getClass)
@@ -82,9 +83,10 @@ object MultipartGenerator
         }
         else
         {
-            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
+            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
             ntile = factory.generateTile(partTraits, world.isRemote)
             world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
+            world.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
         }
         ntile.addPart_impl(part)
         return ntile

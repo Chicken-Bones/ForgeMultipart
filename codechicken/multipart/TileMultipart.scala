@@ -113,10 +113,13 @@ class TileMultipart extends TileEntity
             partList.foreach(_.onWorldSeparate())
     }
     
-    def notifyPartChange()
+    def notifyPartChange(part:TMultiPart)
     {
         TileMultipart.startOperation(this)
-        partList.foreach(_.onPartChanged())
+        partList.foreach{ p =>
+            if(part != p)
+                p.onPartChanged(part)
+        }
         TileMultipart.finishOperation(this)
         
         worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType().blockID)
@@ -185,7 +188,7 @@ class TileMultipart extends TileEntity
     
     def getWriteStream(part:TMultiPart):MCDataOutput = getWriteStream.writeByte(partList.indexOf(part))
     
-    private[multipart] def getWriteStream = MultipartSPH.getTileStream(worldObj, new BlockCoord(this))
+    private def getWriteStream = MultipartSPH.getTileStream(worldObj, new BlockCoord(this))
     
     private[multipart] def addPart_impl(part:TMultiPart)
     {
@@ -195,7 +198,7 @@ class TileMultipart extends TileEntity
         addPart_do(part)
         part.onAdded()
         partAdded(part)
-        notifyPartChange()
+        notifyPartChange(part)
         markDirty()
         markRender()
     }
@@ -241,7 +244,7 @@ class TileMultipart extends TileEntity
         val i = remPart_do(part)
         if(!isInvalid())
         {
-            notifyPartChange()
+            notifyPartChange(part)
             markDirty()
             markRender()
         }
@@ -291,7 +294,7 @@ class TileMultipart extends TileEntity
         clearParts()
         parts.foreach(p => addPart_do(p))
         if(worldObj != null)
-            notifyPartChange()
+            notifyPartChange(null)
     }
     
     def clearParts()

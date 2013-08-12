@@ -4,9 +4,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
+import codechicken.multipart.TFacePart;
 import codechicken.multipart.TileMultipart;
 
-public abstract class McSidedMetaPart extends McMetaPart
+public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
 {
     public McSidedMetaPart()
     {
@@ -46,5 +47,23 @@ public abstract class McSidedMetaPart extends McMetaPart
     {
         tile().remPart(this);
         TileMultipart.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
+    }
+    
+    @Override
+    public int getSlotMask()
+    {
+        return 1<<sideForMeta(meta);
+    }
+    
+    @Override
+    public boolean solid(int side)
+    {
+        return false;
+    }
+    
+    @Override
+    public int redstoneConductionMap()
+    {
+        return 0;
     }
 }
