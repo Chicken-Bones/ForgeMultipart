@@ -175,4 +175,10 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
     {
         return true;
     }
+    
+    @Override
+    public int redstoneConductionMap()
+    {
+        return 0x10;
+    }
 }

@@ -143,4 +143,10 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
     {
         return true;
     }
+    
+    @Override
+    public int redstoneConductionMap()
+    {
+        return 0x10;
+    }
 }
