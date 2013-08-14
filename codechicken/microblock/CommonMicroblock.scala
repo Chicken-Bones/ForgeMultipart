@@ -183,6 +183,12 @@ trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with
         if(mat != null && pass == mat.getRenderPass)
             render(pos, olm, mat, renderBounds, renderMask)
     }
+    
+    override def read(packet:MCDataInput)
+    {
+        super.read(packet)
+        recalcBounds()
+    }
 }
 
 abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TMicroOcclusion with TSlottedPart

@@ -21,6 +21,7 @@ import cpw.mods.fml.relauncher.Side
 import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.multipart.TEdgePart
 import scala.collection.JavaConversions._
+import codechicken.lib.data.MCDataInput
 
 object EdgePlacement extends PlacementProperties
 {
@@ -181,8 +182,19 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
     
     override def onPartChanged(part:TMultiPart)
     {
-        if(tile.worldObj.isRemote)
-            recalcBounds()
+        recalcBounds()
+    }
+    
+    override def onAdded()
+    {
+        super.onAdded()
+        recalcBounds()
+    }
+    
+    override def read(packet:MCDataInput)
+    {
+        super.read(packet)
+        recalcBounds()
     }
     
     def recalcBounds()
