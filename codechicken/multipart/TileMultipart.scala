@@ -662,10 +662,11 @@ object TileMultipart
     
     def dropItem(stack:ItemStack, world:World, pos:Vector3)
     {
-        val item = new EntityItem(world, pos.x, pos.y, pos.z, stack);
-        item.motionX = world.rand.nextGaussian() * 0.05;
-        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
-        item.motionZ = world.rand.nextGaussian() * 0.05;
-        world.spawnEntityInWorld(item);
+        val item = new EntityItem(world, pos.x, pos.y, pos.z, stack)
+        item.motionX = world.rand.nextGaussian() * 0.05
+        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2
+        item.motionZ = world.rand.nextGaussian() * 0.05
+        item.delayBeforeCanPickup = 10
+        world.spawnEntityInWorld(item)
     }
 }
