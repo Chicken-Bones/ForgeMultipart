@@ -31,25 +31,25 @@ class GrassMicroMaterial extends BlockMicroMaterial(Block.grass, 0)
         sideIconT = new IconTransformation(BlockGrass.getIconSideOverlay)
     }
     
-    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:Microblock)
+    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
     {
-        val colour = getColour(part.tile)
+        val colour = getColour(part)
         if(side%6 == 1)
             renderMicroFace(verts, side, pos, lightMatrix, colour, icont)
         else
             renderMicroFace(verts, side, pos, lightMatrix, -1, icont)
         
         if(side%6 > 1 && side%6 < 6)
-            renderMicroFace(verts, side, pos, lightMatrix, colour, new TopIconTransformation(part.getBounds.max.y, sideIconT))
+            renderMicroFace(verts, side, pos, lightMatrix, colour, new TopIconTransformation(part.getRenderBounds.max.y, sideIconT))
     }
 }
 
 class TopMicroMaterial($block:Block, $meta:Int = 0) extends BlockMicroMaterial($block, $meta)
 {
-    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:Microblock)
+    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
     {
         if(side%6 > 1 && side%6 < 6)
-            renderMicroFace(verts, side, pos, lightMatrix, getColour(part.tile), new TopIconTransformation(part.getBounds.max.y, icont))
+            renderMicroFace(verts, side, pos, lightMatrix, getColour(part), new TopIconTransformation(part.getRenderBounds.max.y, icont))
         else
             super.renderMicroFace(verts, side, pos, lightMatrix, part)
     }

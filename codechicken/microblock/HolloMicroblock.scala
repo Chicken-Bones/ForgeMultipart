@@ -84,9 +84,9 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
     
     def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
     
-    override def onPartChanged(part:TMultiPart)
+    override def recalcBounds()
     {
-        super.onPartChanged(part)
+        super.recalcBounds()
         renderMask = renderMask&0xFF | getHollowSize<<8
     }
     
@@ -216,7 +216,7 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
         case null => 8
         case _ => tile.partMap(6) match
         {
-            case part:IHollowConnect => part.getSize
+            case part:IHollowConnect => part.getHollowSize
             case _ => 8
         }
     }

@@ -30,7 +30,7 @@ abstract class TMultiPart
     var tile:TileMultipart = _
     
     def getTile():TileEntity = tile
-    def world() = tile.worldObj
+    def world() = if(tile == null) null else tile.worldObj
     def x = tile.xCoord
     def y = tile.yCoord
     def z = tile.zCoord

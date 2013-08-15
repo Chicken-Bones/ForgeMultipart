@@ -24,6 +24,14 @@ trait IFaceRedstonePart extends IRedstonePart
 }
 
 /**
+ * For parts that want to define their own connection masks (like center-center parts)
+ */
+trait IMaskedRedstonePart extends IRedstonePart
+{
+    def getConnectionMask(side:Int):Int
+}
+
+/**
  * Internal interface for TileMultipart instances hosting IRedstonePart
  */
 trait IRedstoneTile extends IRedstoneConnector
@@ -109,6 +117,10 @@ object RedstoneInteractions
                     return 0x10
                 
                 return 1<<rotationTo(side&6, fside)
+            }
+            else if(p.isInstanceOf[IMaskedRedstonePart])
+            {
+                return p.asInstanceOf[IMaskedRedstonePart].getConnectionMask(side)
             }
             return 0x1F
         }

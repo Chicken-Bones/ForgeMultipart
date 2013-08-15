@@ -48,9 +48,9 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     
     def getRenderPass = if(block.canRenderInPass(1)) 1 else 0
     
-    def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:Microblock)
+    def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
     {
-        renderMicroFace(verts, side, pos, lightMatrix, getColour(part.tile), icont)
+        renderMicroFace(verts, side, pos, lightMatrix, getColour(part), icont)
     }
     
     def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, colour:Int, uvt:IUVTransformation)
@@ -84,11 +84,11 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
         }
     }
     
-    def getColour(tile:TileEntity) = 
-        if(tile == null) 
+    def getColour(part:IMicroMaterialRender) = 
+        if(part.world == null) 
             block.getBlockColor<<8|0xFF
         else 
-            block.colorMultiplier(tile.worldObj, tile.xCoord, tile.yCoord, tile.zCoord)<<8|0xFF
+            block.colorMultiplier(part.world, part.x, part.y, part.z)<<8|0xFF
     
     @SideOnly(Side.CLIENT)
     def getBreakingIcon(side:Int) = block.getIcon(side, meta)

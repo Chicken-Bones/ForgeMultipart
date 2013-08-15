@@ -241,10 +241,7 @@ class TileMultipart extends TileEntity
     
     private[multipart] def remPart_impl(part:TMultiPart):TileMultipart =
     {
-        val i = remPart_do(part)
-        
-        if(!worldObj.isRemote)
-            getWriteStream.writeByte(254).writeByte(i)
+        remPart_do(part, !worldObj.isRemote)
         
         if(!isInvalid())
         {
@@ -259,13 +256,16 @@ class TileMultipart extends TileEntity
         return null
     }
     
-    private def remPart_do(part:TMultiPart):Int =
+    private def remPart_do(part:TMultiPart, sendPacket:Boolean):Int =
     {
         val r = partList.indexOf(part)
         if(r < 0)
             throw new IllegalArgumentException("Tried to remove a non-existant part")
         
         partList-=part
+        
+        if(sendPacket)
+            getWriteStream.writeByte(254).writeByte(r)
         
         partRemoved(part, r)
         part.onRemoved()

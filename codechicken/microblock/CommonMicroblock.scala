@@ -63,7 +63,23 @@ object CommonMicroblock
     }
 }
 
-trait MicroblockClient extends Microblock with TIconHitEffects
+object JMicroblockClient
+{
+    def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int, part:IMicroMaterialRender)
+    {
+        var lightMatrix:LightMatrix = null
+        if(olm != null)
+            lightMatrix = olm.lightMatrix
+            
+        RenderUtils.renderBlock(c, sideMask, new IFaceRenderer()
+            {
+                def renderFace(face:Array[Vertex5], side:Int) = 
+                    mat.renderMicroFace(face, side, pos, lightMatrix, part)
+            })
+    }
+}
+
+trait MicroblockClient extends Microblock with TIconHitEffects with IMicroMaterialRender
 {
 import CommonMicroblock._
     
@@ -75,23 +91,13 @@ import CommonMicroblock._
         return Block.stone.getIcon(0, 0)
     }
     
-    def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)
-    {
+    def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
         renderCuboid(pos, olm, mat, c, sideMask)
-    }
     
-    def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)
-    {
-        var lightMatrix:LightMatrix = null
-        if(olm != null)
-            lightMatrix = olm.lightMatrix
-            
-        RenderUtils.renderBlock(c, sideMask, new IFaceRenderer()
-            {
-                def renderFace(face:Array[Vertex5], side:Int) = 
-                    mat.renderMicroFace(face, side, pos, lightMatrix, MicroblockClient.this)
-            })
-    }
+    def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
+        JMicroblockClient.renderCuboid(pos, olm, mat, c, sideMask, this)
+    
+    def getRenderBounds = getBounds
 }
 
 abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCuboidPart

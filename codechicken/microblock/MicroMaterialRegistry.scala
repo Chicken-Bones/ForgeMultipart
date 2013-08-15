@@ -30,7 +30,7 @@ object MicroMaterialRegistry
         def loadIcons(){}
         
         @SideOnly(Side.CLIENT)
-        def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:Microblock)
+        def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
         
         @SideOnly(Side.CLIENT)
         def getRenderPass():Int
