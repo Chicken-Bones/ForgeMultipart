@@ -39,6 +39,9 @@ public class EventHandler
     public static boolean place(EntityPlayer player, World world)
     {
         MovingObjectPosition hit = RayTracer.reTrace(world, player);
+        if(hit == null)
+            return false;
+        
         BlockCoord pos = new BlockCoord(hit.blockX, hit.blockY, hit.blockZ).offset(hit.sideHit);
         ItemStack held = player.getHeldItem();
         McBlockPart part = null;
