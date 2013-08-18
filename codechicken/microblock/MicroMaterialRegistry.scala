@@ -73,12 +73,24 @@ object MicroMaterialRegistry
     def registerMaterial(material:IMicroMaterial, name:String)
     {
         if(MultiPartRegistry.loaded)
-            throw new IllegalStateException("You must register your parts in the init methods.")
+            throw new IllegalStateException("You must register your materials in the init methods.")
         
         if(typeMap.contains(name))
             throw new IllegalStateException("Material with id "+name+" is already registered.")
         
         System.out.println("Registered micro material: "+name)
+        
+        typeMap.put(name, material)
+    }
+    
+    def replaceMaterial(material:IMicroMaterial, name:String) {
+        if(MultiPartRegistry.loaded)
+            throw new IllegalStateException("You must register your materials in the init methods.")
+        
+        if(typeMap.remove(name).isEmpty)
+            System.err.println("Material with id "+name+" is was not registered.")
+        
+        System.out.println("Replaced micro material: "+name)
         
         typeMap.put(name, material)
     }
