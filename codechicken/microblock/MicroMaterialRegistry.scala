@@ -18,6 +18,8 @@ import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
 import net.minecraft.block.StepSound
+import net.minecraft.util.MovingObjectPosition
+import net.minecraft.world.World
 
 object MicroMaterialRegistry
 {
@@ -53,10 +55,20 @@ object MicroMaterialRegistry
         //todo, get material properties
     }
     
+    trait IMicroHighlightRenderer
+    {
+        /**
+         * Return true if a custom highlight was rendered and the default should be skipped
+         */
+        def renderHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, mcrClass:MicroblockClass, size:Int, material:Int):Boolean
+    }
+    
     private val typeMap:HashMap[String, IMicroMaterial] = new HashMap
     private val nameMap:HashMap[String, Int] = new HashMap
     private var idMap:Array[(String, IMicroMaterial)] = _
     private val idWriter = IDWriter()
+    
+    private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
     
     def registerMaterial(material:IMicroMaterial, name:String)
     {
@@ -69,6 +81,11 @@ object MicroMaterialRegistry
         System.out.println("Registered micro material: "+name)
         
         typeMap.put(name, material)
+    }
+    
+    def registerHighlightRenderer(handler:IMicroHighlightRenderer)
+    {
+        highlightRenderers+=handler
     }
     
     def setupIDMap()
@@ -130,4 +147,13 @@ object MicroMaterialRegistry
     def getMaterial(id:Int) = idMap(id)._2
     
     def getIdMap = idMap
+    
+    def renderHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, mcrClass:MicroblockClass, size:Int, material:Int):Boolean =
+    {
+        val overriden = highlightRenderers.find(_.renderHighlight(world, player, hit, mcrClass, size, material))
+        if(overriden.isDefined)
+            return true
+        
+        return mcrClass.renderHighlight(world, player, hit, size, material)
+    }
 }

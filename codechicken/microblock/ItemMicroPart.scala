@@ -164,7 +164,7 @@ object ItemMicroPartRenderer extends IItemRenderer
         val size = stack.getItemDamage&0xFF
         if(material < 0 || mcrClass == null)
             return false
-            
-        return mcrClass.renderHighlight(world, player, hit, size, material)
+        
+        return MicroMaterialRegistry.renderHighlight(world, player, hit, mcrClass, size, material)
     }
 }
