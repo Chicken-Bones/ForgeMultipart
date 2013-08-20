@@ -103,7 +103,7 @@ class TileMultipart extends TileEntity
         val wasInvalid = isInvalid
         super.validate()
         if(wasInvalid)
-            partList.foreach(_.onWorldJoin())
+            partList.foreach(_.onMoved())
     }
     
     override def invalidate()
