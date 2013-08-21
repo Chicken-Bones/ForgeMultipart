@@ -38,6 +38,7 @@ import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
 import scala.collection.JavaConversions._
+import java.util.Collection
 
 class TileMultipart extends TileEntity
 {
@@ -77,7 +78,7 @@ class TileMultipart extends TileEntity
     
     def jPartList():List[TMultiPart] = partList
     
-    override def canUpdate() = doesTick//TODO: part merging true
+    override def canUpdate() = doesTick
     
     override def updateEntity()
     {
@@ -113,7 +114,22 @@ class TileMultipart extends TileEntity
             partList.foreach(_.onWorldSeparate())
     }
     
+    /**
+     * Called by parts when they have changed in some form that affects the world.
+     * Notifies neighbor blocks, parts that share this host and recalculates lighting
+     */
     def notifyPartChange(part:TMultiPart)
+    {
+        internalPartChange(part)
+        
+        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType().blockID)
+        worldObj.updateAllLightTypes(xCoord, yCoord, zCoord)
+    }
+    
+    /**
+     * Notifies parts sharing this host of a change
+     */
+    def internalPartChange(part:TMultiPart)
     {
         TileMultipart.startOperation(this)
         partList.foreach{ p =>
@@ -121,9 +137,19 @@ class TileMultipart extends TileEntity
                 p.onPartChanged(part)
         }
         TileMultipart.finishOperation(this)
-        
-        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType().blockID)
-        worldObj.updateAllLightTypes(xCoord, yCoord, zCoord)
+    }
+    
+    /**
+     * Notifies all parts not in the passed collection of a change from all the parts in the collection
+     */
+    def multiPartChange(parts:Collection[TMultiPart])
+    {
+        TileMultipart.startOperation(this)
+        partList.foreach{ p =>
+            if(!parts.contains(p))
+                parts.foreach(p.onPartChanged(_))
+        }
+        TileMultipart.finishOperation(this)
     }
     
     def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)

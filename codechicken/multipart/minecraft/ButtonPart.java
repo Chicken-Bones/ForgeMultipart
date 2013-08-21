@@ -3,7 +3,7 @@ package codechicken.multipart.minecraft;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import codechicken.multipart.IRedstonePart;
+import codechicken.multipart.IFaceRedstonePart;
 import codechicken.multipart.TickScheduler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
@@ -15,7 +15,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class ButtonPart extends McSidedMetaPart implements IRedstonePart
+public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
 {
     public static BlockButton stoneButton = (BlockButton) Block.stoneButton;
     public static BlockButton woodenButton = (BlockButton) Block.woodenButton;
@@ -180,5 +180,10 @@ public class ButtonPart extends McSidedMetaPart implements IRedstonePart
     public int redstoneConductionMap()
     {
         return 0x10;
+    }
+    
+    @Override
+    public int getFace() {
+        return metaSideMap[meta&7];
     }
 }

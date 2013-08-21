@@ -11,9 +11,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
-import codechicken.multipart.IRedstonePart;
+import codechicken.multipart.IFaceRedstonePart;
 
-public class LeverPart extends McSidedMetaPart implements IRedstonePart
+public class LeverPart extends McSidedMetaPart implements IFaceRedstonePart
 {
     public static BlockLever lever = (BlockLever) Block.lever;
     public static int[] metaSideMap = new int[]{1, 4, 5, 2, 3, 0, 0, 1};
@@ -148,5 +148,10 @@ public class LeverPart extends McSidedMetaPart implements IRedstonePart
     public int redstoneConductionMap()
     {
         return 0x10;
+    }
+    
+    @Override
+    public int getFace() {
+        return metaSideMap[meta&7];
     }
 }

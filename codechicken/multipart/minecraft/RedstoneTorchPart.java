@@ -10,11 +10,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
+import codechicken.multipart.IFaceRedstonePart;
 import codechicken.multipart.IRandomUpdateTick;
-import codechicken.multipart.IRedstonePart;
 import codechicken.multipart.RedstoneInteractions;
+import codechicken.multipart.TFacePart;
 
-public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRandomUpdateTick
+public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, IRandomUpdateTick
 {
     public static BlockRedstoneTorch torchActive = (BlockRedstoneTorch) Block.torchRedstoneActive;
     public static BlockRedstoneTorch torchIdle = (BlockRedstoneTorch) Block.torchRedstoneIdle;
@@ -230,5 +231,10 @@ public class RedstoneTorchPart extends TorchPart implements IRedstonePart, IRand
     public boolean canConnectRedstone(int side)
     {
         return true;
+    }
+    
+    @Override
+    public int getFace() {
+        return metaSideMap[meta*7];
     }
 }
