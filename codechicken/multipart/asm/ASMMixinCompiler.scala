@@ -78,8 +78,13 @@ object ASMMixinCompiler
         m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
     }
     
+    getBytes("cpw/mods/fml/common/asm/FMLSanityChecker")
+    
     def getBytes(name:String):Array[Byte] =
     {
+        if(name.equals("java/lang/Object"))
+            return null
+        
         val jName = name.replace('/', '.')
         
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
