@@ -1,6 +1,7 @@
 package codechicken.multipart.asm
 
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList, Set => MSet}
+import java.util.{Set => JSet}
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.objectweb.asm.tree._
@@ -62,8 +63,10 @@ object ASMMixinCompiler
     val cl = getClass.getClassLoader.asInstanceOf[LaunchClassLoader]
     val m_defineClass = classOf[ClassLoader].getDeclaredMethod("defineClass", classOf[Array[Byte]], Integer.TYPE, Integer.TYPE)
     val m_runTransformers = classOf[LaunchClassLoader].getDeclaredMethod("runTransformers", classOf[String], classOf[String], classOf[Array[Byte]])
+    val f_transformerExceptions = classOf[LaunchClassLoader].getDeclaredField("transformerExceptions")
     m_defineClass.setAccessible(true)
     m_runTransformers.setAccessible(true)
+    f_transformerExceptions.setAccessible(true)
     
     private val traitByteMap = MMap[String, Array[Byte]]()
     private val mixinMap = MMap[String, MixinInfo]()
@@ -75,13 +78,18 @@ object ASMMixinCompiler
         m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
     }
     
-    def getBytes(name:String) =
+    def getBytes(name:String):Array[Byte] =
     {
         val jName = name.replace('/', '.')
-        cl.getClassBytes(jName) match {
-            case null => null
-            case v => m_runTransformers.invoke(cl, jName, jName, v).asInstanceOf[Array[Byte]]
-        }
+        
+        def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
+                .find(jName.startsWith(_)).isEmpty
+        
+        val bytes = cl.getClassBytes(jName)
+        if(bytes != null && useTransformers)
+            return m_runTransformers.invoke(cl, jName, jName, bytes).asInstanceOf[Array[Byte]]
+            
+        return bytes
     }
     
     def internalDefine(name:String, bytes:Array[Byte])
