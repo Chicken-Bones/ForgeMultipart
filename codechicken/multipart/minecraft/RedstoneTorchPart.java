@@ -13,7 +13,6 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IFaceRedstonePart;
 import codechicken.multipart.IRandomUpdateTick;
 import codechicken.multipart.RedstoneInteractions;
-import codechicken.multipart.TFacePart;
 
 public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, IRandomUpdateTick
 {

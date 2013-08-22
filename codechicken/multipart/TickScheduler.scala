@@ -12,7 +12,20 @@ import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.world.ChunkPosition
 import scala.collection.mutable.HashSet
+import java.io.DataOutputStream
+import net.minecraftforge.common.DimensionManager
+import java.io.File
+import java.io.FileOutputStream
+import net.minecraft.nbt.CompressedStreamTools
+import java.io.DataInputStream
+import java.io.FileInputStream
 
+/**
+ * Used for scheduling delayed callbacks to parts.
+ * Do not use this for redstone applications that require precise timing.
+ * If 2 parts are both scheduled for an update on the same tick, there is no guarantee which one will update first. 
+ * These parts should not depend on a state of another part that may have changed before/after them.
+ */
 object TickScheduler extends WorldExtensionInstantiator
 {
     class PartTickEntry(val part:TMultiPart, var time:Long, var random:Boolean)
@@ -22,6 +35,7 @@ object TickScheduler extends WorldExtensionInstantiator
     
     private class WorldTickScheduler(world$:World) extends WorldExtension(world$)
     {
+        var schedTime = 0L
         var tickChunks = HashSet[ChunkTickScheduler]()
         private var processing = false
         private val pending = ListBuffer[PartTickEntry]()
@@ -29,9 +43,9 @@ object TickScheduler extends WorldExtensionInstantiator
         def scheduleTick(part:TMultiPart, ticks:Int, random:Boolean)
         {
             if(processing)
-                pending+=new PartTickEntry(part, world.getWorldTime()+ticks, random)
+                pending+=new PartTickEntry(part, schedTime+ticks, random)
             else
-                _scheduleTick(part, world.getWorldTime()+ticks, random)
+                _scheduleTick(part, schedTime+ticks, random)
         }
         
         def _scheduleTick(part:TMultiPart, time:Long, random:Boolean)
@@ -54,6 +68,55 @@ object TickScheduler extends WorldExtensionInstantiator
             processing = false
             pending.foreach(e => _scheduleTick(e.part, e.time, e.random))
             pending.clear()
+            
+            schedTime+=1
+        }
+        
+        def saveDir():File = 
+        {
+            val base = DimensionManager.getCurrentSaveRootDirectory
+            if(world.provider.dimensionId == 0)
+                return base
+            return new File(base, world.provider.getSaveFolder)
+        }
+        
+        def saveFile():File = new File(saveDir, "multipart.dat")
+        
+        override def load() 
+        {
+            try
+            {
+                val din = new DataInputStream(new FileInputStream(saveFile))
+                loadTag(CompressedStreamTools.readCompressed(din))
+                din.close()
+            }
+            catch
+            {
+                case e:Exception =>
+            }
+        
+            loadTag(new NBTTagCompound)
+        }
+        
+        def loadTag(tag:NBTTagCompound)
+        {
+            if(tag.hasKey("schedTime"))
+                schedTime = tag.getLong("schedTime")
+            else
+                schedTime = world.getWorldTime
+        }
+        
+        def saveTag():NBTTagCompound = 
+        {
+            val tag = new NBTTagCompound
+            tag.setLong("schedTime", schedTime)
+            return tag
+        }
+        
+        override def save() {
+            val dout = new DataOutputStream(new FileOutputStream(saveFile));
+            CompressedStreamTools.writeCompressed(saveTag, dout);
+            dout.close();
         }
     }
     
@@ -64,6 +127,8 @@ object TickScheduler extends WorldExtensionInstantiator
         import codechicken.multipart.handler.MultipartProxy._
         
         var tickList = ListBuffer[PartTickEntry]()
+        
+        def schedTime = world.schedTime
         
         def scheduleTick(part:TMultiPart, time:Long, random:Boolean)
         {
@@ -96,8 +161,7 @@ object TickScheduler extends WorldExtensionInstantiator
         
         def processTick(e:PartTickEntry):Boolean =
         {
-            val time = world.world.getWorldTime
-            if(e.time <= time)
+            if(e.time <= schedTime)
             {
                 if(e.part.tile != null)
                 {
@@ -108,7 +172,7 @@ object TickScheduler extends WorldExtensionInstantiator
                     
                     if(e.part.isInstanceOf[IRandomUpdateTick])
                     {
-                        e.time = time+nextRandomTick
+                        e.time = schedTime+nextRandomTick
                         e.random = true
                         return true
                     }
@@ -187,4 +251,6 @@ object TickScheduler extends WorldExtensionInstantiator
     {
         getExtension(part.tile.worldObj).asInstanceOf[WorldTickScheduler].scheduleTick(part, ticks, false)
     }
+    
+    def getSchedulerTime(world:World):Long = getExtension(world).asInstanceOf[WorldTickScheduler].schedTime
 }
