@@ -82,10 +82,9 @@ object ASMMixinCompiler
     
     def getBytes(name:String):Array[Byte] =
     {
-        if(name.equals("java/lang/Object"))
-            return null
-        
         val jName = name.replace('/', '.')
+        if(jName.equals("java.lang.Object"))
+            return null
         
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
                 .find(jName.startsWith(_)).isEmpty
