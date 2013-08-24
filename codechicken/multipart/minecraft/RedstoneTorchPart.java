@@ -234,6 +234,6 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
     
     @Override
     public int getFace() {
-        return metaSideMap[meta*7];
+        return metaSideMap[meta&7];
     }
 }
