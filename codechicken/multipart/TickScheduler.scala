@@ -114,7 +114,13 @@ object TickScheduler extends WorldExtensionInstantiator
         }
         
         override def save() {
-            val dout = new DataOutputStream(new FileOutputStream(saveFile));
+            val file = saveFile
+            if(!file.getParentFile.exists)
+                file.getParentFile.mkdirs()
+            if(!file.exists)
+                file.createNewFile()
+            
+            val dout = new DataOutputStream(new FileOutputStream(file));
             CompressedStreamTools.writeCompressed(saveTag, dout);
             dout.close();
         }
