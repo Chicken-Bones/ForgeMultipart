@@ -177,12 +177,6 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
     }
     
     @Override
-    public int redstoneConductionMap()
-    {
-        return 0x10;
-    }
-    
-    @Override
     public int getFace() {
         return metaSideMap[meta&7];
     }

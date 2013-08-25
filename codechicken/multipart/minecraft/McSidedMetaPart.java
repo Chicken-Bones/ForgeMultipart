@@ -64,6 +64,6 @@ public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
     @Override
     public int redstoneConductionMap()
     {
-        return 0;
+        return 0x1F;
     }
 }
