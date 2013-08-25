@@ -19,6 +19,7 @@ import java.io.FileOutputStream
 import net.minecraft.nbt.CompressedStreamTools
 import java.io.DataInputStream
 import java.io.FileInputStream
+import net.minecraft.world.storage.SaveHandler
 
 /**
  * Used for scheduling delayed callbacks to parts.
@@ -74,10 +75,10 @@ object TickScheduler extends WorldExtensionInstantiator
         
         def saveDir():File = 
         {
-            val base = DimensionManager.getCurrentSaveRootDirectory
-            if(world.provider.dimensionId == 0)
-                return base
-            return new File(base, world.provider.getSaveFolder)
+            if(world.provider.dimensionId == 0)//Calling DimensionManager.getCurrentSaveRootDirectory too early breaks game saves, we have a world reference, use it
+                return world.getSaveHandler.asInstanceOf[SaveHandler].getWorldDirectory
+                
+            return new File(DimensionManager.getCurrentSaveRootDirectory, world.provider.getSaveFolder)
         }
         
         def saveFile():File = new File(saveDir, "multipart.dat")
