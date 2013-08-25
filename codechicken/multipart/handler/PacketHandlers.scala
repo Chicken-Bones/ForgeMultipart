@@ -19,7 +19,7 @@ import java.util.Map
 import net.minecraft.tileentity.TileEntity
 import codechicken.multipart.TileMultipart
 import net.minecraft.entity.player.EntityPlayer
-import scala.collection._
+import scala.collection.mutable.{Map => MMap}
 import codechicken.core.vec.BlockCoord
 import codechicken.core.data.MCOutputStreamWrapper
 import java.io.DataOutputStream
@@ -85,7 +85,7 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
         def getBytes = bout.toByteArray
     }
     
-    private val updateMap = mutable.Map[World, mutable.Map[BlockCoord, MCByteStream]]()
+    private val updateMap = MMap[World, MMap[BlockCoord, MCByteStream]]()
     
     def handlePacket(packet:PacketCustom, netHandler:NetServerHandler, sender:EntityPlayerMP)
     {
@@ -95,12 +95,6 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
         }
     }
     
-    def onWorldLoad(world:World)
-    {
-        if(!world.isRemote)
-            updateMap.put(world, mutable.Map())
-    }
-    
     def onWorldUnload(world:World)
     {
         if(!world.isRemote)
@@ -108,7 +102,11 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     }
     
     def getTileStream(world:World, pos:BlockCoord) =
-        updateMap.getOrElse(world, null).getOrElseUpdate(pos, {
+        updateMap.getOrElseUpdate(world, {
+            if(world.isRemote)
+                throw new IllegalArgumentException("Cannot use MultipartSPH on a client world")
+            MMap()
+        }).getOrElseUpdate(pos, {
             val s = new MCByteStream(new ByteArrayOutputStream)
             s.writeCoord(pos)
             s
@@ -118,7 +116,7 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     {
         players.foreach{p =>
             val m = updateMap.getOrElse(p.worldObj, null)
-            if(!m.isEmpty)
+            if(m != null && !m.isEmpty)
             {
                 val manager = p.worldObj.asInstanceOf[WorldServer].getPlayerManager
                 val packet = new PacketCustom(channel, 3).setChunkDataPacket().compressed()

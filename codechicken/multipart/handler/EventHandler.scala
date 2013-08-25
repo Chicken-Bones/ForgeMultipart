@@ -35,12 +35,6 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     }
     
     @ForgeSubscribe
-    def worldLoad(event:WorldEvent.Load)
-    {
-        MultipartSPH.onWorldLoad(event.world)
-    }
-    
-    @ForgeSubscribe
     def worldUnLoad(event:WorldEvent.Unload)
     {
         MultipartSPH.onWorldUnload(event.world)
