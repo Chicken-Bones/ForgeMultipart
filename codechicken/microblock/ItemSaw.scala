@@ -52,38 +52,41 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
 
 object ItemSawRenderer extends IItemRenderer
 {
-    val models = CCModel.parseObjModels(new ResourceLocation("microblock", "models/saw.obj"), 7, new SwapYZ())
-    val handle = models.get("Handle");
-    val holder = models.get("BladeSupport")
-    val blade = models.get("Blade")
-    
-    def handleRenderType(item:ItemStack, renderType:ItemRenderType) = true
-    
-    def shouldUseRenderHelper(renderType:ItemRenderType, item:ItemStack, helper:ItemRendererHelper) = true
-    
-    def renderItem(renderType:ItemRenderType, item:ItemStack, data:Object*)
+    if(config.getTag("renderModels").getIntValue(1) == 1)
     {
-        var t = renderType match {
-            case INVENTORY => new TransformationList(new Scale(1.8), new Translation(0, 0, -0.6), new Rotation(-pi/4, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0))
-            case ENTITY => new TransformationList(new Scale(1), new Translation(0, 0, -0.25), new Rotation(-pi/4, 1, 0, 0))
-            case EQUIPPED_FIRST_PERSON => new TransformationList(new Scale(1.5), new Rotation(-pi/3, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0), new Translation(0.5, 0.5, 0.5))
-            case EQUIPPED => new TransformationList(new Scale(1.5), new Rotation(-pi/5, 1, 0, 0), new Rotation(-pi*3/4, 0, 1, 0), new Translation(0.75, 0.5, 0.75))
-            case _ => return
-        }
+        val models = CCModel.parseObjModels(new ResourceLocation("microblock", "models/saw.obj"), 7, new SwapYZ())
+        val handle = models.get("Handle");
+        val holder = models.get("BladeSupport")
+        val blade = models.get("Blade")
         
-        CCRenderState.reset()
-        CCRenderState.useNormals(true)
-        CCRenderState.pullLightmap()
-        CCRenderState.changeTexture("microblock:textures/items/saw.png")
-        CCRenderState.setColour(0xFFFFFFFF)
-        CCRenderState.startDrawing(7)
-        handle.render(t, null)
-        holder.render(t, null)
-        CCRenderState.draw()
-        GL11.glDisable(GL11.GL_CULL_FACE)
-        CCRenderState.startDrawing(7)
-        blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength-1)*4/64D))
-        CCRenderState.draw()
-        GL11.glEnable(GL11.GL_CULL_FACE)
+        def handleRenderType(item:ItemStack, renderType:ItemRenderType) = true
+        
+        def shouldUseRenderHelper(renderType:ItemRenderType, item:ItemStack, helper:ItemRendererHelper) = true
+        
+        def renderItem(renderType:ItemRenderType, item:ItemStack, data:Object*)
+        {
+            var t = renderType match {
+                case INVENTORY => new TransformationList(new Scale(1.8), new Translation(0, 0, -0.6), new Rotation(-pi/4, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0))
+                case ENTITY => new TransformationList(new Scale(1), new Translation(0, 0, -0.25), new Rotation(-pi/4, 1, 0, 0))
+                case EQUIPPED_FIRST_PERSON => new TransformationList(new Scale(1.5), new Rotation(-pi/3, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0), new Translation(0.5, 0.5, 0.5))
+                case EQUIPPED => new TransformationList(new Scale(1.5), new Rotation(-pi/5, 1, 0, 0), new Rotation(-pi*3/4, 0, 1, 0), new Translation(0.75, 0.5, 0.75))
+                case _ => return
+              }
+        
+            CCRenderState.reset()
+            CCRenderState.useNormals(true)
+            CCRenderState.pullLightmap()
+            CCRenderState.changeTexture("microblock:textures/items/saw.png")
+            CCRenderState.setColour(0xFFFFFFFF)
+            CCRenderState.startDrawing(7)
+            handle.render(t, null)
+            holder.render(t, null)
+            CCRenderState.draw()
+            GL11.glDisable(GL11.GL_CULL_FACE)
+            CCRenderState.startDrawing(7)
+            blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength-1)*4/64D))
+            CCRenderState.draw()
+            GL11.glEnable(GL11.GL_CULL_FACE)
+        }   
     }
 }
