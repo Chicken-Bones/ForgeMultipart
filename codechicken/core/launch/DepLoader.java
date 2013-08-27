@@ -1,5 +1,6 @@
 package codechicken.core.launch;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
@@ -31,10 +32,13 @@ import java.util.zip.ZipFile;
 
 import javax.swing.Box;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
@@ -57,7 +61,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
 {
     private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
-    private static final String owner = "CodeChickenCore";
+    private static final String owner = "CB's DepLoader";
     private static DepLoadInst inst;
     
     public interface IDownloadDisplay
@@ -74,7 +78,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
 
         Object makeDialog();
 
-        void makeHeadless();
+        void showErrorDialog(String name, String url);
     }
     
     @SuppressWarnings("serial")
@@ -110,6 +114,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         @Override
         public JDialog makeDialog()
         {
+            if(container != null)
+                return container;
+            
             setMessageType(JOptionPane.INFORMATION_MESSAGE);
             setMessage(makeProgressPanel());
             setOptions(new Object[] { "Stop" });
@@ -148,14 +155,11 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         {
             int shouldClose = JOptionPane.showConfirmDialog(container, message, "Are you sure you want to stop?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (shouldClose == JOptionPane.YES_OPTION)
-            {
                 container.dispose();
-            }
+            
             stopIt = true;
             if (pokeThread != null)
-            {
                 pokeThread.interrupt();
-            }
         }
 
         @Override
@@ -163,35 +167,21 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         {
             //FMLLog.finest(progressUpdate, data);
             if (currentActivity!=null)
-            {
-                currentActivity.setText(String.format(progressUpdate,data));
-            }
+                currentActivity.setText(String.format(progressUpdate, data));
         }
 
         @Override
         public void resetProgress(int sizeGuess)
         {
             if (progress!=null)
-            {
                 progress.getModel().setRangeProperties(0, 0, 0, sizeGuess, false);
-            }
         }
 
         @Override
         public void updateProgress(int fullLength)
         {
             if (progress!=null)
-            {
                 progress.getModel().setValue(fullLength);
-            }
-        }
-
-        @Override
-        public void makeHeadless()
-        {
-            container = null;
-            progress = null;
-            currentActivity = null;
         }
 
         @Override
@@ -204,6 +194,35 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         public boolean shouldStopIt()
         {
             return stopIt;
+        }
+        
+        @Override
+        public void showErrorDialog(String name, String url) {
+            JEditorPane ep = new JEditorPane("text/html", 
+                    "<html>" +
+                    owner+" was unable to download required library "+name + 
+                    "<br>Check your internet connection and try restarting or download it manually from" +
+                    "<br><a href=\""+url+"\">"+url+"</a> and put it in your mods folder" +
+                    "</html>");
+
+            ep.setEditable(false);
+            ep.setOpaque(false);
+            ep.addHyperlinkListener(new HyperlinkListener()
+            {
+                @Override
+                public void hyperlinkUpdate(HyperlinkEvent event)
+                {
+                    try
+                    {
+                        if (event.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED))
+                            Desktop.getDesktop().browse(event.getURL().toURI());
+                    }
+                    catch(Exception e)
+                    {}
+                }
+            });
+            
+            JOptionPane.showMessageDialog(null, ep, "A download error has occured", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -240,10 +259,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         {
             return null;
         }
-
+        
         @Override
-        public void makeHeadless()
-        {
+        public void showErrorDialog(String name, String url) {
         }
     }
     
@@ -254,11 +272,16 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         public ComparableVersion version;
         
         public String existing;
+        /**
+         * Flag set to add this dep to the classpath immediately because it is required for a coremod.
+         */
+        public boolean coreLib;
         
-        public Dependancy(String url, String[] filesplit)
+        public Dependancy(String url, String[] filesplit, boolean coreLib)
         {
             this.url = url;
             this.filesplit = filesplit;
+            this.coreLib = coreLib;
             version = new ComparableVersion(filesplit[1]);
         }
 
@@ -328,26 +351,23 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             }
             catch (Exception e)
             {
+                libFile.delete();
                 if (downloadMonitor.shouldStopIt())
                 {
                     System.err.println("You have stopped the downloading operation before it could complete");
+                    System.exit(1);
                     return;
                 }
-                if (e instanceof RuntimeException) throw (RuntimeException)e;
-                System.err.format("There was a problem downloading the file %s automatically. Perhaps you " +
-                            "have an environment without internet access. You will need to download " +
-                            "the file manually or restart and let it try again\n", libFile.getName());
-                libFile.delete();
+                downloadMonitor.showErrorDialog(dep.fileName(), dep.url+'/'+dep.fileName());
                 throw new RuntimeException("A download error occured", e);
             }
         }
         
-        private void download(InputStream is, int sizeGuess, File target)
+        private void download(InputStream is, int sizeGuess, File target) throws Exception
         {
             if (sizeGuess > downloadBuffer.capacity())
-            {
-                throw new RuntimeException(String.format("The file %s is too large to be downloaded by "+owner+" - the coremod is invalid", target.getName()));
-            }
+                throw new Exception(String.format("The file %s is too large to be downloaded by "+owner+" - the download is invalid", target.getName()));
+            
             downloadBuffer.clear();
 
             int bytesRead, fullLength = 0;
@@ -375,11 +395,11 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             {
                 // We were interrupted by the stop button. We're stopping now.. clear interruption flag.
                 Thread.interrupted();
-                return;
+                throw new Exception("Stop");
             }
             catch (IOException e)
             {
-                throw new RuntimeException(e);
+                throw e;
             }
             
             try
@@ -403,8 +423,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             }
             catch (Exception e)
             {
-                if (e instanceof RuntimeException) throw (RuntimeException)e;
-                throw new RuntimeException(e);
+                throw e;
             }
         }
 
@@ -464,7 +483,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         private void activateDeps()
         {
             for(Dependancy dep : depMap.values())
-                addClasspath(dep.existing);
+                if(dep.coreLib)
+                    addClasspath(dep.existing);
         }
 
         private void loadDeps()
@@ -531,7 +551,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             }
             catch(Exception e)
             {
-                throw new RuntimeException("Failed to load dependancies.info from "+file.getName()+" as JSON", e);
+                System.err.println("Failed to load dependancies.info from "+file.getName()+" as JSON");
+                e.printStackTrace();
             }
         }
 
@@ -556,7 +577,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         {
             boolean obfuscated = ((LaunchClassLoader)DepLoader.class.getClassLoader())
                     .getClassBytes("net.minecraft.world.World") == null;
-
+            
             String testClass = node.getStringValue("class");
             if(DepLoader.class.getResource("/"+testClass.replace('.', '/')+".class") != null)
                 return;
@@ -566,7 +587,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             if(!obfuscated && node.isNode("dev"))
                 file = node.getStringValue("dev");
             
-            List<String> reserved = Arrays.asList("repo", "file", "class", "dev");
+            boolean coreLib = node.isNode("coreLib") && node.getBooleanValue("coreLib");
+            
+            List<String> reserved = Arrays.asList("repo", "file", "class", "dev", "coreLib");
             for(Entry<JsonStringNode, JsonNode> e : node.getFields().entrySet())
             {
                 String s = e.getKey().getText();
@@ -580,17 +603,26 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             if(split == null)
                 throw new RuntimeException("Invalid filename format for dependancy: "+file);
             
-            addDep(new Dependancy(repo, split));
+            addDep(new Dependancy(repo, split, coreLib));
         }
 
-        private void addDep(Dependancy dep)
+        private void addDep(Dependancy newDep)
         {
-            Dependancy old = depMap.get(dep.getName());
-            if(old == null || dep.version.compareTo(old.version) > 0)
+            if(mergeNew(depMap.get(newDep.getName()), newDep))
             {
-                depMap.put(dep.getName(), dep);
-                depSet.add(dep.getName());
+                depMap.put(newDep.getName(), newDep);
+                depSet.add(newDep.getName());
             }
+        }
+
+        private boolean mergeNew(Dependancy oldDep, Dependancy newDep) {
+            if(oldDep == null)
+                return true;
+            
+            Dependancy newest = newDep.version.compareTo(oldDep.version) > 0 ? newDep : oldDep;
+            newest.coreLib = newDep.coreLib || oldDep.coreLib;
+            
+            return newest == newDep;
         }
     }
     
