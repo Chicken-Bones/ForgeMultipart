@@ -43,7 +43,7 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
             for(i <- 0 until 6)
                 icons(i) = MicroblockProxy.renderBlocks.getIconSafe(iblock.getIcon(i, meta))
         
-        icont = new MultiIconTransformation(icons)
+        icont = new MultiIconTransformation(icons:_*)
     }
     
     def getRenderPass = if(block.canRenderInPass(1)) 1 else 0
