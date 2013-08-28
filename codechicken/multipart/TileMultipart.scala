@@ -65,10 +65,11 @@ class TileMultipart extends TileEntity
     def loadFrom(that:TileMultipart)
     {
         partList.foreach(_.bind(this))
-        if(!isInvalid)
-            partList.foreach(_.onWorldJoin())
         if(doesTick)
+        {
+            doesTick = false
             setTicking(true)
+        }
     }
     
     /**
@@ -109,11 +110,19 @@ class TileMultipart extends TileEntity
             partList.foreach(_.onMoved())
     }
     
-    override def invalidate()
+    private[multipart] def prepareSwap()
     {
         super.invalidate()
-        if(worldObj != null)
-            partList.foreach(_.onWorldSeparate())
+    }
+    
+    override def invalidate()
+    {
+        if(!isInvalid)
+        {
+            super.invalidate()
+            if(worldObj != null)
+                partList.foreach(_.onWorldSeparate())
+        }
     }
     
     /**
