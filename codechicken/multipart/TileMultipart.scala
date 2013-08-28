@@ -96,7 +96,9 @@ class TileMultipart extends TileEntity
     
     def onChunkLoad()
     {
+        TileMultipart.startOperation(this)
         partList.foreach(_.onChunkLoad())
+        TileMultipart.finishOperation(this)
     }
     
     override def validate()

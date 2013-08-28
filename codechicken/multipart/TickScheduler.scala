@@ -20,6 +20,7 @@ import net.minecraft.nbt.CompressedStreamTools
 import java.io.DataInputStream
 import java.io.FileInputStream
 import net.minecraft.world.storage.SaveHandler
+import java.util.ArrayList
 
 /**
  * Used for scheduling delayed callbacks to parts.
@@ -227,7 +228,7 @@ object TickScheduler extends WorldExtensionInstantiator
         
         override def load()
         {
-            val it = chunk.chunkTileEntityMap.values.iterator
+            val it = new ArrayList(chunk.chunkTileEntityMap.values).iterator
             while(it.hasNext)
             {
                 val t = it.next
