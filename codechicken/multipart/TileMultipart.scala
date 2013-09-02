@@ -641,8 +641,10 @@ object TileMultipart
         
         val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
         val tilemp = MultipartGenerator.generateCompositeTile(t, parts, true)
-        if(tilemp != t)
+        if(tilemp != t) {
+            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
             world.setBlockTileEntity(pos.x, pos.y, pos.z, tilemp)
+        }
         
         tilemp.loadParts(parts)
         tilemp.markRender()

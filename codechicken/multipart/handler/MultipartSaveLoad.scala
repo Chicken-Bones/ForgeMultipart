@@ -7,12 +7,15 @@ import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
 import codechicken.multipart.TileMultipart
 import codechicken.lib.asm.ObfMapping
+import net.minecraft.world.World
 
 /**
  * Hack due to lack of TileEntityLoadEvent in forge
  */
 object MultipartSaveLoad
 {
+    var loadingWorld:World = _
+    
     class TileNBTContainer extends TileEntity
     {
         var tag:NBTTagCompound = _
@@ -52,6 +55,7 @@ object MultipartSaveLoad
     
     def loadTiles(chunk:Chunk)
     {
+        loadingWorld = chunk.worldObj
         val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[ChunkPosition, TileEntity]].entrySet.iterator
         while(iterator.hasNext)
         {
