@@ -54,7 +54,7 @@ class MicroblockProxy_serverImpl
         sawIron = createSaw(config, "sawIron", 2)
         sawDiamond = createSaw(config, "sawDiamond", 3)
         stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
-            .setUnlocalizedName("microblock:stoneRod").func_111206_d("microblock:stoneRod")
+            .setUnlocalizedName("microblock:stoneRod").setTextureName("microblock:stoneRod")
         
         OreDictionary.registerOre("stoneRod", stoneRod)
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)

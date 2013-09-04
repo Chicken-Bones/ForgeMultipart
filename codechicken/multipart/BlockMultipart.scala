@@ -28,6 +28,7 @@ import codechicken.lib.render.TextureUtils
 import net.minecraft.world.IBlockAccess
 import codechicken.lib.raytracer.ExtendedMOP
 import scala.collection.JavaConversions._
+import java.util.Collections
 import codechicken.multipart.scalatraits.TTileChangeTile
 
 object BlockMultipart
@@ -82,16 +83,36 @@ trait BlockMultipart extends Block
     
     override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):MovingObjectPosition = 
     {
-        val boxes:LinkedList[IndexedCuboid6] = new LinkedList;
         val tile = getTile(world, x, y, z)
         if(tile == null)
             return null
         
+        return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), 
+                getRayTraceCuboids(tile), new BlockCoord(x, y, z), this)        
+    }
+    
+    def getRayTraceCuboids(tile:TileMultipart):LinkedList[IndexedCuboid6] = {
+        val boxes:LinkedList[IndexedCuboid6] = new LinkedList
+        
         for(i <- 0 until tile.partList.size)
-            tile.partList(i).getSubParts.foreach(c => 
-                boxes.add(new IndexedCuboid6((i, c.data), c.copy.add(new Vector3(x, y, z)))))
-                
-        return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), boxes, new BlockCoord(x, y, z), this)        
+            tile.partList(i).getSubParts.foreach{ c => 
+                boxes.add(new IndexedCuboid6((i, c.data), c.copy.add(new Vector3(tile.xCoord, tile.yCoord, tile.zCoord))))
+            }
+        
+        return boxes
+    }
+    
+    def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[ExtendedMOP] =
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile == null)
+            return Seq()
+        
+        val list = new LinkedList[ExtendedMOP]()
+        RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), 
+                getRayTraceCuboids(tile), new BlockCoord(x, y, z), this, list)
+        Collections.sort(list)
+        return list
     }
 
     override def removeBlockByPlayer(world:World, player:EntityPlayer, x:Int, y:Int, z:Int):Boolean =
@@ -206,7 +227,7 @@ trait BlockMultipart extends Block
     {
         val n = getUnlocalizedName();
         val icon = TextureUtils.getBlankIcon(16, register);
-        func_111022_d(icon.getIconName)
+        setTextureName(icon.getIconName)
         super.registerIcons(register)
     }
     

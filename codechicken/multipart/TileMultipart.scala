@@ -182,7 +182,7 @@ class TileMultipart extends TileEntity
     
     def markDirty()
     {
-        worldObj.updateTileEntityChunkAndDoNothing(xCoord, yCoord, zCoord, this)
+        worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this)
     }
     
     def isSolid(side:Int):Boolean = 
