@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.Vec3
 import codechicken.lib.raytracer.IndexedCuboid6
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
@@ -42,7 +43,7 @@ abstract class TMultiPart
     }
     
     def occlusionTest(npart:TMultiPart):Boolean = true
-    def getSubParts:Iterable[IndexedCuboid6] = Seq()
+    def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = null
     def getCollisionBoxes:Iterable[Cuboid6] = Seq()
     
     def getDrops:Iterable[ItemStack] = Seq()

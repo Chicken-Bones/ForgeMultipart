@@ -83,15 +83,13 @@ trait BlockMultipart extends Block
     
     override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):MovingObjectPosition = 
     {
-        val tile = getTile(world, x, y, z)
-        if(tile == null)
-            return null
-        
-        return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), 
-                getRayTraceCuboids(tile), new BlockCoord(x, y, z), this)        
+        getTile(world, x, y, z) match {
+          case tile: TileMultipart => tile.collisionRayTrace(start, end)
+          case _ => null
+        }
     }
     
-    def getRayTraceCuboids(tile:TileMultipart):LinkedList[IndexedCuboid6] = {
+/*    def getRayTraceCuboids(tile:TileMultipart):LinkedList[IndexedCuboid6] = {
         val boxes:LinkedList[IndexedCuboid6] = new LinkedList
         
         for(i <- 0 until tile.partList.size)
@@ -113,7 +111,7 @@ trait BlockMultipart extends Block
                 getRayTraceCuboids(tile), new BlockCoord(x, y, z), this, list)
         Collections.sort(list)
         return list
-    }
+    }*/
 
     override def removeBlockByPlayer(world:World, player:EntityPlayer, x:Int, y:Int, z:Int):Boolean =
     {

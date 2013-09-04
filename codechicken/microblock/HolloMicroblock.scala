@@ -275,8 +275,6 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
             .map(c => c.transform(tr))
     }
     
-    override def getSubParts = getCollisionBoxes.map(c => new IndexedCuboid6(0, c))
-    
     override def allowCompleteOcclusion = true
     
     override def solid(side:Int) = false

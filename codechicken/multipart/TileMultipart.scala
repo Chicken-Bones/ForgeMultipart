@@ -26,6 +26,7 @@ import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.Vec3
 import scala.collection.mutable.ArrayBuffer
 import java.util.Random
 import cpw.mods.fml.relauncher.SideOnly
@@ -229,6 +230,16 @@ class TileMultipart extends TileEntity
     def occlusionTest(parts:Seq[TMultiPart], npart:TMultiPart):Boolean =
     {
         return parts.forall(part => part.occlusionTest(npart) && npart.occlusionTest(part))
+    }
+
+    def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
+      partList.map {
+        _.collisionRayTrace(start, end)
+      } filter {
+        _ != null
+      } reduceOption {
+        Ordering.by((_: MovingObjectPosition).hitVec.squareDistanceTo(start)).min
+      } getOrElse null
     }
     
     def getWriteStream(part:TMultiPart):MCDataOutput = getWriteStream.writeByte(partList.indexOf(part))
