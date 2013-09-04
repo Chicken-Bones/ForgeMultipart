@@ -106,8 +106,11 @@ class TileMultipart extends TileEntity
     {
         val wasInvalid = isInvalid
         super.validate()
-        if(wasInvalid)
+        if(wasInvalid) {
+            TileMultipart.startOperation(this)
             partList.foreach(_.onMoved())
+            TileMultipart.finishOperation(this)
+        }
     }
     
     private[multipart] def prepareSwap()
@@ -163,12 +166,17 @@ class TileMultipart extends TileEntity
         TileMultipart.finishOperation(this)
     }
     
-    def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)
+    def onNeighborBlockChange()
     {
         TileMultipart.startOperation(this)
         partList.foreach(_.onNeighborChanged())
         TileMultipart.finishOperation(this)
     }
+    
+    /**
+     * Blank implementation, overriden by TTileChangeTile
+     */
+    def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int) {}
     
     def getLightValue() = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
     

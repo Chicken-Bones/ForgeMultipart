@@ -28,6 +28,7 @@ import codechicken.lib.render.TextureUtils
 import net.minecraft.world.IBlockAccess
 import codechicken.lib.raytracer.ExtendedMOP
 import scala.collection.JavaConversions._
+import codechicken.multipart.scalatraits.TTileChangeTile
 
 object BlockMultipart
 {
@@ -76,7 +77,7 @@ trait BlockMultipart extends Block
     {
         val tile = getTile(world, x, y, z)
         if(tile != null) 
-            tile.onNeighborBlockChange(world, x, y, z, id)
+            tile.onNeighborBlockChange()
     }
     
     override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):MovingObjectPosition = 
@@ -276,6 +277,15 @@ trait BlockMultipart extends Block
         if(tile != null)
             tile.onEntityCollision(entity)
     }
+    
+    override def onNeighborTileChange(world:World, x:Int, y:Int, z:Int, tileX:Int, tileY:Int, tileZ:Int)
+    {
+        val tile = getTile(world, x, y, z)
+        if(tile != null)
+            tile.onNeighborTileChange(tileX, tileY, tileZ)
+    }
+    
+    override def weakTileChanges() = true
     
     override def canProvidePower = true
 }

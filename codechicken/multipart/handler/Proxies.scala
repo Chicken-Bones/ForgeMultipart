@@ -40,6 +40,7 @@ class MultipartProxy_serverImpl
         MultipartGenerator.registerTrait("codechicken.multipart.JPartialOcclusion", "codechicken.multipart.scalatraits.TPartialOcclusionTile")
         MultipartGenerator.registerTrait("codechicken.multipart.IRedstonePart", "codechicken.multipart.scalatraits.TRedstoneTile")
         MultipartGenerator.registerTrait("codechicken.multipart.IRandomDisplayTick", "codechicken.multipart.scalatraits.TRandomDisplayTickTile", null)
+        MultipartGenerator.registerTrait("codechicken.multipart.INeighborTileChange", null, "codechicken.multipart.scalatraits.TTileChangeTile")
     }
     
     def postInit()

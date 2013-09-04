@@ -41,7 +41,8 @@ object MultipartGenerator
                 return superClasses
             }
             
-            ret = heirachy(part.getClass).flatMap(c => interfaceTraitMap_c.get(c.getName)).distinct
+            val interfaceTraitMap = if(client) interfaceTraitMap_c else interfaceTraitMap_s
+            ret = heirachy(part.getClass).flatMap(c => interfaceTraitMap.get(c.getName)).distinct
             if(client)
                 partTraitMap_c = partTraitMap_c+(part.getClass -> ret)
             else
