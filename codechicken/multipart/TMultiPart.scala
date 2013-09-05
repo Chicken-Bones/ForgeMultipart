@@ -26,7 +26,7 @@ import codechicken.lib.raytracer.RayTracer
 import net.minecraft.entity.Entity
 import java.lang.Iterable
 import java.util.{ List => JList }
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.{ asJavaCollection => _, _ }
 
 abstract class TMultiPart
 {
@@ -45,15 +45,16 @@ abstract class TMultiPart
     }
     
     def occlusionTest(npart:TMultiPart):Boolean = true
+    def getSubParts: Iterable[IndexedCuboid6] = getCollisionBoxes.map(c => new IndexedCuboid6(0, c))
     def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
       val offset = new Vector3(x, y, z)
-      val boxes: JList[IndexedCuboid6] = getCollisionBoxes.zipWithIndex.map { case (c, i) =>
-        new IndexedCuboid6(i, c.copy.add(offset))
-      }.toList
+      val boxes = getSubParts.map { c =>
+        new IndexedCuboid6(c.data, c.copy.add(offset))
+      }
       RayTracer.instance.rayTraceCuboids(
         new Vector3(start),
         new Vector3(end),
-        boxes,
+        boxes.toList,
         new BlockCoord(x, y, z),
         tile.blockType)
     }
