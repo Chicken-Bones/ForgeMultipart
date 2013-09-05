@@ -34,6 +34,7 @@ import cpw.mods.fml.relauncher.Side
 import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
 import codechicken.lib.lighting.LazyLightMatrix
+import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
@@ -235,10 +236,12 @@ class TileMultipart extends TileEntity
     def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
       partList.map {
         _.collisionRayTrace(start, end)
-      } filter {
-        _ != null
+      }.zipWithIndex.filter {
+        _._1 != null
       } reduceOption {
-        Ordering.by((_: MovingObjectPosition).hitVec.squareDistanceTo(start)).min
+        Ordering.by((_: (MovingObjectPosition, Int))._1.hitVec.squareDistanceTo(start)).min _
+      } map { case (mop, i) =>
+        new ExtendedMOP(mop, (i, mop.hitInfo), 0)
       } getOrElse null
     }
     

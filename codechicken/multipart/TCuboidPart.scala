@@ -21,7 +21,9 @@ trait TCuboidPart extends TMultiPart
     
     override def collisionRayTrace(start: Vec3, end: Vec3) = {
       val offset = new Vector3(x, y, z)
-      val boxes: JList[IndexedCuboid6] = getCollisionBoxes.map{ c => new IndexedCuboid6(0, c.copy.add(offset)) }.toList
+      val boxes: JList[IndexedCuboid6] = getCollisionBoxes.zipWithIndex.map { case (c, i) =>
+        new IndexedCuboid6(i, c.copy.add(offset))
+      }.toList
       RayTracer.instance.rayTraceCuboids(
         new Vector3(start),
         new Vector3(end),
