@@ -217,7 +217,7 @@ trait BlockMultipart extends Block
         if(hit != null && tile != null)
             return tile.partList(ExtendedMOP.getData[(Int, _)](hit)._1).getStrength(hit, player)/30F;
         
-        return 1
+        return 1/100F
     }
     
     /**
