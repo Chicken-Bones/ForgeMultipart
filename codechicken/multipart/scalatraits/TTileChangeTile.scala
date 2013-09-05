@@ -8,6 +8,13 @@ import codechicken.lib.vec.BlockCoord
 trait TTileChangeTile extends TileMultipart {
     var weakTileChanges = false
     
+    override def copyFrom(that:TileMultipart)
+    {
+        super.copyFrom(that)
+        if(that.isInstanceOf[TTileChangeTile])
+            weakTileChanges = that.asInstanceOf[TTileChangeTile].weakTileChanges
+    }
+    
     override def partAdded(part:TMultiPart)
     {
         super.partAdded(part)

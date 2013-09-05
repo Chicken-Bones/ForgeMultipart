@@ -26,6 +26,7 @@ trait TSlottedTile extends TileMultipart
     
     override def partRemoved(part:TMultiPart, p:Int)
     {
+        super.partRemoved(part, p)
         if(part.isInstanceOf[TSlottedPart])
             for(i <- 0 until 27)
                 if(partMap(i) == part)
