@@ -22,8 +22,10 @@ import codechicken.lib.render.CCRenderState
 import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
+import codechicken.lib.raytracer.RayTracer
 import net.minecraft.entity.Entity
 import java.lang.Iterable
+import java.util.{ List => JList }
 import scala.collection.JavaConversions._
 
 abstract class TMultiPart
@@ -43,7 +45,19 @@ abstract class TMultiPart
     }
     
     def occlusionTest(npart:TMultiPart):Boolean = true
-    def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = null
+    def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
+      val offset = new Vector3(x, y, z)
+      val boxes: JList[IndexedCuboid6] = getCollisionBoxes.zipWithIndex.map { case (c, i) =>
+        new IndexedCuboid6(i, c.copy.add(offset))
+      }.toList
+      RayTracer.instance.rayTraceCuboids(
+        new Vector3(start),
+        new Vector3(end),
+        boxes,
+        new BlockCoord(x, y, z),
+        tile.blockType)
+    }
+
     def getCollisionBoxes:Iterable[Cuboid6] = Seq()
     
     def getDrops:Iterable[ItemStack] = Seq()
