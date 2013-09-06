@@ -78,19 +78,23 @@ trait TFluidHandlerTile extends TileMultipart with IFluidHandler
     override def drain(dir:ForgeDirection, amount:Int, doDrain:Boolean):FluidStack = 
     {
         var drained:FluidStack = null
+        var d_amount = 0
         tankList.foreach{p =>
-            val ret = p.drain(dir, amount-drained.amount, false)
+            val ret = p.drain(dir, amount-d_amount, false)
             if(ret != null && ret.amount > 0 && (drained == null || drained.isFluidEqual(ret)))
             {
                 if(doDrain)
-                    p.drain(dir, amount-drained.amount, true)
+                    p.drain(dir, amount-d_amount, true)
                 
                 if(drained == null)
                     drained = ret
                 else
-                    drained.amount+=ret.amount
+                    d_amount+=ret.amount
             }
         }
+        if(drained != null)
+            drained.amount = d_amount
+        
         return drained
     }
 }
