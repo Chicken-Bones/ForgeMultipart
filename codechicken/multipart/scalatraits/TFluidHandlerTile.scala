@@ -10,15 +10,15 @@ import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.FluidTankInfo
 import net.minecraftforge.fluids.Fluid
 
-trait TTankContainerTile extends TileMultipart with IFluidHandler
+trait TFluidHandlerTile extends TileMultipart with IFluidHandler
 {
     var tankList = ListBuffer[IFluidHandler]()
     
     override def copyFrom(that:TileMultipart)
     {
         super.copyFrom(that)
-        if(that.isInstanceOf[TTankContainerTile])
-            tankList = that.asInstanceOf[TTankContainerTile].tankList
+        if(that.isInstanceOf[TFluidHandlerTile])
+            tankList = that.asInstanceOf[TFluidHandlerTile].tankList
     }
     
     override def partAdded(part:TMultiPart)

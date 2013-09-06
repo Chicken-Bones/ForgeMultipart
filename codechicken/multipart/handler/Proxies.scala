@@ -36,7 +36,7 @@ class MultipartProxy_serverImpl
             .setComment("Multipart API config file")
         
         MultipartGenerator.registerTrait("codechicken.multipart.TSlottedPart", "codechicken.multipart.scalatraits.TSlottedTile")
-        MultipartGenerator.registerTrait("net.minecraftforge.liquids.ITankContainer", "codechicken.multipart.scalatraits.TTankContainerTile")
+        MultipartGenerator.registerTrait("net.minecraftforge.fluids.IFluidHandler", "codechicken.multipart.scalatraits.TFluidHandlerTile")
         MultipartGenerator.registerTrait("codechicken.multipart.JPartialOcclusion", "codechicken.multipart.scalatraits.TPartialOcclusionTile")
         MultipartGenerator.registerTrait("codechicken.multipart.IRedstonePart", "codechicken.multipart.scalatraits.TRedstoneTile")
         MultipartGenerator.registerTrait("codechicken.multipart.IRandomDisplayTick", "codechicken.multipart.scalatraits.TRandomDisplayTickTile", null)
