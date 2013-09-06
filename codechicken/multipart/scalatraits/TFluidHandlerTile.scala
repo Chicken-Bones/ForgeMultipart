@@ -21,9 +21,9 @@ trait TFluidHandlerTile extends TileMultipart with IFluidHandler
             tankList = that.asInstanceOf[TFluidHandlerTile].tankList
     }
     
-    override def partAdded(part:TMultiPart)
+    override def bindPart(part:TMultiPart)
     {
-        super.partAdded(part)
+        super.bindPart(part)
         if(part.isInstanceOf[IFluidHandler])
             tankList+=part.asInstanceOf[IFluidHandler]
     }
@@ -88,8 +88,8 @@ trait TFluidHandlerTile extends TileMultipart with IFluidHandler
                 
                 if(drained == null)
                     drained = ret
-                else
-                    d_amount+=ret.amount
+                
+                d_amount+=ret.amount
             }
         }
         if(drained != null)

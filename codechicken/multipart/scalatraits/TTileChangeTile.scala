@@ -15,11 +15,17 @@ trait TTileChangeTile extends TileMultipart {
             weakTileChanges = that.asInstanceOf[TTileChangeTile].weakTileChanges
     }
     
-    override def partAdded(part:TMultiPart)
+    override def bindPart(part:TMultiPart)
     {
-        super.partAdded(part)
+        super.bindPart(part)
         if(part.isInstanceOf[INeighborTileChange])
             weakTileChanges|=part.asInstanceOf[INeighborTileChange].weakTileChanges
+    }
+    
+    override def clearParts()
+    {
+        super.clearParts()
+        weakTileChanges = false
     }
     
     override def partRemoved(part:TMultiPart, p:Int) {
