@@ -235,13 +235,13 @@ class TileMultipart extends TileEntity
 
     def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
       partList.map {
-        _.collisionRayTrace(start, end)
+        _.collisionRayTrace(start, end).asInstanceOf[ExtendedMOP]
       }.zipWithIndex.filter {
         _._1 != null
       } reduceOption {
-        Ordering.by((_: (MovingObjectPosition, Int))._1.hitVec.squareDistanceTo(start)).min _
+        Ordering.by((_: (ExtendedMOP, Int))._1.dist).min _
       } map { case (mop, i) =>
-        new ExtendedMOP(mop, (i, mop.hitInfo), 0)
+        new ExtendedMOP(mop, (i, mop.hitInfo), mop.dist)
       } getOrElse null
     }
     
