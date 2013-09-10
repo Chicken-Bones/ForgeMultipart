@@ -139,7 +139,7 @@ class TileMultipart extends TileEntity
     {
         internalPartChange(part)
         
-        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType().blockID)
+        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, MultipartProxy.block.blockID)
         worldObj.updateAllLightTypes(xCoord, yCoord, zCoord)
     }
     
@@ -291,15 +291,13 @@ class TileMultipart extends TileEntity
     {
         remPart_do(part, !worldObj.isRemote)
         
-        if(!isInvalid())
+        if(!isInvalid)
         {
             notifyPartChange(part)
             markDirty()
             markRender()
-        }
-        
-        if(!isInvalid())
             return MultipartGenerator.partRemoved(this, part)
+        }
         
         return null
     }
@@ -428,7 +426,7 @@ class TileMultipart extends TileEntity
     def notifyNeighborChange(side:Int)
     {
         val pos = new BlockCoord(this).offset(side)
-        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, getBlockType().blockID)
+        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
     }
 }
 

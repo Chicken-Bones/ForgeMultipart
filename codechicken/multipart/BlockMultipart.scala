@@ -174,7 +174,15 @@ trait BlockMultipart extends Block
     
     override def getRenderType() = TileMultipart.renderID
     
-    override def isAirBlock(world:World, x:Int, y:Int, z:Int) = getTile(world, x, y, z) == null || getTile(world, x, y, z).partList.isEmpty
+    override def isAirBlock(world:World, x:Int, y:Int, z:Int):Boolean = 
+    {
+        return getTile(world, x, y, z) match {
+            case null => true
+            case tile => tile.partList.isEmpty
+        }
+    }
+    
+    override def isBlockReplaceable(world:World, x:Int, y:Int, z:Int) = isAirBlock(world, x, y, z)
     
     override def getRenderBlockPass = 1
     
@@ -291,9 +299,10 @@ trait BlockMultipart extends Block
     
     override def onNeighborTileChange(world:World, x:Int, y:Int, z:Int, tileX:Int, tileY:Int, tileZ:Int)
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null)
-            tile.onNeighborTileChange(tileX, tileY, tileZ)
+        getTile(world, x, y, z) match {
+            case null => world.setBlockToAir(x, y, z)
+            case tile => tile.onNeighborTileChange(tileX, tileY, tileZ)
+        }
     }
     
     override def weakTileChanges() = true
