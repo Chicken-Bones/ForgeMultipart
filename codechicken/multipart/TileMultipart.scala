@@ -26,6 +26,7 @@ import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.Vec3
 import scala.collection.mutable.ArrayBuffer
 import java.util.Random
 import cpw.mods.fml.relauncher.SideOnly
@@ -33,6 +34,7 @@ import cpw.mods.fml.relauncher.Side
 import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
 import codechicken.lib.lighting.LazyLightMatrix
+import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
@@ -229,6 +231,26 @@ class TileMultipart extends TileEntity
     def occlusionTest(parts:Seq[TMultiPart], npart:TMultiPart):Boolean =
     {
         return parts.forall(part => part.occlusionTest(npart) && npart.occlusionTest(part))
+    }
+
+    def rayTraceAllFull(start: Vec3, end: Vec3): Seq[(ExtendedMOP, Int)] = {
+      partList.view.map(_.collisionRayTrace(start, end)).zipWithIndex.filter {
+        _._1 != null
+      }.force.sortBy {
+        (_: (ExtendedMOP, Int))._1.dist
+      }
+    }
+
+    def rayTraceAll(start: Vec3, end: Vec3): Seq[(Int, AnyRef)] = {
+      rayTraceAllFull(start, end).map { case (mop, i) =>
+        (i, mop.hitInfo)
+      }
+    }
+
+    def collisionRayTrace(start: Vec3, end: Vec3): ExtendedMOP = {
+      rayTraceAllFull(start, end).headOption.map { case (mop, i) =>
+        new ExtendedMOP(mop, (i, mop.hitInfo), mop.dist)
+      } getOrElse null
     }
     
     def getWriteStream(part:TMultiPart):MCDataOutput = getWriteStream.writeByte(partList.indexOf(part))
