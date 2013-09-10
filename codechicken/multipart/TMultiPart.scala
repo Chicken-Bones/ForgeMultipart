@@ -23,6 +23,7 @@ import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
 import codechicken.lib.raytracer.RayTracer
+import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.entity.Entity
 import java.lang.Iterable
 import java.util.{ List => JList }
@@ -46,17 +47,17 @@ abstract class TMultiPart
     
     def occlusionTest(npart:TMultiPart):Boolean = true
     def getSubParts: Iterable[IndexedCuboid6] = getCollisionBoxes.map(c => new IndexedCuboid6(0, c))
-    def collisionRayTrace(start: Vec3, end: Vec3): MovingObjectPosition = {
+    def collisionRayTrace(start: Vec3, end: Vec3): ExtendedMOP = {
       val offset = new Vector3(x, y, z)
       val boxes = getSubParts.map { c =>
         new IndexedCuboid6(c.data, c.copy.add(offset))
       }
-      RayTracer.instance.rayTraceCuboids(
+      (new RayTracer).rayTraceCuboids(
         new Vector3(start),
         new Vector3(end),
         boxes.toList,
         new BlockCoord(x, y, z),
-        tile.blockType)
+        tile.blockType).asInstanceOf[ExtendedMOP]
     }
 
     def getCollisionBoxes:Iterable[Cuboid6] = Seq()
