@@ -1,6 +1,7 @@
 package codechicken.multipart
 
 import codechicken.lib.vec.Cuboid6
+import codechicken.lib.raytracer.IndexedCuboid6
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.lib.render.CCRenderState
 import codechicken.lib.render.RenderUtils
