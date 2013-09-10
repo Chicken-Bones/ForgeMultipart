@@ -24,6 +24,9 @@ import codechicken.lib.data.MCDataInput
 import net.minecraft.entity.Entity
 import java.lang.Iterable
 import scala.collection.JavaConversions._
+import net.minecraft.util.Vec3
+import codechicken.lib.raytracer.ExtendedMOP
+import codechicken.lib.raytracer.RayTracer
 
 abstract class TMultiPart
 {
@@ -44,6 +47,12 @@ abstract class TMultiPart
     def occlusionTest(npart:TMultiPart):Boolean = true
     def getSubParts:Iterable[IndexedCuboid6] = Seq()
     def getCollisionBoxes:Iterable[Cuboid6] = Seq()
+    def collisionRayTrace(start: Vec3, end: Vec3): ExtendedMOP = {
+      val offset = new Vector3(x, y, z)
+      val boxes = getSubParts.map(c => new IndexedCuboid6(c.data, c.copy.add(offset)))
+      return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), boxes.toList,
+              new BlockCoord(x, y, z), tile.blockType).asInstanceOf[ExtendedMOP]
+    } 
     
     def getDrops:Iterable[ItemStack] = Seq()
     def getStrength(hit:MovingObjectPosition, player:EntityPlayer):Float = 1

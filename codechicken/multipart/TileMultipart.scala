@@ -39,6 +39,9 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
 import scala.collection.JavaConversions._
 import java.util.Collection
+import codechicken.lib.raytracer.ExtendedMOP
+import net.minecraft.util.Vec3
+import java.lang.Iterable
 
 class TileMultipart extends TileEntity
 {
@@ -356,6 +359,23 @@ class TileMultipart extends TileEntity
             part.writeDesc(packet)
         }
     }
+    
+    def rayTraceAll(start:Vec3, end:Vec3):Iterable[ExtendedMOP] = 
+    {
+        var list = ListBuffer[ExtendedMOP]()
+        for((p, i) <- partList.zipWithIndex)
+            p.collisionRayTrace(start, end) match {
+                case mop:ExtendedMOP => {
+                    mop.data = (i, mop.data)
+                    list+=mop
+                }
+                case _ =>
+            }
+        
+        return list.sorted
+    }
+    
+    def collisionRayTrace(start:Vec3, end:Vec3):ExtendedMOP = rayTraceAll(start, end).headOption.getOrElse(null)
     
     def harvestPart(index:Int, drop:Boolean):Boolean = 
     {

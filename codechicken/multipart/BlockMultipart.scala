@@ -1,6 +1,7 @@
 package codechicken.multipart
 
 import java.util.List
+import java.lang.Iterable
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.entity.Entity
@@ -81,38 +82,20 @@ trait BlockMultipart extends Block
             tile.onNeighborBlockChange()
     }
     
-    override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):MovingObjectPosition = 
+    override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):ExtendedMOP = 
     {
-        val tile = getTile(world, x, y, z)
-        if(tile == null)
-            return null
-        
-        return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), 
-                getRayTraceCuboids(tile), new BlockCoord(x, y, z), this)        
-    }
-    
-    def getRayTraceCuboids(tile:TileMultipart):LinkedList[IndexedCuboid6] = {
-        val boxes:LinkedList[IndexedCuboid6] = new LinkedList
-        
-        for(i <- 0 until tile.partList.size)
-            tile.partList(i).getSubParts.foreach{ c => 
-                boxes.add(new IndexedCuboid6((i, c.data), c.copy.add(new Vector3(tile.xCoord, tile.yCoord, tile.zCoord))))
-            }
-        
-        return boxes
+        getTile(world, x, y, z) match {
+            case tile => tile.collisionRayTrace(start, end) 
+            case _ => null
+        }
     }
     
     def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[ExtendedMOP] =
     {
-        val tile = getTile(world, x, y, z)
-        if(tile == null)
-            return Seq()
-        
-        val list = new LinkedList[ExtendedMOP]()
-        RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), 
-                getRayTraceCuboids(tile), new BlockCoord(x, y, z), this, list)
-        Collections.sort(list)
-        return list
+        getTile(world, x, y, z) match {
+            case tile => tile.rayTraceAll(start, end) 
+            case _ => Seq()
+        }
     }
 
     override def removeBlockByPlayer(world:World, player:EntityPlayer, x:Int, y:Int, z:Int):Boolean =
