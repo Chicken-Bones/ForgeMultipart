@@ -89,10 +89,10 @@ trait BlockMultipart extends Block
         }
     }
     
-    def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[ExtendedMOP] =
+    def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[(Int, AnyRef)] =
     {
         getTile(world, x, y, z) match {
-          case tile: TileMultipart => tile.rayTraceAll(start, end).sorted
+          case tile: TileMultipart => tile.rayTraceAll(start, end)
           case _ => Seq()
         }
     }

@@ -233,16 +233,22 @@ class TileMultipart extends TileEntity
         return parts.forall(part => part.occlusionTest(npart) && npart.occlusionTest(part))
     }
 
-    def rayTraceAll(start: Vec3, end: Vec3): Seq[ExtendedMOP] = {
-      partList.map(_.collisionRayTrace(start, end))
+    def rayTraceAllFull(start: Vec3, end: Vec3): Seq[(ExtendedMOP, Int)] = {
+      partList.view.map(_.collisionRayTrace(start, end)).zipWithIndex.filter {
+        _._1 != null
+      }.force.sortBy {
+        (_: (ExtendedMOP, Int))._1.dist
+      }
+    }
+
+    def rayTraceAll(start: Vec3, end: Vec3): Seq[(Int, AnyRef)] = {
+      rayTraceAllFull(start, end).map { case (mop, i) =>
+        (i, mop.hitInfo)
+      }
     }
 
     def collisionRayTrace(start: Vec3, end: Vec3): ExtendedMOP = {
-      rayTraceAll(start, end).zipWithIndex.filter {
-        _._1 != null
-      } reduceOption {
-        Ordering.by((_: (ExtendedMOP, Int))._1.dist).min _
-      } map { case (mop, i) =>
+      rayTraceAllFull(start, end).headOption.map { case (mop, i) =>
         new ExtendedMOP(mop, (i, mop.hitInfo), mop.dist)
       } getOrElse null
     }
