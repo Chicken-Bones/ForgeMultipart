@@ -49,13 +49,6 @@ object CornerMicroClass extends MicroblockClass
             new CornerMicroblock(size, slot, material)
     
     def placementProperties = CornerPlacement
-    
-    def getDisplayName(size:Int):String = size match
-    {
-        case 1 => "Nook"
-        case 2 => "Corner"
-        case 4 => "Notch"
-    }
 }
 
 class CornerMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends CornerMicroblock(shape$, material$) with CommonMicroblockClient

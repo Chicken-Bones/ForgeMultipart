@@ -70,13 +70,6 @@ object FaceMicroClass extends MicroblockClass
             new FaceMicroblock(size, slot, material)
     
     def placementProperties = FacePlacement
-    
-    def getDisplayName(size:Int):String = size match
-    {
-        case 1 => "Cover"
-        case 2 => "Panel"
-        case 4 => "Slab"
-    }
 }
 
 class FaceMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends FaceMicroblock(shape$, material$) with CommonMicroblockClient

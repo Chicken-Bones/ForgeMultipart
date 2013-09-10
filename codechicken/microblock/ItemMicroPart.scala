@@ -23,6 +23,7 @@ import codechicken.lib.raytracer.RayTracer
 import net.minecraft.util.EnumMovingObjectType
 import codechicken.lib.vec.Vector3
 import codechicken.lib.render.TextureUtils
+import codechicken.lib.lang.LangUtil
 
 class ItemMicroPart(id:Int) extends Item(id)
 {
@@ -36,7 +37,7 @@ class ItemMicroPart(id:Int) extends Item(id)
         if(material == null || mcrClass == null)
             return "Unnamed"
         
-        return material.getLocalizedName+" "+mcrClass.getDisplayName(size)
+        return LangUtil.translateG(mcrClass.getName+"."+size+".name", material.getLocalizedName)
     }
     
     override def getSubItems(id:Int, tab:CreativeTabs, list$:List[_])

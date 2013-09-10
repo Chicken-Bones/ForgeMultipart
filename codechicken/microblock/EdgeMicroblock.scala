@@ -102,13 +102,6 @@ object EdgeMicroClass extends MicroblockClass
             new EdgeMicroblock(size, slot, material)
     
     def placementProperties = EdgePlacement
-    
-    def getDisplayName(size:Int):String = size match
-    {
-        case 1 => "Strip"
-        case 2 => "Post"
-        case 4 => "Pillar"
-    }
 }
 
 class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicroblock(shape$, material$) with CommonMicroblockClient

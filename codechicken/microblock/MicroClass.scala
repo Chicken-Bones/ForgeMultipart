@@ -16,8 +16,6 @@ trait MicroblockClass
 {
     var classID:Int = _
     
-    def getDisplayName(size:Int):String
-    
     def itemSlot() = 3
     
     @SideOnly(Side.CLIENT)

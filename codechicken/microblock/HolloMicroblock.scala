@@ -74,8 +74,6 @@ object HollowMicroClass extends MicroblockClass
             new HollowMicroblock(size, slot, material)
     
     def placementProperties = HollowPlacement
-    
-    def getDisplayName(size:Int) = "Hollow "+FaceMicroClass.getDisplayName(size)
 }
 
 class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowMicroblock(shape$, material$) with CommonMicroblockClient

@@ -1,5 +1,6 @@
 package codechicken.multipart.nei;
 
+import codechicken.lib.lang.LangUtil;
 import codechicken.microblock.MicroblockClass;
 import codechicken.microblock.MicroblockClassRegistry;
 import codechicken.microblock.handler.MicroblockProxy;
@@ -29,7 +30,8 @@ public class NEI_MicroblockConfig implements IConfigureNEI
 
     private void addSubset(MicroblockClass mcrClass, int microID, int i)
     {
-        API.addSetRange("Microblocks."+mcrClass.getDisplayName(i&0xFF), new MultiItemRange().add(microID, i, i));
+        API.addSetRange("Microblocks."+LangUtil.translateG(mcrClass.getName()+"."+(i&0xFF)+".subset"), 
+                new MultiItemRange().add(microID, i, i));
     }
 
     @Override
