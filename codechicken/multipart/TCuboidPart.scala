@@ -15,6 +15,8 @@ trait TCuboidPart extends TMultiPart
 {
     def getBounds:Cuboid6
     
+    override def getSubParts:JSeq[IndexedCuboid6] = Seq(new IndexedCuboid6(0, getBounds))
+
     override def getCollisionBoxes:Iterable[Cuboid6] = Seq(getBounds)
     
     override def drawBreaking(renderBlocks:RenderBlocks)
