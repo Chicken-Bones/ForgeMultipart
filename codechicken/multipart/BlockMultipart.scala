@@ -71,8 +71,10 @@ trait BlockMultipart extends Block
     
     override def isBlockSolidOnSide(world:World, x:Int, y:Int, z:Int, side:ForgeDirection):Boolean =
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null) tile.isSolid(side.ordinal()) else false
+        return getTile(world, x, y, z) match {
+            case null => false
+            case tile => tile.isSolid(side.ordinal())
+        }
     }
     
     override def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)
@@ -85,16 +87,16 @@ trait BlockMultipart extends Block
     override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):ExtendedMOP = 
     {
         getTile(world, x, y, z) match {
+            case null => null
             case tile => tile.collisionRayTrace(start, end) 
-            case _ => null
         }
     }
     
     def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[ExtendedMOP] =
     {
         getTile(world, x, y, z) match {
+            case null => Seq()
             case tile => tile.rayTraceAll(start, end) 
-            case _ => Seq()
         }
     }
 
@@ -216,8 +218,10 @@ trait BlockMultipart extends Block
     
     override def getLightValue(world:IBlockAccess, x:Int, y:Int, z:Int):Int = 
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null) tile.getLightValue else 0
+        return getTile(world, x, y, z) match {
+            case null => 0
+            case tile => tile.getLightValue 
+        }
     }
     
     override def randomDisplayTick(world:World, x:Int, y:Int, z:Int, random:Random)
@@ -256,23 +260,26 @@ trait BlockMultipart extends Block
     
     override def isProvidingStrongPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null) return tile.strongPowerLevel(side^1)
-        return 0
+        return getTile(world, x, y, z) match {
+            case null => 0
+            case tile => tile.strongPowerLevel(side^1)
+        }
     }
     
     override def isProvidingWeakPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null) return tile.weakPowerLevel(side^1)
-        return 0
+        return getTile(world, x, y, z) match {
+            case null => 0
+            case tile => tile.weakPowerLevel(side^1)
+        }
     }
     
     override def canConnectRedstone(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Boolean =
     {
-        val tile = getTile(world, x, y, z)
-        if(tile != null) return tile.canConnectRedstone(side)
-        return false
+        return getTile(world, x, y, z) match {
+            case null => false
+            case tile => tile.canConnectRedstone(side)
+        }
     }
     
     override def onEntityCollidedWithBlock(world:World, x:Int, y:Int, z:Int, entity:Entity)

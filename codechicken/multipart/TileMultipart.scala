@@ -363,7 +363,7 @@ class TileMultipart extends TileEntity
     def rayTraceAll(start:Vec3, end:Vec3):Iterable[ExtendedMOP] = 
     {
         var list = ListBuffer[ExtendedMOP]()
-        for((p, i) <- partList.zipWithIndex)
+        for((p, i) <- partList.view.zipWithIndex)
             p.collisionRayTrace(start, end) match {
                 case mop:ExtendedMOP => {
                     mop.data = (i, mop.data)
