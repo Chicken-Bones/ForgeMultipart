@@ -2,3 +2,31 @@ item.microblock:sawStone.name=Steinsäge
 item.microblock:sawIron.name=Eisensäge
 item.microblock:sawDiamond.name=Diamantsäge
 item.microblock:stoneRod.name=Steinstab
+
+mcr_face.1.name=%s-Cover
+mcr_face.1.subset=Cover
+mcr_face.2.name=%s-Platte
+mcr_face.2.subset=Platte
+mcr_face.4.name=%s-Scheibe
+mcr_face.4.subset=Scheibe
+
+mcr_hllw.1.name=Hohles %s-Cover
+mcr_hllw.1.subset=Hohles Cover
+mcr_hllw.2.name=Hohles %s-Platte
+mcr_hllw.2.subset=Hohle Platte
+mcr_hllw.4.name=Hohle %s-Scheibe
+mcr_hllw.4.subset=Hohle Scheibe
+
+mcr_edge.1.name=%s-Streifen
+mcr_edge.1.subset=Streifen
+mcr_edge.2.name=%s-Pfosten
+mcr_edge.2.subset=Pfosten
+mcr_edge.4.name=%s-Pfeiler
+mcr_edge.4.subset=Pfeiler
+
+mcr_cnr.1.name=%s-Stückchen
+mcr_cnr.1.subset=Stückchen
+mcr_cnr.2.name=%s-Ecke
+mcr_cnr.2.subset=Ecke
+mcr_cnr.4.name=%s-Kerbe
+mcr_cnr.4.subset=Kerbe
