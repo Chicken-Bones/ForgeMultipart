@@ -57,13 +57,12 @@ object MultipartGenerator
      */
     private[multipart] def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
-        var loaded = TileMultipart.getOrConvertTile2(world, pos)
+        val (tile, converted) = TileMultipart.getOrConvertTile2(world, pos)
         var partTraits = traitsForPart(part, world.isRemote)
-        val tile = loaded._1
         var ntile = tile
         if(ntile != null)
         {
-            if(loaded._2)//perform client conversion
+            if(converted)//perform client conversion
             {
                 world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
