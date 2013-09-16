@@ -308,6 +308,7 @@ class TileMultipart extends TileEntity
         if(r < 0)
             throw new IllegalArgumentException("Tried to remove a non-existant part")
         
+        part.preRemove()
         partList-=part
         
         if(sendPacket)
