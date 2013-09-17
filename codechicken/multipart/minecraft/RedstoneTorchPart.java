@@ -198,6 +198,12 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
         tile().notifyPartChange(this);
         tile().notifyNeighborChange(1);
     }
+    
+    @Override
+    public void drop() {
+        meta|=0x10;//set state to on for drop
+        super.drop();
+    }
 
     @Override
     public void onRemoved()
