@@ -699,9 +699,6 @@ object TileMultipart
     
     def createFromNBT(tag:NBTTagCompound):TileMultipart =
     {
-        val superID = tag.getString("superID")
-        //val superClass = TileEntity.nameToClassMap.get(superID)
-        
         val partList = tag.getTagList("parts")
         val parts = ListBuffer[TMultiPart]()
         
