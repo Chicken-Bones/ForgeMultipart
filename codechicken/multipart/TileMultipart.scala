@@ -42,6 +42,7 @@ import java.util.Collection
 import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.util.Vec3
 import java.lang.Iterable
+import codechicken.multipart.handler.MultipartSaveLoad
 
 class TileMultipart extends TileEntity
 {
@@ -208,7 +209,7 @@ class TileMultipart extends TileEntity
             if(tick)
                 worldObj.addTileEntity(this)
             else
-                worldObj.loadedTileEntityList.remove(this)
+                worldObj.markTileEntityForDespawn(this)
         }
     }
     
