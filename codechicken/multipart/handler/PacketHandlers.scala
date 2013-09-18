@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import java.util.Map
+import java.util.Iterator
 import net.minecraft.tileentity.TileEntity
 import codechicken.multipart.TileMultipart
 import net.minecraft.entity.player.EntityPlayer
@@ -140,13 +141,19 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     
     def onChunkWatch(player:EntityPlayer, chunk:Chunk)
     {
-        val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[_, TileEntity]].values.iterator
+        val pkt = getDescPacket(chunk, chunk.chunkTileEntityMap.asInstanceOf[Map[_, TileEntity]].values.iterator)
+        if(pkt != null)
+            pkt.sendToPlayer(player)
+    }
+    
+    def getDescPacket(chunk:Chunk, it:Iterator[TileEntity]):PacketCustom =
+    {
         val s = new MCByteStream(new ByteArrayOutputStream)
         
         var num = 0
-        while(iterator.hasNext)
+        while(it.hasNext)
         {
-            val tile = iterator.next
+            val tile = it.next
             if(tile.isInstanceOf[TileMultipart])
             {
                 s.writeShort(indexInChunk(new BlockCoord(tile)))
@@ -156,11 +163,11 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
         }
         if(num != 0)
         {
-            new PacketCustom(channel, 2).setChunkDataPacket().compressed()
+            return new PacketCustom(channel, 2).setChunkDataPacket().compressed()
                 .writeInt(chunk.xPosition).writeInt(chunk.zPosition)
                 .writeShort(num)
                 .writeByteArray(s.getBytes)
-                .sendToPlayer(player)
         }
+        return null;
     }
 }
