@@ -9,7 +9,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.6.2]")
+@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.6.4]")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, tinyPacketHandler=CustomTinyPacketHandler.class)
 public class MinecraftMultipartMod
 {

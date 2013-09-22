@@ -16,7 +16,7 @@ import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
 import codechicken.microblock.ConfigContent
 
-@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.2]", 
+@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.4]", 
             dependencies="required-after:ForgeMultipart;after:*", modLanguage="scala")
 object MicroblockMod
 {

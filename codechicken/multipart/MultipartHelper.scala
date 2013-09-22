@@ -12,6 +12,8 @@ import java.util.{List => JList}
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import java.util.Arrays
+import net.minecraft.server.management.PlayerInstance
+import codechicken.lib.asm.ObfMapping
 
 /**
  * Static helper class for handling the unusual way that multipart tile entities load from nbt and send description packets
@@ -28,6 +30,13 @@ import java.util.Arrays
  */
 object MultipartHelper
 {
+    val f_playersInChunk = classOf[PlayerInstance].getDeclaredField(
+                new ObfMapping("net/minecraft/server/management/PlayerInstance", "playersInChunk", "Ljava/util/List;")
+                .toRuntime.s_name)
+    f_playersInChunk.setAccessible(true)
+    
+    def playersInChunk(inst:PlayerInstance) = f_playersInChunk.get(inst).asInstanceOf[List[_]]
+    
     def createTileFromNBT(world:World, tag:NBTTagCompound):TileEntity = {
         if(!tag.getString("id").equals("savedMultipart"))
             return null
@@ -45,7 +54,7 @@ object MultipartHelper
     
     def sendDescPackets(world:World, tiles:Iterable[TileEntity]) {
         val map = LinkedListMultimap.create[Long, TileEntity]()
-        tiles.foreach(t => map.put(t.xCoord.toLong<<32|t.zCoord, t))
+        tiles.filter(_.isInstanceOf[TileMultipart]).foreach(t => map.put(t.xCoord.toLong<<32|t.zCoord, t))
         
         val mgr = world.asInstanceOf[WorldServer].getPlayerManager
         map.asMap.entrySet.foreach{e => 
@@ -53,7 +62,7 @@ object MultipartHelper
             val c = world.getChunkFromBlockCoords((coord>>32).toInt, coord.toInt)
             lazy val pkt = MultipartSPH.getDescPacket(c, e.getValue.iterator)
             val inst = mgr.getOrCreateChunkWatcher(c.xPosition, c.zPosition, false)
-            if(!inst.playersInChunk.isEmpty)
+            if(!playersInChunk(inst).isEmpty)
                 inst.sendToAllPlayersWatchingChunk(pkt.toPacket)
         }
     }
