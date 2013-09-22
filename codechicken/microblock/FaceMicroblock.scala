@@ -51,7 +51,7 @@ object FaceMicroClass extends MicroblockClass
         for(t <- 1 until 8)
         {
             val d = t/8D
-            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, 1, d, 1).transform(transform)
+            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, 1, d, 1).apply(transform)
         }
     }
     

@@ -81,7 +81,7 @@ object EdgeMicroClass extends MicroblockClass
         for(t <- 1 until 8)
         {
             val d = t/8D
-            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, d, 1, d).transform(transform)
+            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, d, 1, d).apply(transform)
         }
     }
     
@@ -131,7 +131,7 @@ object PostMicroClass
         {
             val d1 = 0.5-t/16D
             val d2 = 0.5+t/16D
-            aBounds(t<<4|s) = new Cuboid6(d1, 0, d1, d2, 1, d2).transform(transform)
+            aBounds(t<<4|s) = new Cuboid6(d1, 0, d1, d2, 1, d2).apply(transform)
         }
     }
     

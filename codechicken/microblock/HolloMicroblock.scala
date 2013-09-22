@@ -54,8 +54,8 @@ object HollowMicroClass extends MicroblockClass
                 new Cuboid6(1-w1, 0, 0, 1, d, 1),
                 new Cuboid6(w1, 0, 0, 1-w1, d, w1),
                 new Cuboid6(w1, 0, 1-w1, 1-w1, d, 1))
-                .map(_.transform(transform))
-            occBounds(t<<4|s) = new Cuboid6(1/8D, 0, 1/8D, 7/8D, d, 7/8D).transform(transform)
+                .map(_.apply(transform))
+            occBounds(t<<4|s) = new Cuboid6(1/8D, 0, 1/8D, 7/8D, d, 7/8D).apply(transform)
         }
     }
     
@@ -270,7 +270,7 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
             new Cuboid6(0, 0, d2, 1, t, 1),
             new Cuboid6(0, 0, d1, d1, t, d2),
             new Cuboid6(d2, 0, d1, 1, t, d2))
-            .map(c => c.transform(tr))
+            .map(c => c.apply(tr))
     }
     
     override def getSubParts = getCollisionBoxes.map(c => new IndexedCuboid6(0, c))

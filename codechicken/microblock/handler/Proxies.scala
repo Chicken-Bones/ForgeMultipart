@@ -102,13 +102,6 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     }
     
     @SideOnly(Side.CLIENT)
-    override def preInit()
-    {
-        super.preInit()
-        LangUtil.loadBaseLangDir(new ResourceLocation("microblock:lang"))
-    }
-    
-    @SideOnly(Side.CLIENT)
     override def postInit()
     {
         super.postInit()

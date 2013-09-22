@@ -28,7 +28,7 @@ object CornerMicroClass extends MicroblockClass
         for(t <- 1 until 8)
         {
             val d = t/8D
-            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, d, d, d).transform(transform)
+            aBounds(t<<4|s) = new Cuboid6(0, 0, 0, d, d, d).apply(transform)
         }
     }
     
