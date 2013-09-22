@@ -53,7 +53,7 @@ object ASMMixinFactory extends IMultipartFactory
     
     class SuperSet(types:Seq[String], client:Boolean)
     {
-import SuperSet._
+        import SuperSet._
         val set = baseType+:types.sorted
         
         def baseType = if(client) TileMultipartClientType else TileMultipartType
@@ -197,6 +197,10 @@ import SuperSet._
         val idesc = "L"+iname+";"
         
         val inode = classNode(s_interface)
+        if(inode == null) {
+            System.out.println("Unable to generate pass through trait for: "+s_interface+" class not found.")
+            return null
+        }
         if((inode.access&ACC_INTERFACE) == 0) throw new IllegalArgumentException(s_interface+" is not an interface.")
         
         val cw = new CC_ClassWriter(ASM4)

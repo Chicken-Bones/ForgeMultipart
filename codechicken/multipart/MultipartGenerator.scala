@@ -165,6 +165,9 @@ object MultipartGenerator
     def registerPassThroughInterface(s_interface:String, client:Boolean, server:Boolean)
     {
         val tType = factory.generatePassThroughTrait(s_interface)
+        if(tType == null)
+            return
+        
         if(client)
         {
             if(interfaceTraitMap_c.contains(s_interface))
