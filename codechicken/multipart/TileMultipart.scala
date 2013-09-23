@@ -110,16 +110,23 @@ class TileMultipart extends TileEntity
     {
         val wasInvalid = isInvalid
         super.validate()
-        if(wasInvalid) {
-            TileMultipart.startOperation(this)
-            partList.foreach(_.onMoved())
-            TileMultipart.finishOperation(this)
-        }
+        if(wasInvalid)
+            onMoved()
     }
     
-    private[multipart] def prepareSwap()
+    final def setValid(b:Boolean)
     {
-        super.invalidate()
+        if(b)
+            super.validate()
+        else
+            super.invalidate()
+    }
+    
+    def onMoved()
+    {
+        TileMultipart.startOperation(this)
+        partList.foreach(_.onMoved())
+        TileMultipart.finishOperation(this)
     }
     
     override def invalidate()
