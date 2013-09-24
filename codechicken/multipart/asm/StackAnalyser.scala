@@ -9,6 +9,10 @@ import scala.collection.JavaConversions._
 
 object StackAnalyser
 {
+    def width(t:Type):Int = t.getSize
+    def width(s:String):Int = width(Type.getType(s))
+    def width(it:Iterable[Type]):Int = it.foldLeft(0)(_+width(_))
+    
     trait StackEntry
     {
         def getType:Type
@@ -129,7 +133,7 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
         if(e.getType.getSize == 2)
         {
             if(peek(i) != e) throw new IllegalStateException("Wide stack entry elems don't match ("+e+","+peek(i))
-            stack.remove(i)
+            stack.remove(stack.size-i-1)
         }
         e
     }

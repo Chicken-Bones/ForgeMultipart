@@ -24,7 +24,7 @@ import codechicken.multipart.handler.MultipartProxy
 
 object DebugPrinter
 {
-    def debug = MultipartProxy.config.getTag("debug_asm").getBooleanValue(!ObfMapping.obfuscated)
+    val debug = MultipartProxy.config.getTag("debug_asm").getBooleanValue(!ObfMapping.obfuscated)
     
     private var permGenUsed = 0
     val dir = new File("asm/multipart")
@@ -60,6 +60,8 @@ object DebugPrinter
 
 object ASMMixinCompiler
 {
+    import StackAnalyser.width
+    
     val cl = getClass.getClassLoader.asInstanceOf[LaunchClassLoader]
     val m_defineClass = classOf[ClassLoader].getDeclaredMethod("defineClass", classOf[Array[Byte]], Integer.TYPE, Integer.TYPE)
     val m_runTransformers = classOf[LaunchClassLoader].getDeclaredMethod("runTransformers", classOf[String], classOf[String], classOf[Array[Byte]])
@@ -246,7 +248,7 @@ object ASMMixinCompiler
             mv.visitVarInsn(args(i).getOpcode(ILOAD), i+1)
         mv.visitMethodInsn(opcode, owner, name, desc)
         mv.visitInsn(getReturnType(mvdesc).getOpcode(IRETURN))
-        mv.visitMaxs(args.length+1, args.length+1)
+        mv.visitMaxs(width(args)+1, width(args)+1)
     }
     
     def writeBridge(mv:MethodVisitor, mvdesc:String, opcode:Int, owner:String, name:String, desc:String)
@@ -278,18 +280,19 @@ object ASMMixinCompiler
             t.fields.foreach{ f =>
                 val fv = cnode.visitField(ACC_PRIVATE, f.accessName(t.name), f.desc, null, null).asInstanceOf[FieldNode]
                 
+                val ftype = getType(fv.desc)
                 var mv = cnode.visitMethod(ACC_PUBLIC, fv.name, "()"+f.desc, null, null)
                 mv.visitVarInsn(ALOAD, 0)
                 mv.visitFieldInsn(GETFIELD, name, fv.name, fv.desc)
-                mv.visitInsn(getType(fv.desc).getOpcode(IRETURN))
+                mv.visitInsn(ftype.getOpcode(IRETURN))
                 mv.visitMaxs(1, 1)
                 
                 mv = cnode.visitMethod(ACC_PUBLIC, fv.name+"_$eq", "("+f.desc+")V", null, null)
                 mv.visitVarInsn(ALOAD, 0)
-                mv.visitVarInsn(getType(fv.desc).getOpcode(ILOAD), 1)
+                mv.visitVarInsn(ftype.getOpcode(ILOAD), 1)
                 mv.visitFieldInsn(PUTFIELD, name, fv.name, fv.desc)
                 mv.visitInsn(RETURN)
-                mv.visitMaxs(2, 2)
+                mv.visitMaxs(width(ftype)+1, width(ftype)+1)
             }
             
             t.supers.foreach{ s => 
@@ -560,7 +563,7 @@ object ASMMixinCompiler
         val csym:ClassSymbol = sig.evalT(0)
         for(i <- 0 until sig.table.length)
         {
-import ScalaSignature._
+            import ScalaSignature._
             
             val e = sig.table(i)
             if(e.id == 8)//method
