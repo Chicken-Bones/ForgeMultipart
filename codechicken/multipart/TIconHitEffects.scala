@@ -26,7 +26,7 @@ object IconHitEffects
     {
         EntityDigIconFX.addBlockHitEffects(part.tile.worldObj, 
                 part.getBounds.copy.add(Vector3.fromTileEntity(part.tile)), hit.sideHit, 
-                part.getBreakingIcon(ExtendedMOP.getData[(_, _)](hit)._2, hit.sideHit), effectRenderer)
+                part.getBreakingIcon(ExtendedMOP.getData(hit), hit.sideHit), effectRenderer)
     }
     
     def addDestroyEffects(part:JIconHitEffects, effectRenderer:EffectRenderer)
