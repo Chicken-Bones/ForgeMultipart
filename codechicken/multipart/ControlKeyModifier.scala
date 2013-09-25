@@ -12,6 +12,9 @@ import codechicken.multipart.handler.MultipartCPH
 import scala.collection.mutable.HashMap
 import net.minecraft.entity.player.EntityPlayer
 
+/**
+ * A class that maintains a map server<->client of which players are holding the control (or placement modifier key) much like sneaking.
+ */
 object ControlKeyModifer
 {
     implicit def playerControlValue(p:EntityPlayer) = new ControlKeyValue(p)
@@ -22,8 +25,16 @@ object ControlKeyModifer
     }
     
     val map = HashMap[EntityPlayer, Boolean]().withDefaultValue(false)
+    
+    /**
+     * Implicit static for Java users.
+     */
+    def isControlDown(p:EntityPlayer) = p.isControlDown
 }
 
+/**
+ * Key Handler implementation
+ */
 object ControlKeyHandler extends KeyHandler (
         Array(new KeyBinding("key.control", Keyboard.KEY_LCONTROL)), 
         Array(false))

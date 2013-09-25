@@ -14,6 +14,16 @@ import scala.collection.mutable.ListBuffer
 import codechicken.multipart.asm.IMultipartFactory
 import codechicken.multipart.asm.ASMMixinFactory
 
+/**
+ * This class manages the dynamic construction and allocation of container TileMultipart instances.
+ * 
+ * Classes that extend TileMultipart, adding tile centric logic, optimisations or interfaces, can be registered to a marker interface on a part instance.
+ * When a part is added to the tile that implements the certain marker interface, the container tile will be replaced with a class that includes the functionality from the corresponding mixin class.
+ * 
+ * Classes are generated in a similar fashion to the way scala traits are compiled. To see the output, simply enable the config option and look in the asm/multipart folder of you .minecraft directory.
+ * 
+ * There are several mixin traits that come with the API included in the scalatraits package. TPartialOcclusionTile is defined as class instead of trait to give an example for Java programmers.
+ */
 object MultipartGenerator
 {
     private var tileTraitMap:Map[Class[_], Set[String]] = Map()
@@ -162,6 +172,15 @@ object MultipartGenerator
     
     def registerPassThroughInterface(s_interface:String):Unit = registerPassThroughInterface(s_interface, true, true)
     
+    /**
+     * A passthrough interface, is an interface to be implemented on the container tile instance, for which all calls are passed directly to the single implementing part.
+     * Registering a passthrough interface is equivalent to defining a mixin class as follows.
+     *  1. field 'impl' which contains the reference to the corresponding part
+     *  2. occlusionTest is overriden to prevent more than one part with s_interface existing in the block space
+     *  3. implementing s_interface and passing all calls directly to the part instance.
+     *  
+     *  This allows compatibility with APIs that expect interfaces on the tile entity.
+     */
     def registerPassThroughInterface(s_interface:String, client:Boolean, server:Boolean)
     {
         val tType = factory.generatePassThroughTrait(s_interface)
@@ -184,7 +203,7 @@ object MultipartGenerator
         }
     }
     
-    def registerTileClass(clazz:Class[_ <: TileEntity], traits:Set[String])
+    private[multipart] def registerTileClass(clazz:Class[_ <: TileEntity], traits:Set[String])
     {
         tileTraitMap=tileTraitMap+(clazz->traits)
         MultipartProxy.onTileClassBuilt(clazz)

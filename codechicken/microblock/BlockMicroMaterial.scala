@@ -25,6 +25,9 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.microblock.handler.MicroblockProxy
 
+/**
+ * Standard micro material class suitable for most blocks.
+ */
 class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMaterial
 {
     @SideOnly(Side.CLIENT)
@@ -110,6 +113,9 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     def getSound = block.stepSound
 }
 
+/**
+ * Utility functions for cleaner registry code
+ */
 object BlockMicroMaterial
 {
     def createAndRegister(block:Block)

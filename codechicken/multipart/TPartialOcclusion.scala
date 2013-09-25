@@ -4,15 +4,18 @@ import codechicken.lib.vec.Cuboid6
 import scala.collection.JavaConversions._
 import java.lang.Iterable
 
-trait JPartialOcclusion
-{
-    def getPartialOcclusionBoxes():Iterable[Cuboid6]
-    
-    def allowCompleteOcclusion = false
-}
-
+/**
+ * This class provides a special type of occlusion model used by microblocks.
+ * The partial occlusion test defines bounding boxes that may intersect, so long as no part is completely obscured by a combination of the others.
+ * Partial bounding boxes may not intersect with normal bounding boxes from NormalOcclusionTest
+ * 
+ * This test is actually managed by the mixin trait TPartialOcclusionTile which is generated when the marker interface JPartialOcclusion is found
+ */
 class PartialOcclusionTest(size:Int)
 {
+    /**
+     * The resolution of the test, set to 1/8th of a block
+     */
     val res = 8
     val bits = new Array[Byte](res*res*res)
     val partial = new Array[Boolean](size)
@@ -57,4 +60,17 @@ class PartialOcclusionTest(size:Int)
         
         return true
     }
+}
+
+trait JPartialOcclusion
+{
+    /**
+     * Return a list of partial occlusion boxes
+     */
+    def getPartialOcclusionBoxes():Iterable[Cuboid6]
+    
+    /**
+     * Return true if this part may be completely obscured
+     */
+    def allowCompleteOcclusion = false
 }

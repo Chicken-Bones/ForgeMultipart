@@ -8,8 +8,14 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 
+/**
+ * Java class implementation
+ */
 abstract class JItemMultiPart(id:Int) extends Item(id) with TItemMultiPart
 
+/**
+ * Simple multipart item class for easy placement. Simply override the newPart function and it the part will be added to the block space if it passes the occlusion tests.
+ */
 trait TItemMultiPart extends Item
 {
     def getHitDepth(vhit:Vector3, side:Int):Double = 
@@ -41,5 +47,8 @@ trait TItemMultiPart extends Item
         return place()
     }
     
+    /**
+     * Create a new part based on the placement information parameters.
+     */
     def newPart(item:ItemStack, player:EntityPlayer, world:World, pos:BlockCoord, side:Int, vhit:Vector3):TMultiPart
 }

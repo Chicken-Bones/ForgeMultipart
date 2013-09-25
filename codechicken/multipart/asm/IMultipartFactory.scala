@@ -1,6 +1,5 @@
 package codechicken.multipart.asm
 
-import scala.reflect.runtime.universe._
 import codechicken.multipart.TileMultipart
 
 trait IMultipartFactory

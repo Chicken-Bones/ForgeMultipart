@@ -11,10 +11,19 @@ import scala.collection.JavaConversions._
 import java.lang.Iterable
 import codechicken.lib.vec.Translation
 
+/**
+ * Java class implementation
+ */
 abstract class JCuboidPart extends TCuboidPart
 
+/**
+ * Trait for parts that are simply a cuboid, having one bounding box. Overrides multipart functions to this effect.
+ */
 trait TCuboidPart extends TMultiPart
 {
+    /**
+     * Return the bounding Cuboid6 for this part.
+     */
     def getBounds:Cuboid6
     
     override def getSubParts:Iterable[IndexedCuboid6] = Seq(new IndexedCuboid6(0, getBounds))

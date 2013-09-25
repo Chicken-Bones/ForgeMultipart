@@ -23,38 +23,81 @@ import net.minecraft.world.World
 
 object MicroMaterialRegistry
 {
+    /**
+     * Interface for defining a micro material
+     */
     trait IMicroMaterial
     {
+        /**
+         * The icon to be used for breaking particles on side
+         */
         @SideOnly(Side.CLIENT)
         def getBreakingIcon(side:Int):Icon
         
+        /**
+         * Callback to load icons from the underlying block/etc
+         */
         @SideOnly(Side.CLIENT)
         def loadIcons(){}
         
+        /**
+         * This function must render the quad face specified by verts facing on side, at pos (x, y, z)
+         * @param lightMatrix A helper class provided for calculating minecraft smooth lighting on the face.
+         * @param part An IMicroMaterialRender callback for some information about the caller such as bounds and world for grass decals.
+         */
         @SideOnly(Side.CLIENT)
         def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
         
+        /**
+         * Get the render pass for which this material renders in.
+         */
         @SideOnly(Side.CLIENT)
         def getRenderPass():Int
         
+        /**
+         * Return true if this material is not opaque (glass, ice).
+         */
         def isTransparent():Boolean
         
+        /**
+         * Return the light level emitted by this material (glowstone)
+         */
         def getLightValue():Int
         
+        /**
+         * Return the strength of this material
+         */
         def getStrength(player:EntityPlayer):Float
         
+        /**
+         * Return the localised name of this material (normally the block name)
+         */
         def getLocalizedName():String
         
+        /**
+         * Get the item that this material is cut from (full block -> slabs)
+         */
         def getItem():ItemStack
         
+        /**
+         * Get the strength of saw requried to cut this material
+         */
         def getCutterStrength():Int
         
+        /**
+         * Get the breaking/walking sound
+         */
         def getSound():StepSound
         
+        /**
+         * Return true if this material is solid and opaque (can run wires on etc)
+         */
         def isSolid() = !isTransparent
-        //todo, get material properties
     }
     
+    /**
+     * Interface for overriding the default micro placement highlight handler to show the effect of placement on a certain block/part
+     */
     trait IMicroHighlightRenderer
     {
         /**
@@ -66,10 +109,13 @@ object MicroMaterialRegistry
     private val typeMap:HashMap[String, IMicroMaterial] = new HashMap
     private val nameMap:HashMap[String, Int] = new HashMap
     private var idMap:Array[(String, IMicroMaterial)] = _
-    private val idWriter = IDWriter()
+    private val idWriter = new IDWriter
     
     private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
     
+    /**
+     * Register a micro material with unique identifier name
+     */
     def registerMaterial(material:IMicroMaterial, name:String)
     {
         if(MultiPartRegistry.loaded)
@@ -83,6 +129,9 @@ object MicroMaterialRegistry
         typeMap.put(name, material)
     }
     
+    /**
+     * Replace a micro material with unique identifier name
+     */
     def replaceMaterial(material:IMicroMaterial, name:String) {
         if(MultiPartRegistry.loaded)
             throw new IllegalStateException("You must register your materials in the init methods.")
@@ -95,6 +144,9 @@ object MicroMaterialRegistry
         typeMap.put(name, material)
     }
     
+    /**
+     * Registers a highlight renderer
+     */
     def registerHighlightRenderer(handler:IMicroHighlightRenderer)
     {
         highlightRenderers+=handler

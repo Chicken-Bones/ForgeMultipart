@@ -57,6 +57,8 @@ object TickScheduler extends WorldExtensionInstantiator
                     .asInstanceOf[ChunkTickScheduler].scheduleTick(part, time, random)
         }
         
+        def loadRandom(part:TMultiPart) = scheduleTick(part, nextRandomTick, true)
+        
         override def preTick()
         {
             processing = true
@@ -126,6 +128,8 @@ object TickScheduler extends WorldExtensionInstantiator
             CompressedStreamTools.writeCompressed(saveTag, dout);
             dout.close();
         }
+        
+        def nextRandomTick = world.rand.nextInt(800)+800
     }
     
     def createWorldExtension(world:World):WorldExtension = new WorldTickScheduler(world)
@@ -146,7 +150,7 @@ object TickScheduler extends WorldExtensionInstantiator
                 val e = it.next
                 if(e.part == part)
                 {
-                    if(e.random && !random)
+                    if(e.random && !random)//only override an existing tick if we're going from random->scheduled
                     {
                         e.time = time
                         e.random = random
@@ -159,7 +163,7 @@ object TickScheduler extends WorldExtensionInstantiator
                 world.tickChunks+=this
         }
         
-        def nextRandomTick = world.world.rand.nextInt(800)+800
+        def nextRandomTick = world.nextRandomTick
         
         def processTicks():Boolean =
         {
@@ -255,10 +259,21 @@ object TickScheduler extends WorldExtensionInstantiator
     
     def createChunkExtension(chunk:Chunk, world:WorldExtension):ChunkExtension = new ChunkTickScheduler(chunk, world.asInstanceOf[WorldTickScheduler])
     
+    private[multipart] def loadRandomTick(part:TMultiPart)
+    {
+        getExtension(part.tile.worldObj).asInstanceOf[WorldTickScheduler].loadRandom(part)
+    }
+    
+    /**
+     * Schedule a tick for part relative to the current time.
+     */
     def scheduleTick(part:TMultiPart, ticks:Int)
     {
         getExtension(part.tile.worldObj).asInstanceOf[WorldTickScheduler].scheduleTick(part, ticks, false)
     }
     
+    /**
+     * Returns the current scheduler time. Like the world time, but unaffected by the time set command and other things changing time of day.
+     */
     def getSchedulerTime(world:World):Long = getExtension(world).asInstanceOf[WorldTickScheduler].schedTime
 }

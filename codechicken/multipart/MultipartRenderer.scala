@@ -20,6 +20,9 @@ import cpw.mods.fml.relauncher.Side
 import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.lib.lighting.LazyLightMatrix
 
+/**
+ * Internal class for rendering callbacks. Should be moved to the handler package
+ */
 @SideOnly(Side.CLIENT)
 object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRenderingHandler
 {

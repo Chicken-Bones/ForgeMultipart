@@ -3,7 +3,10 @@ package codechicken.multipart
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
 
-trait IDWriter
+/**
+ * Class for reading and writing ids, widening the carrier data type as necessary
+ */
+class IDWriter
 {
     var write:(MCDataOutput, Int)=>Unit = _
     var read:(MCDataInput)=>Int = _
@@ -27,13 +30,4 @@ trait IDWriter
             read = (data) => data.readUByte()
         }
     }
-}
-
-object IDWriter
-{
-    def apply():IDWriter = new IDWriterImpl;
-}
-
-class IDWriterImpl extends IDWriter
-{
 }

@@ -10,6 +10,10 @@ import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.FluidTankInfo
 import net.minecraftforge.fluids.Fluid
 
+/**
+ * Mixin trait implementation for parts implementing IFluidHandler.
+ * Distributes fluid manipulation amoung fluid handling parts.
+ */
 trait TFluidHandlerTile extends TileMultipart with IFluidHandler
 {
     var tankList = ListBuffer[IFluidHandler]()

@@ -9,7 +9,6 @@ import codechicken.lib.config.ConfigFile
 import cpw.mods.fml.common.registry.GameRegistry
 import java.io.File
 import codechicken.multipart.handler.MultipartProxy._
-import codechicken.multipart.BlockMultipartImpl
 import codechicken.multipart.MultipartRenderer
 import java.util.HashMap
 import net.minecraftforge.common.MinecraftForge
@@ -45,7 +44,7 @@ class MultipartProxy_serverImpl
     
     def postInit()
     {
-        block = new BlockMultipartImpl(config.getTag("block.id").getIntValue(getFreeBlockID(1281)))
+        block = new BlockMultipart(config.getTag("block.id").getIntValue(getFreeBlockID(1281)))
         block.setUnlocalizedName("ccmultipart")
         
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)

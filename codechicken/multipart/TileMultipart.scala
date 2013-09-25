@@ -46,6 +46,9 @@ import codechicken.multipart.handler.MultipartSaveLoad
 
 class TileMultipart extends TileEntity
 {
+    /**
+     * List of parts in this tile space
+     */
     var partList = ArrayBuffer[TMultiPart]()
     
     private var doesTick = false
@@ -81,6 +84,9 @@ class TileMultipart extends TileEntity
      */
     def partMap(slot:Int):TMultiPart = null
     
+    /**
+     * Implicit java conversion of part list
+     */
     def jPartList():List[TMultiPart] = partList
     
     override def canUpdate() = doesTick
@@ -191,9 +197,29 @@ class TileMultipart extends TileEntity
     
     def getLightValue() = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
     
+    /**
+     * Callback for parts to mark the chunk as needs saving
+     */
     def markDirty()
     {
         worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this)
+    }
+    
+    /**
+     * Mark this block space for a render update. 
+     */
+    def markRender()
+    {
+        worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord)
+    }
+    
+    /**
+     * Helper function for calling a second level notify on a side (eg indirect power from a lever) 
+     */
+    def notifyNeighborChange(side:Int)
+    {
+        val pos = new BlockCoord(this).offset(side)
+        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
     }
     
     def isSolid(side:Int):Boolean = 
@@ -220,6 +246,9 @@ class TileMultipart extends TileEntity
         }
     }
     
+    /**
+     * Returns true if part can be added to this space
+     */
     def canAddPart(part:TMultiPart):Boolean =
     {
         if(partList.contains(part))
@@ -228,6 +257,15 @@ class TileMultipart extends TileEntity
         return occlusionTest(partList, part)
     }
     
+    /**
+     * Returns true if opart can be replaced with npart (note opart and npart may be the exact same object)
+     * 
+     * This function should be used for testing if a part can change it's shape (eg. rotation, expansion, cable connection)
+     * For example, to test whether a cable part can connect to it's neighbor:
+     *  1. Set the cable part's bounding boxes as if the connection is established
+     *  2. Call canReplacePart(part, part)
+     *  3. If canReplacePart succeeds, perform connection, else, revert bounding box
+     */
     def canReplacePart(opart:TMultiPart, npart:TMultiPart):Boolean = 
     {
         val olist = partList.filterNot(_ == opart)
@@ -237,11 +275,17 @@ class TileMultipart extends TileEntity
         return occlusionTest(olist, npart)
     }
     
+    /**
+     * Returns true if parts do not occlude npart
+     */
     def occlusionTest(parts:Seq[TMultiPart], npart:TMultiPart):Boolean =
     {
         return parts.forall(part => part.occlusionTest(npart) && npart.occlusionTest(part))
     }
     
+    /**
+     * Get the write stream for updates to part
+     */
     def getWriteStream(part:TMultiPart):MCDataOutput = getWriteStream.writeByte(partList.indexOf(part))
     
     private def getWriteStream = MultipartSPH.getTileStream(worldObj, new BlockCoord(this))
@@ -279,12 +323,24 @@ class TileMultipart extends TileEntity
     }
     
     /**
-     * Bind this part to an internal cache
+     * Bind this part to an internal cache.
+     * Provided for trait overrides, do not call externally.
      */
     def bindPart(part:TMultiPart){}
     
-    def partAdded(part:TMultiPart){}
+    /**
+     * Called when a part is added (placement)
+     * Provided for trait overrides, do not call externally.
+     */
+    def partAdded(part:TMultiPart)
+    {
+        if(part.isInstanceOf[IRandomUpdateTick])
+            TickScheduler.loadRandomTick(part)
+    }
     
+    /**
+     * Removes part from this tile. Note that due to the operation sync, the part may not be removed until the call stack has been passed to all other parts in the space.
+     */
     def remPart(part:TMultiPart):TileMultipart =
     {
         assert(!worldObj.isRemote, "Cannot remove multi parts from a client tile")
@@ -343,6 +399,10 @@ class TileMultipart extends TileEntity
         return r
     }
     
+    /**
+     * Remove this part from internal cache.
+     * Provided for trait overrides, do not call externally.
+     */
     def partRemoved(part:TMultiPart, p:Int){}
 
     private[multipart] def loadParts(parts:ListBuffer[TMultiPart])
@@ -353,11 +413,18 @@ class TileMultipart extends TileEntity
             notifyPartChange(null)
     }
     
+    /**
+     * Remove all parts from internal cache
+     * Provided for trait overrides, do not call externally.
+     */
     def clearParts()
     {
         partList.clear()
     }
     
+    /**
+     * Writes the description of this tile, and all parts composing it, to packet
+     */
     def writeDesc(packet:MCDataOutput)
     {
         packet.writeByte(partList.size)
@@ -367,6 +434,9 @@ class TileMultipart extends TileEntity
         }
     }
     
+    /**
+     * Perform a raytrace returning all intersecting parts sorted nearest to farthest
+     */
     def rayTraceAll(start:Vec3, end:Vec3):Iterable[ExtendedMOP] = 
     {
         var list = ListBuffer[ExtendedMOP]()
@@ -382,8 +452,14 @@ class TileMultipart extends TileEntity
         return list.sorted
     }
     
+    /**
+     * Perform a raytrace returning the nearest intersecting part
+     */
     def collisionRayTrace(start:Vec3, end:Vec3):ExtendedMOP = rayTraceAll(start, end).headOption.getOrElse(null)
     
+    /**
+     * Drop and remove part at index (internal mining callback)
+     */
     def harvestPart(index:Int, drop:Boolean):Boolean = 
     {
         val part = partList(index)
@@ -395,15 +471,13 @@ class TileMultipart extends TileEntity
         return partList.isEmpty
     }
     
+    /**
+     * Utility function for dropping items around the center of this space
+     */
     def dropItems(items:Iterable[ItemStack])
     {
         val pos = Vector3.fromTileEntityCenter(this)
         items.foreach(item => TileMultipart.dropItem(item, worldObj, pos))
-    }
-    
-    def markRender()
-    {
-        worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord)
     }
     
     override def writeToNBT(tag:NBTTagCompound)
@@ -419,6 +493,9 @@ class TileMultipart extends TileEntity
         tag.setTag("parts", taglist)
     }
     
+    /**
+     * Internal callback
+     */
     def onEntityCollision(entity:Entity)
     {
         TileMultipart.startOperation(this)
@@ -426,17 +503,20 @@ class TileMultipart extends TileEntity
         TileMultipart.finishOperation(this)
     }
     
+    /**
+     * Internal callback, overriden in TRedstoneTile
+     */
     def strongPowerLevel(side:Int) = 0
     
+    /**
+     * Internal callback, overriden in TRedstoneTile
+     */
     def weakPowerLevel(side:Int) = 0
     
+    /**
+     * Internal callback, overriden in TRedstoneTile
+     */
     def canConnectRedstone(side:Int) = false
-    
-    def notifyNeighborChange(side:Int)
-    {
-        val pos = new BlockCoord(this).offset(side)
-        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
-    }
 }
 
 class TileMultipartClient extends TileMultipart
@@ -460,6 +540,9 @@ class TileMultipartClient extends TileMultipart
     }
 }
 
+/**
+ * Static class with multipart manipulation helper functions
+ */
 object TileMultipart
 {
     var renderID:Int = -1
@@ -505,6 +588,11 @@ object TileMultipart
         }
     }
     
+    /**
+     * This class avoids concurrent modification exceptions when passing a call to all parts in the partList (such as onUpdate)
+     * Calls to add/remPart within an OperationSync start/finish pair will be delayed until the operation has completed.
+     * Extra complexity is required for recursive calls like notifyChange
+     */
     class OperationSynchroniser
     {
         private val operations = ArrayBuffer[TileOperationSet]()
@@ -588,16 +676,25 @@ object TileMultipart
     
     private val operationSync = new OperationSynchroniser
     
-    def startOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.startOperation(tile)
+    private[multipart] def startOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.startOperation(tile)
     
-    def finishOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.finishOperation(tile)
+    private[multipart] def finishOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.finishOperation(tile)
         
-    def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean = operationSync.queueRemoval(tile, part)
+    private[multipart] def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean = operationSync.queueRemoval(tile, part)
     
-    def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
+    private[multipart] def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
     
+    /**
+     * Gets a multipar ttile instance at pos, converting if necessary.
+     */
     def getOrConvertTile(world:World, pos:BlockCoord) = getOrConvertTile2(world, pos)._1
     
+    /**
+     * Gets a multipart tile instance at pos, converting if necessary.
+     * Note converted tiles are merely a structure formality, 
+     * they do not actually exist in world until they are required to by the addition of another multipart to their space.
+     * @return (The tile or null if there was none, true if the tile is a result of a conversion)
+     */
     def getOrConvertTile2(world:World, pos:BlockCoord):(TileMultipart, Boolean) =
     {
         val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
@@ -619,6 +716,9 @@ object TileMultipart
         return (null, false)
     }
     
+    /**
+     * Gets the multipart tile instance at pos, or null if it doesn't exist or is not a multipart tile
+     */
     def getTile(world:World, pos:BlockCoord):TileMultipart =
     {
         val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
@@ -627,6 +727,10 @@ object TileMultipart
         return null
     }
     
+    /**
+     * Returns whether part can be added to the space at pos. Will do conversions as necessary.
+     * This function is the recommended way to add parts to the world.
+     */
     def canPlacePart(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
     {
         part.getCollisionBoxes.foreach{b => 
@@ -644,12 +748,19 @@ object TileMultipart
         return true
     }
     
+    /**
+     * Returns if the block at pos is replaceable (air, vines etc)
+     */
     def replaceable(world:World, pos:BlockCoord):Boolean = 
     {
         val block = Block.blocksList(world.getBlockId(pos.x, pos.y, pos.z))
         return block == null || block.isAirBlock(world, pos.x, pos.y, pos.z) || block.isBlockReplaceable(world, pos.x, pos.y, pos.z)
     }
     
+    /**
+     * Adds a part to a block space. canPlacePart should always be called first.
+     * The addition of parts on the client is handled internally.
+     */
     def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
         assert(!world.isRemote, "Cannot add multi parts to a client tile.")
@@ -660,6 +771,9 @@ object TileMultipart
         return MultipartGenerator.addPart(world, pos, part)
     }
     
+    /**
+     * Constructs this tile and its parts from a desc packet
+     */
     def handleDescPacket(world:World, pos:BlockCoord, packet:PacketCustom)
     {
         val nparts = packet.readUByte
@@ -685,6 +799,9 @@ object TileMultipart
         tilemp.markRender()
     }
     
+    /**
+     * Handles an update packet, addition, removal and otherwise
+     */
     def handlePacket(pos:BlockCoord, world:World, i:Int, packet:PacketCustom)
     {
         var tilemp = BlockMultipart.getTile(world, pos.x, pos.y, pos.z)
@@ -705,6 +822,9 @@ object TileMultipart
         }
     }
     
+    /**
+     * Creates this tile from an NBT tag
+     */
     def createFromNBT(tag:NBTTagCompound):TileMultipart =
     {
         val partList = tag.getTagList("parts")
@@ -731,6 +851,9 @@ object TileMultipart
         return tmb
     }
     
+    /**
+     * Drops an item around pos
+     */
     def dropItem(stack:ItemStack, world:World, pos:Vector3)
     {
         val item = new EntityItem(world, pos.x, pos.y, pos.z, stack)

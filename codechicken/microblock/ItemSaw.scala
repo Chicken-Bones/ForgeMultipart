@@ -22,8 +22,14 @@ import codechicken.lib.math.MathHelper._
 import net.minecraft.util.ResourceLocation
 import net.minecraft.client.renderer.texture.IconRegister
 
+/**
+ * Interface for items that are 'saws'
+ */
 trait Saw
 {
+    /**
+     * The harvest level this saw is capable of cutting
+     */
     def getCuttingStrength:Int
 }
 

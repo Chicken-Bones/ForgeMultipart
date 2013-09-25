@@ -11,8 +11,15 @@ import codechicken.multipart.TFacePart
 import codechicken.multipart.TEdgePart
 import codechicken.multipart.TEdgePart
 
+/**
+ * Mixin trait implementation for IRedstonePart
+ * Provides and overrides various redstone functions.
+ */
 trait TRedstoneTile extends TileMultipart with IRedstoneTile
 {
+    /**
+     * Returns the strong (indirect) power being emitted fr
+     */
     override def strongPowerLevel(side:Int):Int =
     {
         var max = 0

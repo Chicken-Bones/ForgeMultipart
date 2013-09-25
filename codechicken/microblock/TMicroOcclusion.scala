@@ -7,6 +7,9 @@ import cpw.mods.fml.relauncher.Side
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.PartMap._
 
+/**
+ * Suite of classes for performing microblock style occlusion and shrink rendering. Use at your own peril.
+ */
 object MicroOcclusion
 {
     def shrink(renderBounds:Cuboid6, b:Cuboid6, side:Int) = side match

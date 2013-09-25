@@ -52,18 +52,27 @@ object BlockMultipart
             null
     }
     
+    def reduceMOP(hit:MovingObjectPosition):(Int, ExtendedMOP) = {
+        val ehit = hit.asInstanceOf[ExtendedMOP]
+        val data:(Int, _) = ExtendedMOP.getData(hit)
+        return (data._1, new ExtendedMOP(ehit, data._2, ehit.dist))
+    }
+    
     def drawHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, frame:Float):Boolean =
     {
         val tile = getTile(world, hit.blockX, hit.blockY, hit.blockZ)
         if(tile == null)
             return false
         
-        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
-        return tile.partList(hitInfo._1).drawHighlight(hit, player, frame)
+        val (index, mop) = reduceMOP(hit)
+        return tile.partList(index).drawHighlight(mop, player, frame)
     }
 }
 
-trait BlockMultipart extends Block
+/**
+ * Block class for all multiparts, should be internal use only.
+ */
+class BlockMultipart(id:Int) extends Block(id, Material.rock)
 {
     import BlockMultipart._
     
@@ -141,6 +150,7 @@ trait BlockMultipart extends Block
         val tile = getTile(world, x, y, z)
         if(tile != null)
             tile.partList.foreach(part => part.getDrops.foreach(item => ai.add(item)))
+        
         return ai
     }
     
@@ -160,8 +170,10 @@ trait BlockMultipart extends Block
     override def addBlockHitEffects(world:World, hit:MovingObjectPosition, effectRenderer:EffectRenderer):Boolean =
     {
         val tile = getClientTile(world, hit.blockX, hit.blockY, hit.blockZ)
-        if(tile != null)
-            tile.partList(ExtendedMOP.getData[(Int, _)](hit)._1).addHitEffects(hit, effectRenderer)
+        if(tile != null) {
+            val (index, mop) = reduceMOP(hit)
+            tile.partList(index).addHitEffects(mop, effectRenderer)
+        }
         
         return true
     }
@@ -197,8 +209,8 @@ trait BlockMultipart extends Block
         val tile = getTile(world, x, y, z)
         if(tile != null)
         {
-            val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
-            return tile.partList(hitInfo._1).pickItem(hit)
+          val (index, mop) = reduceMOP(hit)
+            return tile.partList(index).pickItem(mop)
         }
         return null
     }
@@ -207,8 +219,10 @@ trait BlockMultipart extends Block
     {
         val hit = RayTracer.retraceBlock(world, player, x, y, z)
         val tile = getTile(world, x, y, z)
-        if(hit != null && tile != null)
-            return tile.partList(ExtendedMOP.getData[(Int, _)](hit)._1).getStrength(hit, player)/30F;
+        if(hit != null && tile != null) {
+            val (index, mop) = reduceMOP(hit)
+            return tile.partList(index).getStrength(mop, player)/30F;
+        }
         
         return 1/100F
     }
@@ -248,8 +262,8 @@ trait BlockMultipart extends Block
         if(tile == null) 
             return false
         
-        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
-        return tile.partList(hitInfo._1).activate(player, hit, player.getHeldItem())
+        val (index, mop) = reduceMOP(hit)
+        return tile.partList(index).activate(player, mop, player.getHeldItem)
     }
     
     override def onBlockClicked(world:World, x:Int, y:Int, z:Int, player:EntityPlayer)
@@ -262,8 +276,8 @@ trait BlockMultipart extends Block
         if(tile == null) 
             return
         
-        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
-        tile.partList(hitInfo._1).click(player, hit, player.getHeldItem())
+        val (index, mop) = reduceMOP(hit)
+        tile.partList(index).click(player, mop, player.getHeldItem)
     }
     
     override def isProvidingStrongPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
@@ -308,9 +322,4 @@ trait BlockMultipart extends Block
     override def weakTileChanges() = true
     
     override def canProvidePower = true
-}
-
-class BlockMultipartImpl(id:Int) extends Block(id, Material.rock) with BlockMultipart
-{
-    
 }

@@ -5,6 +5,11 @@ import codechicken.multipart.INeighborTileChange
 import codechicken.multipart.TileMultipart
 import codechicken.lib.vec.BlockCoord
 
+/**
+ * Mixin implementation for INeighborTileChange
+ * 
+ * Reduces unnecessary computation
+ */
 trait TTileChangeTile extends TileMultipart {
     var weakTileChanges = false
     

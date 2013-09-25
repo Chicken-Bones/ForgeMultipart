@@ -5,6 +5,9 @@ import codechicken.multipart.TMultiPart
 import codechicken.multipart.JPartialOcclusion
 import codechicken.multipart.PartialOcclusionTest
 
+/**
+ * Implementation for the partial occlusion test.
+ */
 class TPartialOcclusionTile extends TileMultipart
 {
     override def occlusionTest(parts:Seq[TMultiPart], npart:TMultiPart):Boolean =

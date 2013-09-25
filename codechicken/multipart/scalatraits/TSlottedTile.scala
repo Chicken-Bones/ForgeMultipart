@@ -4,6 +4,10 @@ import codechicken.multipart.TileMultipart
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TSlottedPart
 
+/**
+ * Mixin implementation for TSlottedPart.
+ * Puts parts into a slot array for quick access at the cost of memory consumption
+ */
 trait TSlottedTile extends TileMultipart
 {
     var v_partMap = new Array[TMultiPart](27)

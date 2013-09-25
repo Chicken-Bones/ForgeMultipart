@@ -10,6 +10,16 @@ import codechicken.lib.vec.Vector3
 import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.lib.render.EntityDigIconFX
 
+/**
+ * This suite of 3 classes provides simple functions for standard minecraft style hit and break particles.
+ * 
+ * Scala|Java composition setup.
+ * Due to the lack of mixin inheritance in Java, the classes are structured to suit both languages as follows.
+ * IconHitEffects contains static implementations of the functions that would be overriden in TMultiPart
+ * JIconHitEffects is the interface that should be implemented by a Java class, 
+ * which can then override the functions in TMultipart and call the static methods in IconHitEffects with 'this' as the first parameter
+ * TIconHitEffects is a trait for scala implementors that does includes the overrides/static calls that Java programmers need to include themselves.
+ */
 object IconHitEffects
 {
     def addHitEffects(part:JIconHitEffects, hit:MovingObjectPosition, effectRenderer:EffectRenderer)
@@ -37,17 +47,24 @@ object IconHitEffects
     }
 }
 
+/**
+ * Java interface containing callbacks for particle rendering.
+ * Make sure to override addHitEffects and addDestroyEffects as in TIconHitEffects
+ */
 trait JIconHitEffects extends TMultiPart
 {
     def getBounds:Cuboid6
     
     @SideOnly(Side.CLIENT)
-    def getBreakingIcon(subPart:Any, side:Int) = getBrokenIcon(side)
+    def getBreakingIcon(subPart:Any, side:Int):Icon = getBrokenIcon(side)
     
     @SideOnly(Side.CLIENT)
     def getBrokenIcon(side:Int):Icon
 }
 
+/**
+ * Trait for scala programmers
+ */
 trait TIconHitEffects extends JIconHitEffects
 {
     @SideOnly(Side.CLIENT)

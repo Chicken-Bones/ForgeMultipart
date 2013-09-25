@@ -3,6 +3,9 @@ package codechicken.microblock
 import codechicken.lib.vec.Cuboid6
 import net.minecraft.world.World
 
+/**
+ * Wrapper class blocks/tiles/parts wanting to use the micro material system to render part of their models.
+ */
 trait IMicroMaterialRender {
     /**
      * May be null for inventory rendering.

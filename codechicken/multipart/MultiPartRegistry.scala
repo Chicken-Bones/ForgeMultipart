@@ -8,32 +8,61 @@ import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 import scala.collection.mutable.ListBuffer
 
+/**
+ * This class handles the registration and internal ID mapping of all multipart classes.
+ */
 object MultiPartRegistry
 {
+    /**
+     * Interface to be registered for constructing parts.
+     * Every instance of every multipart is constructed from an implementor of this.
+     */
     trait IPartFactory
     {
+        /**
+         * Create a new instance of the part with the specified type name identifier
+         * @param client If the part instance is for the client or the server
+         */
         def createPart(name:String, client:Boolean):TMultiPart;
     }
     
+    /**
+     * An interface for converting existing blocks/tile entities to multipart versions.
+     */
     trait IPartConverter
     {
+        /**
+         * Return true if this converter can handle the specific blockID (may or may not actually convert the block)
+         */
         def canConvert(blockID:Int):Boolean
+        /**
+         * Return a multipart version of the block at pos in world. Return null if no conversion is possible.
+         */
         def convert(world:World, pos:BlockCoord):TMultiPart
     }
     
     private val typeMap:HashMap[String, (Boolean)=>TMultiPart] = new HashMap
     private val nameMap:HashMap[String, Int] = new HashMap
     private var idMap:Array[(String, (Boolean)=>TMultiPart)] = _
-    private val idWriter = IDWriter()
+    private val idWriter = new IDWriter
     private val converters:Array[Seq[IPartConverter]] = Array.fill(4096)(Seq())
     
+    /**
+     * The state of the registry. 0 = no parts, 1 = registering, 2 = registered
+     */
     private var state:Int = 0
     
+    /**
+     * Register a part factory with an array of types it is capable of instantiating. Must be called before postInit
+     */
     def registerParts(partFactory:IPartFactory, types:Array[String])
     {
         registerParts(partFactory.createPart _, types:_*);
     }
     
+    /**
+     * Scala function version of registerParts
+     */
     def registerParts(partFactory:(String, Boolean)=>TMultiPart, types:String*)
     {
         if(loaded)
@@ -48,6 +77,9 @@ object MultiPartRegistry
         }
     }
     
+    /**
+     * Register a part converter instance
+     */
     def registerConverter(c:IPartConverter)
     {
         for(i <- 0 until 4096)
@@ -55,7 +87,7 @@ object MultiPartRegistry
                 converters(i) = converters(i):+c
     }
     
-    def beforeServerStart()
+    private[multipart] def beforeServerStart()
     {
         idMap = typeMap.toList.sortBy(_._1).toArray
         idWriter.setMax(idMap.length)
@@ -64,13 +96,13 @@ object MultiPartRegistry
             nameMap.put(idMap(i)._1, i)
     }
     
-    def writeIDMap(packet:PacketCustom)
+    private[multipart] def writeIDMap(packet:PacketCustom)
     {
         packet.writeInt(idMap.length)
         idMap.foreach(e => packet.writeString(e._1))
     }
     
-    def readIDMap(packet:PacketCustom):Seq[String] =
+    private[multipart] def readIDMap(packet:PacketCustom):Seq[String] =
     {
         val k = packet.readInt()
         idWriter.setMax(k)
@@ -88,19 +120,34 @@ object MultiPartRegistry
         return missing
     }
     
-    def required = state > 0
+    /**
+     * Return true if any multiparts have been registered
+     */
+    private[multipart] def required = state > 0
     
+    /**
+     * Return true if no more parts can be registered
+     */
     def loaded = state == 2
     
-    def postInit(){state = 2}
+    private[multipart] def postInit(){state = 2}
     
+    /**
+     * Writes the id of part to data
+     */
     def writePartID(data:MCDataOutput, part:TMultiPart)
     {
         idWriter.write(data, nameMap.get(part.getType).get)
     }
     
+    /**
+     * Uses instantiators to creat a new part from the id read from data
+     */
     def readPart(data:MCDataInput) = idMap(idWriter.read(data))._2(true)
     
+    /**
+     * Uses instantiators to create a new part with specified identifier on side
+     */
     def createPart(name:String, client:Boolean):TMultiPart = 
     {
         val part = typeMap.get(name)
@@ -113,6 +160,9 @@ object MultiPartRegistry
         }
     }
     
+    /**
+     * Calls converters to create a multipart version of the block at pos
+     */
     def convertBlock(world:World, pos:BlockCoord, id:Int):TMultiPart =
     {
         converters(id).foreach{c =>
