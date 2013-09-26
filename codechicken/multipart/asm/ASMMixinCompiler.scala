@@ -244,11 +244,12 @@ object ASMMixinCompiler
     def finishBridgeCall(mv:MethodVisitor, mvdesc:String, opcode:Int, owner:String, name:String, desc:String)
     {
         val args = getArgumentTypes(mvdesc)
+        val ret = getReturnType(mvdesc)
         for(i <- 0 until args.length)
             mv.visitVarInsn(args(i).getOpcode(ILOAD), i+1)
         mv.visitMethodInsn(opcode, owner, name, desc)
-        mv.visitInsn(getReturnType(mvdesc).getOpcode(IRETURN))
-        mv.visitMaxs(width(args)+1, width(args)+1)
+        mv.visitInsn(ret.getOpcode(IRETURN))
+        mv.visitMaxs(Math.max(width(args)+1, width(ret)), width(args)+1)
     }
     
     def writeBridge(mv:MethodVisitor, mvdesc:String, opcode:Int, owner:String, name:String, desc:String)
