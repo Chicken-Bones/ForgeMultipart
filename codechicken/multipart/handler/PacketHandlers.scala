@@ -76,6 +76,7 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
             }
             x = packet.readInt
         }
+        TileMultipart.flushClientCache()
     }
 }
 

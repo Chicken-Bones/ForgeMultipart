@@ -43,6 +43,7 @@ import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.util.Vec3
 import java.lang.Iterable
 import codechicken.multipart.handler.MultipartSaveLoad
+import scala.collection.mutable.{Map => MMap}
 
 class TileMultipart extends TileEntity
 {
@@ -140,8 +141,11 @@ class TileMultipart extends TileEntity
         if(!isInvalid)
         {
             super.invalidate()
-            if(worldObj != null)
+            if(worldObj != null) {
                 partList.foreach(_.onWorldSeparate())
+                if(worldObj.isRemote)
+                    TileMultipart.putClientCache(this)
+            }
         }
     }
     
@@ -685,6 +689,16 @@ object TileMultipart
     private[multipart] def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
     
     /**
+     * Playerinstance will often remove the tile entity instance and set the block to air on the client before the multipart packet handler fires it's updates.
+     * In order to maintain the packet data, and make sure all written data is read, the tile needs to be kept around internally until 
+     */
+    private val clientFlushMap = MMap[BlockCoord, TileMultipart]()
+    
+    private[multipart] def flushClientCache() = clientFlushMap.clear()
+    
+    private[multipart] def putClientCache(t:TileMultipart) = clientFlushMap.put(new BlockCoord(t), t)
+    
+    /**
      * Gets a multipar ttile instance at pos, converting if necessary.
      */
     def getOrConvertTile(world:World, pos:BlockCoord) = getOrConvertTile2(world, pos)._1
@@ -804,7 +818,7 @@ object TileMultipart
      */
     def handlePacket(pos:BlockCoord, world:World, i:Int, packet:PacketCustom)
     {
-        var tilemp = BlockMultipart.getTile(world, pos.x, pos.y, pos.z)
+        lazy val tilemp = Option(BlockMultipart.getTile(world, pos.x, pos.y, pos.z)).getOrElse(clientFlushMap(pos))
         
         i match
         {
@@ -813,12 +827,8 @@ object TileMultipart
                 part.readDesc(packet)
                 MultipartGenerator.addPart(world, pos, part)
             }
-            case 254 => if(tilemp != null) {
-                tilemp.remPart_impl(tilemp.partList(packet.readUByte))
-            }
-            case _ => if(tilemp != null) {
-                tilemp.partList(i).read(packet)
-            }
+            case 254 => tilemp.remPart_impl(tilemp.partList(packet.readUByte))
+            case _ => tilemp.partList(i).read(packet)
         }
     }
     
