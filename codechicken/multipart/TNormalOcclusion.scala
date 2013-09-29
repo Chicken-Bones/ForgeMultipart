@@ -54,3 +54,15 @@ trait TNormalOcclusion extends TMultiPart with JNormalOcclusion
     override def occlusionTest(npart:TMultiPart):Boolean =
         NormalOcclusionTest(this, npart) && super.occlusionTest(npart)
 }
+
+/**
+ * Utility part class for performing 3rd party occlusion tests
+ */
+class NormallyOccludedPart(bounds:Iterable[Cuboid6]) extends TMultiPart with TNormalOcclusion
+{
+    def this(bound:Cuboid6) = this(Seq(bound))
+    
+    def getType = null
+    
+    def getOcclusionBoxes = bounds
+}
