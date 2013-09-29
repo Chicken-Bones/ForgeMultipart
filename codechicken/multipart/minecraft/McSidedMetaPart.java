@@ -29,7 +29,7 @@ public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
     
     public boolean canStay()
     {
-        BlockCoord pos = new BlockCoord(getTile()).offset(sideForMeta(meta));
+        BlockCoord pos = new BlockCoord(tile()).offset(sideForMeta(meta));
         return world().isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1));
     }
     
@@ -45,7 +45,7 @@ public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
 
     public void drop()
     {
-        TileMultipart.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
+        TileMultipart.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(tile()));
         tile().remPart(this);
     }
     

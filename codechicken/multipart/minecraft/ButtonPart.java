@@ -142,7 +142,7 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
     private void updateState()
     {
         boolean arrows = sensitive() && !world().getEntitiesWithinAABB(EntityArrow.class,
-                getBounds().add(Vector3.fromTileEntity(getTile())).toAABB()).isEmpty();
+                getBounds().add(Vector3.fromTileEntity(tile())).toAABB()).isEmpty();
         boolean pressed = pressed();
         
         if(arrows != pressed)

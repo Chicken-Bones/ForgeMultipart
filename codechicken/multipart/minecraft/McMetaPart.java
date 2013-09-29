@@ -67,7 +67,7 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     @Override
     public BlockCoord getPos()
     {
-        return new BlockCoord(getTile());
+        return new BlockCoord(tile());
     }
     
     @Override
