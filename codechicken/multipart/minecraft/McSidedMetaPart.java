@@ -45,8 +45,8 @@ public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
 
     public void drop()
     {
-        tile().remPart(this);
         TileMultipart.dropItem(new ItemStack(getBlock()), world(), Vector3.fromTileEntityCenter(getTile()));
+        tile().remPart(this);
     }
     
     @Override

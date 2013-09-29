@@ -50,7 +50,7 @@ class TileMultipart extends TileEntity
     /**
      * List of parts in this tile space
      */
-    var partList = ArrayBuffer[TMultiPart]()
+    var partList = Seq[TMultiPart]()
     
     private var doesTick = false
     
@@ -92,25 +92,27 @@ class TileMultipart extends TileEntity
     
     override def canUpdate() = doesTick
     
+    def operate(f:(TMultiPart)=>Unit) {
+        val it = partList.iterator
+        while(it.hasNext) {
+            val p = it.next
+            if(p.tile != null) f(p)
+        }
+    }
+    
     override def updateEntity()
     {
-        super.updateEntity()
-        
-        TileMultipart.startOperation(this)
-        partList.foreach(_.update())
-        TileMultipart.finishOperation(this)
+        operate(_.update())
     }
     
     override def onChunkUnload()
     {
-        partList.foreach(_.onChunkUnload())
+        operate(_.onChunkUnload())
     }
     
     def onChunkLoad()
     {
-        TileMultipart.startOperation(this)
-        partList.foreach(_.onChunkLoad())
-        TileMultipart.finishOperation(this)
+        operate(_.onChunkLoad())
     }
     
     override def validate()
@@ -131,9 +133,7 @@ class TileMultipart extends TileEntity
     
     def onMoved()
     {
-        TileMultipart.startOperation(this)
-        partList.foreach(_.onMoved())
-        TileMultipart.finishOperation(this)
+        operate(_.onMoved())
     }
     
     override def invalidate()
@@ -166,12 +166,7 @@ class TileMultipart extends TileEntity
      */
     def internalPartChange(part:TMultiPart)
     {
-        TileMultipart.startOperation(this)
-        partList.foreach{ p =>
-            if(part != p)
-                p.onPartChanged(part)
-        }
-        TileMultipart.finishOperation(this)
+        operate(p => if(part != p) p.onPartChanged(part))
     }
     
     /**
@@ -179,19 +174,12 @@ class TileMultipart extends TileEntity
      */
     def multiPartChange(parts:Collection[TMultiPart])
     {
-        TileMultipart.startOperation(this)
-        partList.foreach{ p =>
-            if(!parts.contains(p))
-                parts.foreach(p.onPartChanged(_))
-        }
-        TileMultipart.finishOperation(this)
+        operate(p => if(!parts.contains(p)) parts.foreach(p.onPartChanged(_)))
     }
     
     def onNeighborBlockChange()
     {
-        TileMultipart.startOperation(this)
-        partList.foreach(_.onNeighborChanged())
-        TileMultipart.finishOperation(this)
+        operate(_.onNeighborChanged())
     }
     
     /**
@@ -318,7 +306,7 @@ class TileMultipart extends TileEntity
     {
         assert(partList.size < 250, "Tried to add more than 250 parts to the one tile. You're doing it wrong")
         
-        partList+=part
+        partList = partList:+part
         bindPart(part)
         part.bind(this)
         
@@ -348,10 +336,6 @@ class TileMultipart extends TileEntity
     def remPart(part:TMultiPart):TileMultipart =
     {
         assert(!worldObj.isRemote, "Cannot remove multi parts from a client tile")
-        
-        if(TileMultipart.queueRemoval(this, part))
-            return null
-        
         remPart_impl(part)
     }
     
@@ -378,7 +362,7 @@ class TileMultipart extends TileEntity
             throw new IllegalArgumentException("Tried to remove a non-existant part")
         
         part.preRemove()
-        partList-=part
+        partList = partList.filterNot(_ == part)
         
         if(sendPacket)
             getWriteStream.writeByte(254).writeByte(r)
@@ -503,9 +487,7 @@ class TileMultipart extends TileEntity
      */
     def onEntityCollision(entity:Entity)
     {
-        TileMultipart.startOperation(this)
-        partList.foreach(_.onEntityCollision(entity))
-        TileMultipart.finishOperation(this)
+        operate(_.onEntityCollision(entity))
     }
     
     /**
@@ -551,143 +533,6 @@ class TileMultipartClient extends TileMultipart
 object TileMultipart
 {
     var renderID:Int = -1
-    
-    class TileOperationSet
-    {
-        var tile:TileMultipart = _
-        var depth = 0
-        private val removalQueue = Queue[TMultiPart]()
-        private val additionQueue = Queue[TMultiPart]()
-        
-        def start(t:TileMultipart)
-        {
-            tile = t
-            depth = 1
-        }
-        
-        def queueAddition(part:TMultiPart)
-        {
-            if(!additionQueue.contains(part))
-                additionQueue+=part
-        }
-        
-        def queueRemoval(part:TMultiPart)
-        {
-            if(!removalQueue.contains(part))
-                removalQueue+=part
-        }
-        
-        def finish()
-        {
-            if(removalQueue.isEmpty && additionQueue.isEmpty)
-                return
-            
-            var otile = tile
-            val world = tile.worldObj
-            val pos = new BlockCoord(tile)
-            while(!removalQueue.isEmpty)
-                otile = otile.remPart_impl(removalQueue.dequeue)
-            
-            while(!additionQueue.isEmpty)
-                MultipartGenerator.addPart(world, pos, additionQueue.dequeue)
-        }
-    }
-    
-    /**
-     * This class avoids concurrent modification exceptions when passing a call to all parts in the partList (such as onUpdate)
-     * Calls to add/remPart within an OperationSync start/finish pair will be delayed until the operation has completed.
-     * Extra complexity is required for recursive calls like notifyChange
-     */
-    class OperationSynchroniser
-    {
-        private val operations = ArrayBuffer[TileOperationSet]()
-        private var depth = 0
-        
-        def startOperation(tile:TileMultipart)
-        {
-            var i = 0
-            while(i < depth)
-            {
-                val op = operations(i)
-                if(op.tile == tile)
-                {
-                    op.depth+=1
-                    return
-                }
-                i+=1
-            }
-            if(depth == operations.length)
-                operations+=new TileOperationSet
-            operations(depth).start(tile)
-            depth+=1
-        }
-        
-        def finishOperation(tile:TileMultipart)
-        {
-            var i = depth-1
-            while(i >= 0)
-            {
-                val op = operations(i)
-                if(op.tile == tile)
-                {
-                    op.depth-=1
-                    if(op.depth == 0)
-                    {
-                        if(i != depth-1)
-                            throw new IllegalStateException("Tried to finish an operation that was not on top")
-                        depth-=1
-                        op.finish()
-                    }
-                    return
-                }
-                i-=1
-            }
-            throw new IllegalStateException("Inconsistant Operation stack")
-        }
-        
-        def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean =
-        {
-            var i = depth-1
-            while(i >= 0)
-            {
-                val op = operations(i)
-                if(op.tile == tile)
-                {
-                    op.queueRemoval(part)
-                    return true
-                }
-                i-=1
-            }
-            return false
-        }
-        
-        def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = 
-        {
-            var i = depth-1
-            while(i >= 0)
-            {
-                val op = operations(i)
-                val opt = op.tile
-                if(opt.worldObj == world && opt.xCoord == pos.x && opt.yCoord == pos.y && opt.zCoord == pos.z)
-                {
-                    op.queueRemoval(part)
-                    return true
-                }
-                i-=1
-            }
-            return false
-        }
-    }
-    
-    private val operationSync = new OperationSynchroniser
-    
-    private[multipart] def startOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.startOperation(tile)
-    
-    private[multipart] def finishOperation(tile:TileMultipart) = if(!tile.worldObj.isRemote) operationSync.finishOperation(tile)
-        
-    private[multipart] def queueRemoval(tile:TileMultipart, part:TMultiPart):Boolean = operationSync.queueRemoval(tile, part)
-    
-    private[multipart] def queueAddition(world:World, pos:BlockCoord, part:TMultiPart):Boolean = operationSync.queueAddition(world, pos, part)
     
     /**
      * Playerinstance will often remove the tile entity instance and set the block to air on the client before the multipart packet handler fires it's updates.
@@ -779,10 +624,6 @@ object TileMultipart
     def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
         assert(!world.isRemote, "Cannot add multi parts to a client tile.")
-        
-        if(queueAddition(world, pos, part))
-            return null
-        
         return MultipartGenerator.addPart(world, pos, part)
     }
     

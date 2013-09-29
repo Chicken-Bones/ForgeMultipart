@@ -54,9 +54,9 @@ trait TTileChangeTile extends TileMultipart {
         if(weak && !weakTileChanges)
             return
         
-        TileMultipart.startOperation(this)
-        for(p@(_p: INeighborTileChange) <- partList.iterator)
-            p.onNeighborTileChanged(side, weak)
-        TileMultipart.finishOperation(this)
+        operate{ p => 
+            if(p.isInstanceOf[INeighborTileChange])
+                p.asInstanceOf[INeighborTileChange].onNeighborTileChanged(side, weak)
+        }
     }
 }
