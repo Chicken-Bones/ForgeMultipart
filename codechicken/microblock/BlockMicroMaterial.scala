@@ -41,7 +41,7 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
         
         if(iblock == null)
             for(i <- 0 until 6)
-                icons(i) = MicroblockProxy.renderBlocks.getBlockIcon(null)
+                icons(i) = MicroblockProxy.renderBlocks.getIconSafe(null)
         else
             for(i <- 0 until 6)
                 icons(i) = MicroblockProxy.renderBlocks.getIconSafe(iblock.getIcon(i, meta))
