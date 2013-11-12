@@ -87,7 +87,7 @@ abstract class TMultiPart
       val offset = new Vector3(x, y, z)
       val boxes = getSubParts.map(c => new IndexedCuboid6(c.data, c.copy.add(offset)))
       return RayTracer.instance.rayTraceCuboids(new Vector3(start), new Vector3(end), boxes.toList,
-              new BlockCoord(x, y, z), tile.blockType).asInstanceOf[ExtendedMOP]
+              new BlockCoord(x, y, z), tile.getBlockType).asInstanceOf[ExtendedMOP]
     } 
     /**
      * For the default collisionRayTrace implementation, returns a list of indexed bounding boxes. The data field of ExtendedMOP will be set to the index of the cuboid the raytrace hit.
@@ -104,6 +104,17 @@ abstract class TMultiPart
      */
     def getStrength(hit:MovingObjectPosition, player:EntityPlayer):Float = 1
     /**
+     * Harvest this part, removing it from the container tile and dropping items if necessary.
+     * @param hit An instance of ExtendedMOP from collisionRayTrace
+     * @param player The player harvesting the part
+     */
+    def harvest(hit:MovingObjectPosition, player:EntityPlayer)
+    {
+        if(!player.capabilities.isCreativeMode)
+            tile.dropItems(getDrops)
+        tile.remPart(this)
+    }
+    /**
      * The light level emitted by this part
      */
     def getLightValue = 0
@@ -116,8 +127,13 @@ abstract class TMultiPart
     def addHitEffects(hit:MovingObjectPosition, effectRenderer:EffectRenderer){}
     /**
      * Add particles and other effects when a player broke this part
+     * @param hit An instance of ExtendedMOP from collisionRayTrace
      */
     @SideOnly(Side.CLIENT)
+    def addDestroyEffects(hit:MovingObjectPosition, effectRenderer:EffectRenderer) {addDestroyEffects(effectRenderer)}
+    
+    @SideOnly(Side.CLIENT)
+    @Deprecated
     def addDestroyEffects(effectRenderer:EffectRenderer){}
     /**
      * Render the static, unmoving faces of this part into the world renderer.
@@ -147,7 +163,7 @@ abstract class TMultiPart
      * @return true if highlight rendering was overridden.
      */
     @SideOnly(Side.CLIENT)
-    def drawHighlight(hit:MovingObjectPosition, player:EntityPlayer, frame:Float) = false
+    def drawHighlight(hit:MovingObjectPosition, player:EntityPlayer, frame:Float):Boolean = false
     
     /**
      * Write all the data required to describe a client version of this part to the packet.

@@ -65,7 +65,11 @@ object BlockMultipart
             return false
         
         val (index, mop) = reduceMOP(hit)
-        return tile.partList(index).drawHighlight(mop, player, frame)
+        if(tile.partList(index).drawHighlight(mop, player, frame))
+            return true
+        
+        tile.partList(index).collisionRayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player))
+        return false
     }
 }
 
@@ -120,14 +124,14 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
             return true
         }
         
-        val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
+        val (index, mop) = reduceMOP(hit)
         if(world.isRemote)
         {
-            tile.partList(hitInfo._1).addDestroyEffects(Minecraft.getMinecraft().effectRenderer)
+            tile.partList(index).addDestroyEffects(mop, Minecraft.getMinecraft().effectRenderer)
             return true
         }
         
-        return tile.harvestPart(hitInfo._1, !player.capabilities.isCreativeMode);
+        return tile.harvestPart(index, mop, player)
     }
     
     def dropAndDestroy(world:World, x:Int, y:Int, z:Int)
@@ -209,7 +213,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
         val tile = getTile(world, x, y, z)
         if(tile != null)
         {
-          val (index, mop) = reduceMOP(hit)
+            val (index, mop) = reduceMOP(hit)
             return tile.partList(index).pickItem(mop)
         }
         return null

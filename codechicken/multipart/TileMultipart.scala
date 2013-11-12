@@ -44,6 +44,7 @@ import net.minecraft.util.Vec3
 import java.lang.Iterable
 import codechicken.multipart.handler.MultipartSaveLoad
 import scala.collection.mutable.{Map => MMap}
+import net.minecraft.util.AxisAlignedBB
 
 class TileMultipart extends TileEntity
 {
@@ -398,8 +399,11 @@ class TileMultipart extends TileEntity
     {
         clearParts()
         parts.foreach(p => addPart_do(p))
-        if(worldObj != null)
+        if(worldObj != null) {
+            if(worldObj.isRemote)
+                operate(_.onWorldJoin())
             notifyPartChange(null)
+        }
     }
     
     /**
@@ -449,16 +453,14 @@ class TileMultipart extends TileEntity
     /**
      * Drop and remove part at index (internal mining callback)
      */
-    def harvestPart(index:Int, drop:Boolean):Boolean = 
-    {
-        val part = partList(index)
-        if(part == null)
-            return false
-        if(drop)
-            dropItems(part.getDrops)
-        remPart(part)
-        return partList.isEmpty
-    }
+    def harvestPart(index:Int, hit:ExtendedMOP, player:EntityPlayer):Boolean = 
+        partList(index) match {
+            case null => false
+            case part => {
+                part.harvest(hit, player)
+                partList.isEmpty
+            }
+        }
     
     /**
      * Utility function for dropping items around the center of this space
@@ -525,6 +527,8 @@ class TileMultipartClient extends TileMultipart
         MultipartRenderer.pass = pass
         true
     }
+    
+    override def getRenderBoundingBox() = AxisAlignedBB.getAABBPool.getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1)
 }
 
 /**

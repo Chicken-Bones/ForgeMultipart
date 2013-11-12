@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream
 import net.minecraft.world.WorldServer
 import net.minecraft.world.ChunkCoordIntPair
 import MultipartProxy._
+import codechicken.multipart.PacketScheduler
 
 class MultipartPH
 {
@@ -116,6 +117,8 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     
     def onTickEnd(players:Seq[EntityPlayerMP])
     {
+        PacketScheduler.sendScheduled()
+        
         players.foreach{p =>
             val m = updateMap.getOrElse(p.worldObj, null)
             if(m != null && !m.isEmpty)
