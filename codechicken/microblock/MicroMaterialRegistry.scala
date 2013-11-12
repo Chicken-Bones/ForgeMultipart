@@ -110,7 +110,6 @@ object MicroMaterialRegistry
     private val nameMap:HashMap[String, Int] = new HashMap
     private var idMap:Array[(String, IMicroMaterial)] = _
     private val idWriter = new IDWriter
-    private var state = 0
     
     private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
     
