@@ -120,12 +120,17 @@ object BlockMicroMaterial
 {
     def createAndRegister(block:Block)
     {
-        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block), block.getUnlocalizedName)
+        createAndRegister(block, 0)
+    }
+    
+    def createAndRegister(block:Block, meta:Int)
+    {
+        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), 
+                block.getUnlocalizedName+(if(meta > 0) "_"+meta else ""))
     }
     
     def createAndRegister(block:Block, meta:Seq[Int])
     {
-        val name = block.getUnlocalizedName
-        meta.foreach(m => MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, m), name+(if(m > 0) "_"+m else "")))
+        meta.foreach(m => createAndRegister(block, m))
     }
 }

@@ -4,10 +4,7 @@ import cpw.mods.fml.common.Mod
 import cpw.mods.fml.common.event.FMLInitializationEvent
 import cpw.mods.fml.common.event.FMLPreInitializationEvent
 import cpw.mods.fml.common.SidedProxy
-import cpw.mods.fml.common.Mod.PreInit
-import cpw.mods.fml.common.Mod.Init
-import cpw.mods.fml.common.Mod.PostInit
-import cpw.mods.fml.common.Mod.ServerAboutToStart
+import cpw.mods.fml.common.Mod.EventHandler
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent
 import cpw.mods.fml.common.network.NetworkMod
 import cpw.mods.fml.common.Mod.Instance
@@ -15,12 +12,14 @@ import codechicken.microblock.MicroMaterialRegistry
 import codechicken.microblock.DefaultContent
 import cpw.mods.fml.common.event.FMLPostInitializationEvent
 import codechicken.microblock.ConfigContent
+import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent
+import scala.collection.JavaConversions._
 
 @Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.4]", 
             dependencies="required-after:ForgeMultipart;after:*", modLanguage="scala")
 object MicroblockMod
 {
-    @PreInit
+    @EventHandler
     def preInit(event:FMLPreInitializationEvent)
     {
         MicroblockProxy.preInit()
@@ -28,23 +27,29 @@ object MicroblockMod
         ConfigContent.parse(event.getModConfigurationDirectory)
     }
     
-    @Init
+    @EventHandler
     def init(event:FMLInitializationEvent)
     {
         MicroblockProxy.init()
         ConfigContent.load()
-        MicroMaterialRegistry.setupIDMap()
     }
     
-    @PostInit
+    @EventHandler
     def postInit(event:FMLPostInitializationEvent)
     {
         MicroblockProxy.postInit()
+        MicroMaterialRegistry.setupIDMap()
     }
     
-    @ServerAboutToStart
+    @EventHandler
     def beforeServerStart(event:FMLServerAboutToStartEvent)
     {
         MicroMaterialRegistry.setupIDMap()
+    }
+    
+    @EventHandler
+    def handleIMC(event:IMCEvent)
+    {
+        ConfigContent.handleIMC(event.getMessages)
     }
 }

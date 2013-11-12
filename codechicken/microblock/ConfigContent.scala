@@ -8,6 +8,9 @@ import java.io.FileReader
 import scala.collection.mutable.{Map => MMap}
 import net.minecraft.block.Block
 import java.lang.Exception
+import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage
+import net.minecraft.item.ItemStack
+import BlockMicroMaterial.createAndRegister
 
 object ConfigContent
 {
@@ -113,8 +116,6 @@ object ConfigContent
     
     def load()
     {
-        import BlockMicroMaterial._
-        
         for(i <- 0 until idMap.length)
         {
             val block = Block.blocksList(i)
@@ -138,5 +139,26 @@ object ConfigContent
         }
         
         nameMap.foreach(e => System.err.println("Warning: Unable to add micro material for block with unlocalised name "+e._1+" as it doesn't exist"))
+    }
+    
+    def handleIMC(messages:Seq[IMCMessage]) {
+        messages.filter(_.key == "microMaterial").foreach{msg => 
+            
+            def error(s:String) {
+                System.err.println("Invalid microblock IMC message from "+msg.getSender+": "+s)
+            }
+            
+            if(msg.getMessageType != classOf[ItemStack])
+                error("value is not an instanceof ItemStack")
+            else {
+                val stack = msg.getItemStackValue
+                if(stack.itemID >= Block.blocksList.length || Block.blocksList(stack.itemID) == null)
+                    System.err.println("Invalid blockID: "+stack.itemID)
+                else if(stack.getItemDamage < 0 || stack.getItemDamage >= 16)
+                    System.err.println("Invalid metadata: "+stack.getItemDamage)
+                else
+                    createAndRegister(Block.blocksList(stack.itemID), stack.getItemDamage)
+            }
+        }
     }
 }

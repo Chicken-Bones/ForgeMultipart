@@ -28,7 +28,7 @@ object MicroblockEventHandler extends IConnectionHandler
     @SideOnly(Side.CLIENT)
     def postTextureStitch(event:TextureStitchEvent.Post)
     {
-        if(Loader.instance.hasReachedState(LoaderState.POSTINITIALIZATION))
+        if(event.map.textureType == 0 && Loader.instance.hasReachedState(LoaderState.POSTINITIALIZATION))
             MicroMaterialRegistry.getIdMap.foreach(e => e._2.loadIcons())
     }
     

@@ -110,6 +110,7 @@ object MicroMaterialRegistry
     private val nameMap:HashMap[String, Int] = new HashMap
     private var idMap:Array[(String, IMicroMaterial)] = _
     private val idWriter = new IDWriter
+    private var state = 0
     
     private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
     
@@ -152,7 +153,7 @@ object MicroMaterialRegistry
         highlightRenderers+=handler
     }
     
-    def setupIDMap()
+    private [microblock] def setupIDMap()
     {
         idMap = typeMap.toList.sortBy(_._1).toArray
         idWriter.setMax(idMap.length)
