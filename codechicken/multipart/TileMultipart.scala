@@ -412,7 +412,7 @@ class TileMultipart extends TileEntity
      */
     def clearParts()
     {
-        partList.clear()
+        partList = Seq()
     }
     
     /**
