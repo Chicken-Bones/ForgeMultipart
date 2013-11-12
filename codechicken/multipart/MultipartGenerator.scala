@@ -74,6 +74,7 @@ object MultipartGenerator
         {
             if(converted)//perform client conversion
             {
+                ntile.partList(0).invalidateConvertedTile()
                 world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
                 world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
                 PacketCustom.sendToChunk(new Packet53BlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)

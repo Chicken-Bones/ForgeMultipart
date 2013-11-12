@@ -241,6 +241,11 @@ abstract class TMultiPart
      */
     def onConverted() = onAdded()
     /**
+     * Called when this part is converted from a normal block/tile (only applicable if a converter has been registered) before the original tile has been replaced
+     * Use this to clear out things like inventory from the old tile.
+     */
+    def invalidateConvertedTile(){}
+    /**
      * Called when this part has been moved without a save/load.
      */
     def onMoved() = onWorldJoin()
