@@ -45,6 +45,9 @@ object MultipartHelper
         return TileMultipart.createFromNBT(tag);
     }
     
+    /**
+     * Note. This method should only be used to send tiles that have been created on the server mid-game via an NBT load to clients.
+     */
     def sendDescPacket(world:World, tile:TileEntity) {
         val c = world.getChunkFromBlockCoords(tile.xCoord, tile.zCoord)
         val pkt = MultipartSPH.getDescPacket(c, Arrays.asList(tile).iterator)

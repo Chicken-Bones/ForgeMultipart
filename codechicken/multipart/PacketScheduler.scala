@@ -24,10 +24,12 @@ object PacketScheduler
             if(part.tile != null) {
                 val ipart = part.asInstanceOf[IScheduledPacketPart]
                 val w = part.getWriteStream
-                if(ipart.needsLong)
-                    w.writeLong(mask)
-                else
-                    w.writeInt(mask.toInt)
+                ipart.maskWidth match {
+                    case 1 => w.writeByte(mask.toInt)
+                    case 2 => w.writeShort(mask.toInt)
+                    case 4 => w.writeInt(mask.toInt)
+                    case 8 => w.writeLong(mask)
+                }
                 
                 ipart.writeScheduled(mask, w)
             }
@@ -47,9 +49,9 @@ trait IScheduledPacketPart
     def writeScheduled(mask:Long, packet:MCDataOutput)
     
     /**
-     * If this returns true, the mask will be sent as a long rather than an int. Use if you have more than 32 flags
+     * Returns the width (in bytes) of the data type required to hold all valid mask bits. Valid values are 1, 2, 4 and 8
      */
-    def needsLong():Boolean
+    def maskWidth():Int
     
     /**
      * Read data matching mask. Estiablishes a method for subclasses to override. This should be called from read
@@ -59,10 +61,13 @@ trait IScheduledPacketPart
 
 trait TScheduledPacketPart extends TMultiPart with IScheduledPacketPart
 {
-    def needsLong() = false
-    
     final override def read(packet:MCDataInput) {
-        val mask = if(needsLong) packet.readLong else packet.readInt
+        val mask = maskWidth match {
+            case 1 => packet.readUByte
+            case 2 => packet.readUShort
+            case 4 => packet.readInt
+            case 8 => packet.readLong
+        }
         readScheduled(mask, packet)
     }
     
