@@ -39,6 +39,7 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
         val maxDamage = sawTag.getTag("durability").getIntValue(1<<harvestLevel+8)
         if(maxDamage > 0)
             setMaxDamage(maxDamage)
+        setNoRepair()
     }
     
     override def hasContainerItem = true
