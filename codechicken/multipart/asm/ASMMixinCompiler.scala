@@ -21,6 +21,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import net.minecraft.launchwrapper.LaunchClassLoader
 import codechicken.multipart.handler.MultipartProxy
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
 
 object DebugPrinter
 {
@@ -91,9 +92,10 @@ object ASMMixinCompiler
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
                 .find(jName.startsWith(_)).isEmpty
         
-        val bytes = cl.getClassBytes(jName)
+        val obfName = FMLDeobfuscatingRemapper.INSTANCE.unmap(jName)
+        val bytes = cl.getClassBytes(obfName)
         if(bytes != null && useTransformers)
-            return m_runTransformers.invoke(cl, jName, jName, bytes).asInstanceOf[Array[Byte]]
+            return m_runTransformers.invoke(cl, jName, obfName, bytes).asInstanceOf[Array[Byte]]
             
         return bytes
     }
