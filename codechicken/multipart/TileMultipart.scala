@@ -230,7 +230,7 @@ class TileMultipart extends TileEntity
             return
         
         doesTick = tick
-        if(worldObj != null)
+        if(worldObj != null && worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this)
         {
             if(tick)
                 worldObj.addTileEntity(this)
