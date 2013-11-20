@@ -27,7 +27,6 @@ object MultipartSaveLoad
         }
     }
     
-    hookLoader()
     def hookLoader()
     {
         val field = classOf[TileEntity].getDeclaredField(
