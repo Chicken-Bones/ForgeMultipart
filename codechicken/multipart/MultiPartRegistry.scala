@@ -7,6 +7,8 @@ import codechicken.lib.data.MCDataInput
 import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 import scala.collection.mutable.ListBuffer
+import cpw.mods.fml.common.ModContainer
+import cpw.mods.fml.common.Loader
 
 /**
  * This class handles the registration and internal ID mapping of all multipart classes.
@@ -46,6 +48,7 @@ object MultiPartRegistry
     private var idMap:Array[(String, (Boolean)=>TMultiPart)] = _
     private val idWriter = new IDWriter
     private val converters:Array[Seq[IPartConverter]] = Array.fill(4096)(Seq())
+    private val containers:HashMap[String, ModContainer] = new HashMap()
     
     /**
      * The state of the registry. 0 = no parts, 1 = registering, 2 = registered
@@ -66,14 +69,19 @@ object MultiPartRegistry
     def registerParts(partFactory:(String, Boolean)=>TMultiPart, types:String*)
     {
         if(loaded)
-            throw new IllegalStateException("You must register your parts in the init methods.")
+            throw new IllegalStateException("Parts must be registered in the init methods.")
         state=1
+        
+        val container = Loader.instance.activeModContainer
+        if(container == null)
+            throw new IllegalStateException("Parts must be registered during the initialization phase of a mod container")
         
         types.foreach{s => 
             if(typeMap.contains(s))
                 throw new IllegalStateException("Part with id "+s+" is already registered.");
             
             typeMap.put(s, (c:Boolean) => partFactory(s, c));
+            containers.put(s, container)
         }
     }
     
@@ -172,4 +180,6 @@ object MultiPartRegistry
         }
         return null
     }
+    
+    def getModContainer(name:String) = containers(name)
 }
