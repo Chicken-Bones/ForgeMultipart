@@ -44,11 +44,14 @@ class MultipartProxy_serverImpl
         MultipartSaveLoad.hookLoader()
     }
     
-    def postInit()
+    def init()
     {
         block = new BlockMultipart(config.getTag("block.id").getIntValue(getFreeBlockID(1281)))
         block.setUnlocalizedName("ccmultipart")
-        
+    }
+    
+    def postInit()
+    {
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
         NetworkRegistry.instance.registerConnectionHandler(MultipartEventHandler)
