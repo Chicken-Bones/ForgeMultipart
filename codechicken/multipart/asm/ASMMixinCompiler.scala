@@ -92,7 +92,7 @@ object ASMMixinCompiler
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
                 .find(jName.startsWith(_)).isEmpty
         
-        val obfName = FMLDeobfuscatingRemapper.INSTANCE.unmap(jName)
+        val obfName = FMLDeobfuscatingRemapper.INSTANCE.unmap(name).replace('/', '.')
         val bytes = cl.getClassBytes(obfName)
         if(bytes != null && useTransformers)
             return m_runTransformers.invoke(cl, jName, obfName, bytes).asInstanceOf[Array[Byte]]
