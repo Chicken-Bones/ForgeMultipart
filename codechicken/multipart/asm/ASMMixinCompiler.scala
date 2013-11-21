@@ -107,7 +107,7 @@ object ASMMixinCompiler
         DebugPrinter.dump(name, bytes)
     }
     
-    def classNode(name:String) = traitByteMap.getOrElseUpdate(name.replace('.', '/'), getBytes(name)) match {
+    def classNode(name:String) = traitByteMap.getOrElseUpdate(name.replace('.', '/'), getBytes(name.replace('.', '/'))) match {
         case null => null
         case v => createClassNode(v, ClassReader.EXPAND_FRAMES)
     }
