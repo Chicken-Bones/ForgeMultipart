@@ -215,6 +215,7 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
         case _ => tile.partMap(6) match
         {
             case part:IHollowConnect => part.getHollowSize
+            case part:ISidedHollowConnect => part.getHollowSize(getSlot)
             case _ => 8
         }
     }
