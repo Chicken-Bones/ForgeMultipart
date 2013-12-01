@@ -30,7 +30,7 @@ trait Saw
     /**
      * The harvest level this saw is capable of cutting
      */
-    def getCuttingStrength:Int
+    def getCuttingStrength(item:ItemStack):Int
 }
 
 class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag("id").getIntValue(nextItemID)) with Saw
@@ -52,7 +52,7 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
     
     override def doesContainerItemLeaveCraftingGrid(stack:ItemStack) = false
     
-    def getCuttingStrength = harvestLevel
+    def getCuttingStrength(item:ItemStack) = harvestLevel
     
     override def registerIcons(register:IconRegister){}
 }
@@ -89,7 +89,7 @@ object ItemSawRenderer extends IItemRenderer
         CCRenderState.draw()
         GL11.glDisable(GL11.GL_CULL_FACE)
         CCRenderState.startDrawing(7)
-        blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength-1)*4/64D))
+        blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength(item)-1)*4/64D))
         CCRenderState.draw()
         GL11.glEnable(GL11.GL_CULL_FACE)
     }

@@ -134,19 +134,19 @@ object MicroRecipe extends IRecipe
         }
     }
     
-    def getSaw(icraft:InventoryCrafting):(Saw, Int, Int) = 
+    def getSaw(icraft:InventoryCrafting):(Saw, ItemStack, Int, Int) = 
     {
         for(r <- 0 until 3)
             for(c <- 0 until 3)
             {
                 val item = icraft.getStackInRowAndColumn(c, r)
                 if(item != null && item.getItem.isInstanceOf[Saw])
-                    return (item.getItem.asInstanceOf[Saw], r, c)
+                    return (item.getItem.asInstanceOf[Saw], item, r, c)
             }
         return null
     }
     
-    def canCut(saw:Saw, material:Int) = saw.getCuttingStrength >= MicroMaterialRegistry.getMaterial(material).getCutterStrength
+    def canCut(saw:Saw, sawItem:ItemStack, material:Int) = saw.getCuttingStrength(sawItem) >= MicroMaterialRegistry.getMaterial(material).getCutterStrength
     
     def getThinningResult(icraft:InventoryCrafting):ItemStack = 
     {
@@ -154,19 +154,19 @@ object MicroRecipe extends IRecipe
         if(saw == null)
             return null
             
-        val item = icraft.getStackInRowAndColumn(saw._3, saw._2+1)
+        val item = icraft.getStackInRowAndColumn(saw._4, saw._3+1)
         if(item == null)
             return null
         
         val size = microSize(item)
         val material = microMaterial(item)
         val mcrClass = microClass(item)
-        if(size == 1 || material < 0 || !canCut(saw._1, material))
+        if(size == 1 || material < 0 || !canCut(saw._1, saw._2, material))
             return null
         
         for(r <- 0 until 3)
             for(c <- 0 until 3)
-                if((c != saw._3 || r != saw._2 && r != saw._2+1) &&
+                if((c != saw._4 || r != saw._3 && r != saw._3+1) &&
                         icraft.getStackInRowAndColumn(c, r) != null)
                     return null
         
@@ -187,17 +187,17 @@ object MicroRecipe extends IRecipe
     {
         val saw = getSaw(icraft)
         if(saw == null) return null
-        val item = icraft.getStackInRowAndColumn(saw._3+1, saw._2)
+        val item = icraft.getStackInRowAndColumn(saw._4+1, saw._3)
         if(item == null || item.getItem != itemMicro) return null
         val mcrClass = microClass(item)
         val material = microMaterial(item)
-        if(!canCut(saw._1, material)) return null
+        if(!canCut(saw._1, saw._2, material)) return null
         val split = splitMap.get(mcrClass)
         if(split.isEmpty)return null
         
         for(r <- 0 until 3)
             for(c <- 0 until 3)
-                if((r != saw._2 || c != saw._3 && c != saw._3+1) &&
+                if((r != saw._3 || c != saw._4 && c != saw._4+1) &&
                         icraft.getStackInRowAndColumn(c, r) != null)
                     return null
         
