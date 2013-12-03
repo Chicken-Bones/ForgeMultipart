@@ -115,6 +115,7 @@ object MultiPartRegistry
         val k = packet.readInt()
         idWriter.setMax(k)
         idMap = new Array(k)
+        nameMap.clear()
         val missing = ListBuffer[String]()
         for(i <- 0 until k)
         {
@@ -122,8 +123,10 @@ object MultiPartRegistry
             val v = typeMap.get(s)
             if(v.isEmpty)
                 missing+=s
-            else
+            else {
                 idMap(i) = (s, v.get)
+                nameMap.put(s, i)
+            }
         }
         return missing
     }
