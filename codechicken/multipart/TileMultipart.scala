@@ -178,6 +178,14 @@ class TileMultipart extends TileEntity
         operate(p => if(!parts.contains(p)) parts.foreach(p.onPartChanged(_)))
     }
     
+    /**
+     * Notifies neighboring blocks that this tile has changed
+     */
+    def notifyTileChange()
+    {
+    	worldObj.func_96440_m(xCoord, yCoord, zCoord, 0)
+    }
+    
     def onNeighborBlockChange()
     {
         operate(_.onNeighborChanged())
@@ -292,6 +300,7 @@ class TileMultipart extends TileEntity
         part.onAdded()
         partAdded(part)
         notifyPartChange(part)
+        notifyTileChange()
         markDirty()
         markRender()
     }

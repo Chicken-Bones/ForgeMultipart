@@ -76,7 +76,7 @@ object MultipartGenerator
             {
                 ntile.partList(0).invalidateConvertedTile()
                 world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
-                world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
+                silentAddTile(world, pos, ntile)
                 PacketCustom.sendToChunk(new Packet53BlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)
                 ntile.partList(0).onConverted()
                 ntile.writeAddPart(ntile.partList(0))
@@ -88,7 +88,7 @@ object MultipartGenerator
             {
                 ntile = factory.generateTile(partTraits++tileTraits, world.isRemote)
                 tile.setValid(false)
-                world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
+                silentAddTile(world, pos, ntile)
                 ntile.from(tile)
             }
         }
@@ -96,10 +96,20 @@ object MultipartGenerator
         {
             world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
             ntile = factory.generateTile(partTraits, world.isRemote)
-            world.setBlockTileEntity(pos.x, pos.y, pos.z, ntile)
+            silentAddTile(world, pos, ntile)
         }
         ntile.addPart_impl(part)
         return ntile
+    }
+    
+    /**
+     * Adds a tile entity to the world without notifying neighbor blocks or adding it to the tick list
+     */
+    def silentAddTile(world:World, pos:BlockCoord, tile:TileEntity)
+    {
+    	val chunk = world.getChunkFromBlockCoords(pos.x, pos.z)
+    	if(chunk != null)
+    		chunk.setChunkBlockTileEntity(pos.x & 15, pos.y, pos.z & 15, tile);
     }
     
     /**
