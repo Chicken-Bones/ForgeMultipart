@@ -140,8 +140,9 @@ object MultipartGenerator
         {
             val ntile = factory.generateTile(testSet.toSeq, client)
             tile.setValid(false)
-            tile.worldObj.setBlockTileEntity(tile.xCoord, tile.yCoord, tile.zCoord, ntile)
+            silentAddTile(tile.worldObj, new BlockCoord(tile), ntile)
             ntile.from(tile)
+            ntile.notifyTileChange()
             return ntile
         }
         return tile
