@@ -29,6 +29,7 @@ import net.minecraft.block.Block
 import codechicken.lib.lang.LangUtil
 import net.minecraft.util.ResourceLocation
 import codechicken.lib.packet.PacketCustom
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
 import java.io.File
@@ -49,10 +50,14 @@ class MicroblockProxy_serverImpl
     {
         itemMicro = new ItemMicroPart(config.getTag("itemMicro.id").getIntValue(nextItemID))
         itemMicro.setUnlocalizedName("microblock")
+        GameRegistry.registerItem(itemMicro, "microblock")
         
         sawStone = createSaw(config, "sawStone", 1)
+        GameRegistry.registerItem(sawStone, "sawStone")
         sawIron = createSaw(config, "sawIron", 2)
+        GameRegistry.registerItem(sawIron, "sawIron")
         sawDiamond = createSaw(config, "sawDiamond", 3)
+        GameRegistry.registerItem(sawDiamond, "sawDiamond")
         stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
             .setUnlocalizedName("microblock:stoneRod").setTextureName("microblock:stoneRod")
         
