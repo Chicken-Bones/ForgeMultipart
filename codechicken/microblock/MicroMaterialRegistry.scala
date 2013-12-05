@@ -172,6 +172,7 @@ object MicroMaterialRegistry
         val k = packet.readInt()
         idWriter.setMax(k)
         idMap = new Array(k)
+        nameMap.clear()
         val missing = ListBuffer[String]()
         for(i <- 0 until k)
         {
@@ -179,8 +180,10 @@ object MicroMaterialRegistry
             val v = typeMap.get(s)
             if(v.isEmpty)
                 missing+=s
-            else
+            else {
                 idMap(i) = (s, v.get)
+                nameMap.put(s, i)
+            }
         }
         return missing
     }
@@ -194,15 +197,11 @@ object MicroMaterialRegistry
     
     def materialName(id:Int) = idMap(id)._1
     
-    def materialID(name:String):Int = 
-    {
-        val v = nameMap.get(name)
-        if(v.isDefined)
-            return v.get
-        else
-        {
+    def materialID(name:String) = nameMap.get(name) match {
+        case Some(v) => v
+        case None => {
             System.err.println("Missing mapping for part with ID: "+name)
-            return 0
+            0
         }
     }
     
