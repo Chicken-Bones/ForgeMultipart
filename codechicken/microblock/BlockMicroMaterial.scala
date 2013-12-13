@@ -118,6 +118,8 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
  */
 object BlockMicroMaterial
 {
+    def materialKey(block:Block, meta:Int) = block.getUnlocalizedName+(if(meta > 0) "_"+meta else "")
+    
     def createAndRegister(block:Block)
     {
         createAndRegister(block, 0)
@@ -125,8 +127,7 @@ object BlockMicroMaterial
     
     def createAndRegister(block:Block, meta:Int)
     {
-        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), 
-                block.getUnlocalizedName+(if(meta > 0) "_"+meta else ""))
+        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), materialKey(block, meta))
     }
     
     def createAndRegister(block:Block, meta:Seq[Int])

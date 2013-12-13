@@ -11,6 +11,7 @@ import java.lang.Exception
 import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage
 import net.minecraft.item.ItemStack
 import BlockMicroMaterial.createAndRegister
+import BlockMicroMaterial.materialKey
 
 object ConfigContent
 {
@@ -132,8 +133,20 @@ object ConfigContent
                 val value = nameMap.get(name)
                 if(value.isDefined)
                 {
-                    createAndRegister(block, value.get)
-                    nameMap.remove(name)
+                	nameMap.remove(name)
+                	value.get.foreach{m => 
+	                    try {
+	                    	createAndRegister(block, m)
+	                    }
+	                    catch {
+	                    	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
+	                    	        materialKey(block, m)+"\n\t"+e.getMessage)
+	            	        case e:Exception => {
+	            	            System.err.println("Unable to register micro material: "+materialKey(block, m))
+	        	                e.printStackTrace()
+	            	        }
+	                    }
+                	}
                 }
             }
         }
@@ -156,8 +169,15 @@ object ConfigContent
                     System.err.println("Invalid blockID: "+stack.itemID)
                 else if(stack.getItemDamage < 0 || stack.getItemDamage >= 16)
                     System.err.println("Invalid metadata: "+stack.getItemDamage)
-                else
-                    createAndRegister(Block.blocksList(stack.itemID), stack.getItemDamage)
+                else {
+                    try {
+	                    createAndRegister(Block.blocksList(stack.itemID), stack.getItemDamage)
+                    }
+                    catch {
+                    	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
+                    	        materialKey(Block.blocksList(stack.itemID), stack.getItemDamage)+"\n\t"+e.getMessage)
+                    }
+                }
             }
         }
     }

@@ -120,7 +120,7 @@ object ItemMicroPart
     {
         checkTagCompound(stack)
         if(!stack.getTagCompound().hasKey("mat"))
-            return -1;
+            return 0;
         
         return MicroMaterialRegistry.materialID(stack.getTagCompound().getString("mat"))
     }
