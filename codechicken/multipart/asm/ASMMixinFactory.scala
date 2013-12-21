@@ -4,21 +4,12 @@ import scala.collection.Seq
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.TileMultipartClient
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 import org.objectweb.asm.Opcodes._
-import org.objectweb.asm.ClassWriter
 import codechicken.lib.asm.CC_ClassWriter
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Label
-import cpw.mods.fml.relauncher.ReflectionHelper
-import org.objectweb.asm.commons.RemappingClassAdapter
-import org.objectweb.asm.commons.SimpleRemapper
-import scala.collection.mutable.ArrayBuffer
 import org.objectweb.asm.tree._
-import org.objectweb.asm.Type
-import Type._
-import scala.collection.immutable.Range
 import codechicken.lib.asm.ASMHelper._
 import codechicken.lib.asm.ObfMapping
 import codechicken.multipart.MultipartGenerator
@@ -291,12 +282,13 @@ object ASMMixinFactory extends IMultipartFactory
             mv.visitEnd()
         }
         
-        def methods(cnode:ClassNode):Seq[MethodNode] = 
+        def methods(cnode:ClassNode):Map[String, MethodNode] =
         {
-            val m = cnode.methods
+            val m = cnode.methods.map(m => (m.name+m.desc, m)).toMap
             if(cnode.interfaces != null)
-                m++=cnode.interfaces.flatMap(i => methods(classNode(i)))
-            m
+                m++cnode.interfaces.flatMap(i => methods(classNode(i)))
+            else
+                m
         }
         
         def generatePassThroughMethod(m:MethodNode)
@@ -307,7 +299,7 @@ object ASMMixinFactory extends IMultipartFactory
             finishBridgeCall(mv, m.desc, INVOKEINTERFACE, iname, m.name, m.desc)
         }
         
-        methods(inode).foreach(generatePassThroughMethod(_))
+        methods(inode).values.foreach(generatePassThroughMethod(_))
         
         cw.visitEnd()
         internalDefine(tname, cw.toByteArray)

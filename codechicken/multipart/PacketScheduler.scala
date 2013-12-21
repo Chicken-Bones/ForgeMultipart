@@ -16,7 +16,12 @@ object PacketScheduler
     /**
      * Add bits to the current update mask for part. (binary OR)
      */
-    def schedulePacket(part:TMultiPart, mask:Long) = map.put(part, map.getOrElse(part, 0L)|mask)
+    def schedulePacket(part:TMultiPart, mask:Long) = {//TODO remove = in 1.7
+        if(part.world.isRemote)
+            throw new IllegalArgumentException("Cannot use PacketScheduler on a client world")
+
+        map.put(part, map.getOrElse(part, 0L)|mask)
+    }
 
     private[multipart] def sendScheduled() {
         map.foreach{ e =>

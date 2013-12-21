@@ -462,14 +462,10 @@ class TileMultipart extends TileEntity
     /**
      * Drop and remove part at index (internal mining callback)
      */
-    def harvestPart(index:Int, hit:ExtendedMOP, player:EntityPlayer):Boolean = 
-        partList(index) match {
-            case null => false
-            case part => {
-                part.harvest(hit, player)
-                partList.isEmpty
-            }
-        }
+    def harvestPart(index:Int, hit:ExtendedMOP, player:EntityPlayer) = partList(index) match {
+        case null =>
+        case part => part.harvest(hit, player)
+    }
     
     /**
      * Utility function for dropping items around the center of this space

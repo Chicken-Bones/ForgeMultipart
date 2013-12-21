@@ -131,7 +131,8 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
             return true
         }
         
-        return tile.harvestPart(index, mop, player)
+        tile.harvestPart(index, mop, player)
+        return world.getBlockTileEntity(x, y, z) == null
     }
     
     def dropAndDestroy(world:World, x:Int, y:Int, z:Int)

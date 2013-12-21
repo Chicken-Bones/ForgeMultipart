@@ -280,7 +280,7 @@ abstract class TMultiPart
      * This should not modify the part client side. If the client call returns false, the server will not call this function.
      * @param hit An instance of ExtendedMOP from collisionRayTrace
      */
-    def activate(player:EntityPlayer, hit:MovingObjectPosition, item:ItemStack):Boolean = false
+    def activate(player:EntityPlayer, hit:MovingObjectPosition, item:ItemStack) = false
     /**
      * Called on block left click. item is the player's held item.
      * @param hit An instance of ExtendedMOP from collisionRayTrace

@@ -26,14 +26,14 @@ import codechicken.lib.lighting.LazyLightMatrix
 @SideOnly(Side.CLIENT)
 object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRenderingHandler
 {
-    TileMultipart.renderID = RenderingRegistry.getNextAvailableRenderId()
+    TileMultipart.renderID = RenderingRegistry.getNextAvailableRenderId
     private val olm = new LazyLightMatrix
     
     var pass:Int = 0
     
     override def renderTileEntityAt(t:TileEntity, x:Double, y:Double, z:Double, f:Float)
     {
-        var tmpart = t.asInstanceOf[TileMultipartClient]
+        val tmpart = t.asInstanceOf[TileMultipartClient]
         if(tmpart.partList.isEmpty)
             return
 
@@ -49,17 +49,17 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
     
     override def renderWorldBlock(world:IBlockAccess, x:Int, y:Int, z:Int, block:Block, modelId:Int, renderer:RenderBlocks):Boolean =
     {
-        var t = world.getBlockTileEntity(x, y, z)
+        val t = world.getBlockTileEntity(x, y, z)
         if(!t.isInstanceOf[TileMultipartClient])
             return false
-        
-        var tmpart = t.asInstanceOf[TileMultipartClient]
+
+        val tmpart = t.asInstanceOf[TileMultipartClient]
         if(tmpart.partList.isEmpty)
             return false
         
-        if(renderer.hasOverrideBlockTexture())
+        if(renderer.hasOverrideBlockTexture)
         {
-            val hit = Minecraft.getMinecraft().objectMouseOver
+            val hit = Minecraft.getMinecraft.objectMouseOver
             if(hit != null && hit.blockX == x && hit.blockY == y && hit.blockZ == z && ExtendedMOP.getData(hit).isInstanceOf[(_, _)])
             {
                 val hitInfo:(Int, _) = ExtendedMOP.getData(hit)
@@ -77,10 +77,7 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
         return true
     }
     
-    override def renderInventoryBlock(block:Block, meta:Int, modelId:Int, renderer:RenderBlocks)
-    {
-        //TODO: pass to the super renderer.
-    }
+    override def renderInventoryBlock(block:Block, meta:Int, modelId:Int, renderer:RenderBlocks) {}
     
     override def shouldRender3DInInventory = false
 }

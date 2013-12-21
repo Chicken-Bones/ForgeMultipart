@@ -144,13 +144,13 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
     
     private boolean burnedOut(boolean add)
     {
-        long time = world().getWorldTime();
+        long time = world().getTotalWorldTime();
         while(burnout != null && burnout.timeout <= time)
             burnout = burnout.next;
         
         if(add)
         {
-            BurnoutEntry e = new BurnoutEntry(world().getWorldTime()+60);
+            BurnoutEntry e = new BurnoutEntry(world().getTotalWorldTime()+60);
             if(burnout == null)
                 burnout = e;
             else

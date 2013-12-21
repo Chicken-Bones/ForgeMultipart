@@ -107,7 +107,7 @@ object TickScheduler extends WorldExtensionInstantiator
             if(tag.hasKey("schedTime"))
                 schedTime = tag.getLong("schedTime")
             else
-                schedTime = world.getWorldTime
+                schedTime = world.getTotalWorldTime
         }
         
         def saveTag():NBTTagCompound = 
@@ -274,6 +274,8 @@ object TickScheduler extends WorldExtensionInstantiator
     
     /**
      * Returns the current scheduler time. Like the world time, but unaffected by the time set command and other things changing time of day.
+     * Deprecated in favor of world.getTotalWorldTime
      */
+    @Deprecated
     def getSchedulerTime(world:World):Long = getExtension(world).asInstanceOf[WorldTickScheduler].schedTime
 }
