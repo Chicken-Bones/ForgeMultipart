@@ -3,7 +3,6 @@ package codechicken.multipart.asm
 import scala.collection.mutable.{Map => MMap, ListBuffer => MList, Set => MSet}
 import java.util.{Set => JSet}
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 import org.objectweb.asm.tree._
 import org.objectweb.asm.Opcodes._
 import org.objectweb.asm.ClassReader
@@ -78,7 +77,13 @@ object ASMMixinCompiler
     {
         internalDefine(name, bytes)
         DebugPrinter.defined(name, bytes)
-        m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
+
+        try {
+            m_defineClass.invoke(cl, bytes, 0:Integer, bytes.length:Integer).asInstanceOf[Class[_]]
+        } catch {
+            case link:LinkageError if link.getMessage.contains("duplicate") =>
+                throw new IllegalStateException("class with name: "+name+" already loaded. Do not reference your mixin classes before registering them with MultipartGenerator", link)
+        }
     }
     
     getBytes("cpw/mods/fml/common/asm/FMLSanityChecker")
@@ -236,7 +241,7 @@ object ASMMixinCompiler
         
         def exportedMethods(o:ClassInfoSource):Map[String, MethodNodeInfo] =
         {
-            val eMethods = o.methods.filter(!_.isPrivate)//defined accessable methods
+            val eMethods = o.methods.filter(!_.isPrivate)//defined accessible methods
                     .map(m => (m.name+m.desc, MethodNodeInfo(o.name, m))).toMap
             
             eMethods ++ (o.superClass++o.interfaces).flatMap(_.publicmethods)
@@ -344,7 +349,7 @@ object ASMMixinCompiler
     def staticDesc(owner:String, desc:String) = 
     {
         val descT = getMethodType(desc)
-        getMethodDescriptor(descT.getReturnType, (getType("L"+owner+";")+:descT.getArgumentTypes):_*)
+        getMethodDescriptor(descT.getReturnType, getType("L"+owner+";")+:descT.getArgumentTypes : _*)
     }
     
     def getSuper(minsn:MethodInsnNode, stack:StackAnalyser):Option[String] =
@@ -383,7 +388,7 @@ object ASMMixinCompiler
         if((cnode.access & ACC_ABSTRACT) != 0)
             throw new IllegalArgumentException("Cannot register abstract class "+cnode.name+" as a multipart trait")
         if(!cnode.innerClasses.isEmpty)
-            throw new IllegalArgumentException("Inner classes are not permitted for "+cnode.name+" as a multipart trait")
+            throw new IllegalArgumentException("Inner classes are not permitted for "+cnode.name+" as a multipart trait. Use scala")
         
         val inode = new ClassNode()//impl node
         inode.visit(V1_6, ACC_ABSTRACT|ACC_PUBLIC, cnode.name+"$class", null, "java/lang/Object", null)
@@ -476,7 +481,7 @@ object ASMMixinCompiler
                 if(!mnode.desc.equals("()V"))
                     throw new IllegalArgumentException("Constructor arguments are not permitted "+cnode.name+" as a multipart trait")
                 
-                var mv = staticClone(mnode, "$init$", ACC_PUBLIC)
+                val mv = staticClone(mnode, "$init$", ACC_PUBLIC)
                 def removeSuperConstructor()
                 {
                     def throwI = throw new IllegalArgumentException("Invalid constructor insn sequence "+cnode.name)
@@ -486,7 +491,7 @@ object ASMMixinCompiler
                     var state = 0
                     while(insn != null && state < 2)
                     {
-                        var next = insn.getNext
+                        val next = insn.getNext
                         insn match {
                             case linsn:LabelNode =>
                             case linsn:LineNumberNode =>
@@ -537,12 +542,12 @@ object ASMMixinCompiler
             
             //convert that method!
             val access = if((mnode.access & ACC_PRIVATE) == 0) ACC_PUBLIC else ACC_PRIVATE
-            var mv = staticClone(mnode, mnode.name, access)
+            val mv = staticClone(mnode, mnode.name, access)
             staticTransform(mv, mnode)
         }
         
         cnode.methods.foreach(convertMethod)
-        
+
         define(inode.name, createBytes(inode, 0))
         define(tnode.name, createBytes(tnode, 0))
         
