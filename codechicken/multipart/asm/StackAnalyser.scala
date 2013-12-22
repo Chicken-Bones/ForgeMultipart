@@ -13,20 +13,29 @@ object StackAnalyser
     def width(s:String):Int = width(Type.getType(s))
     def width(it:Iterable[Type]):Int = it.foldLeft(0)(_+width(_))
     
-    trait StackEntry
+    abstract class StackEntry(implicit val insn:AbstractInsnNode)
     {
         def getType:Type
     }
-    
-    case class This(owner:Type) extends StackEntry
+    abstract class LocalEntry
+    {
+        def getType:Type
+    }
+
+    case class This(owner:Type) extends LocalEntry
     {
         def getType = owner
     }
-    case class Param(i:Int, t:Type) extends StackEntry
+    case class Param(i:Int, t:Type) extends LocalEntry
     {
         def getType = t
     }
-    case class Const(c:Any) extends StackEntry
+    case class Store(e:StackEntry)(implicit val insn:AbstractInsnNode) extends LocalEntry
+    {
+        def getType = e.getType
+    }
+
+    case class Const(c:Any)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = c match {
             case o:Byte => BYTE_TYPE
@@ -42,55 +51,59 @@ object StackAnalyser
             case _ => throw new IllegalArgumentException("Unknown const "+c)
         }
     }
-    case class UnaryOp(op:Int, e:StackEntry) extends StackEntry
+    case class Load(e:LocalEntry)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = e.getType
     }
-    case class BinaryOp(op:Int, e2:StackEntry, e1:StackEntry) extends StackEntry
+    case class UnaryOp(op:Int, e:StackEntry)(implicit insn:AbstractInsnNode) extends StackEntry
+    {
+        def getType = e.getType
+    }
+    case class BinaryOp(op:Int, e2:StackEntry, e1:StackEntry)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = e1.getType
     }
-    case class PrimitiveCast(e:StackEntry, t:Type) extends StackEntry
+    case class PrimitiveCast(e:StackEntry, t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
-    case class ReturnAddress() extends StackEntry
+    case class ReturnAddress()(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = INT_TYPE
     }
-    case class GetField(obj:StackEntry, field:FieldInsnNode) extends StackEntry
+    case class GetField(obj:StackEntry, field:FieldInsnNode)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = Type.getType(field.desc)
     }
-    case class Invoke(op:Int, params:Array[StackEntry], obj:StackEntry, method:MethodInsnNode) extends StackEntry
+    case class Invoke(op:Int, params:Array[StackEntry], obj:StackEntry, method:MethodInsnNode)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = Type.getMethodType(method.desc).getReturnType
     }
-    case class New(t:Type) extends StackEntry
+    case class New(t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
-    case class NewArray(len:StackEntry, t:Type) extends StackEntry
+    case class NewArray(len:StackEntry, t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
-    case class ArrayLength(array:StackEntry) extends StackEntry
+    case class ArrayLength(array:StackEntry)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = INT_TYPE
     }
-    case class ArrayLoad(index:StackEntry, e:StackEntry) extends StackEntry
+    case class ArrayLoad(index:StackEntry, e:StackEntry)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = e.getType.getElementType
     }
-    case class Cast(obj:StackEntry, t:Type) extends StackEntry
+    case class Cast(obj:StackEntry, t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
-    case class NewMultiArray(sizes:Array[StackEntry], t:Type) extends StackEntry
+    case class NewMultiArray(sizes:Array[StackEntry], t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
-    case class CaughtException(t:Type) extends StackEntry
+    case class CaughtException(t:Type)(implicit insn:AbstractInsnNode) extends StackEntry
     {
         def getType = t
     }
@@ -101,7 +114,7 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
     import StackAnalyser._
     
     val stack = MList[StackEntry]()
-    val locals = MList[StackEntry]()
+    val locals = MList[LocalEntry]()
     private val catchHandlers = MMap[LabelNode, TryCatchBlockNode]()
     
     {
@@ -115,9 +128,9 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
         m.tryCatchBlocks.foreach(b => catchHandlers.put(b.handler, b))
     }
     
-    def pushL(entry:StackEntry) = setL(locals.size, entry)
-        
-    def setL(i:Int, entry:StackEntry) = 
+    def pushL(entry:LocalEntry) = setL(locals.size, entry)
+
+    def setL(i:Int, entry:LocalEntry) =
     {
         while(i+entry.getType.getSize > locals.size) locals += null
         locals(i) = entry
@@ -162,6 +175,7 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
     
     def visitInsn(ainsn:AbstractInsnNode)
     {
+        implicit val thisInsn = ainsn//passes to any StackEntry we create
         ainsn match {
             case insn:InsnNode => ainsn.getOpcode match
             {
@@ -235,13 +249,13 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
             case vinsn:VarInsnNode => ainsn.getOpcode match
             {
                 case i if i >= ILOAD && i <= ALOAD =>
-                    push(locals(vinsn.`var`))
+                    push(Load(locals(vinsn.`var`)))
                 case i if i >= ISTORE && i <= ASTORE =>
-                    setL(vinsn.`var`, pop())
+                    setL(vinsn.`var`, Store(pop()))
             }
             case incinsn:IincInsnNode => ainsn.getOpcode match
             {
-                case IINC => setL(incinsn.`var`, BinaryOp(IINC, Const(incinsn.incr), locals(incinsn.`var`)))
+                case IINC => setL(incinsn.`var`, Store(BinaryOp(IINC, Const(incinsn.incr), Load(locals(incinsn.`var`)))))
             }
             case jinsn:JumpInsnNode => ainsn.getOpcode match
             {

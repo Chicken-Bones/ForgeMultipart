@@ -362,7 +362,7 @@ object ASMMixinCompiler
         if(minsn.owner.equals(oname)) return None//private this
         
         stack.peek(Type.getType(minsn.desc).getArgumentTypes.length) match {
-            case This(o) =>
+            case Load(This(o)) =>
             case _ => return None//have to be invoked on this
         }
         
@@ -442,12 +442,6 @@ object ASMMixinCompiler
                 insn = newinsn
             }
 
-            def insertBefore(newinsn:AbstractInsnNode)
-            {
-                insnList.insertBefore(insn, newinsn)
-                stack.visitInsn(newinsn)
-            }
-            
             //transform
             while(insn != null)
             {
@@ -470,7 +464,9 @@ object ASMMixinCompiler
                                 if(methodSigs.contains(minsn.name+minsn.desc))//call the interface method
                                     minsn.setOpcode(INVOKEINTERFACE)
                                 else {//cast to parent class and call
-                                    insertBefore(new TypeInsnNode(CHECKCAST, cnode.superName))
+                                    val mType = Type.getMethodType(minsn.desc)
+                                    val instanceEntry = stack.peek(width(mType.getArgumentTypes))
+                                    insnList.insert(instanceEntry.insn, new TypeInsnNode(CHECKCAST, cnode.superName))
                                     minsn.owner = cnode.superName
                                 }
                             }
