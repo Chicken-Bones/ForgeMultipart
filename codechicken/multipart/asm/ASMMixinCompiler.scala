@@ -441,6 +441,12 @@ object ASMMixinCompiler
                 insnList.remove(insn)
                 insn = newinsn
             }
+
+            def insertBefore(newinsn:AbstractInsnNode)
+            {
+                insnList.insertBefore(insn, newinsn)
+                stack.visitInsn(newinsn)
+            }
             
             //transform
             while(insn != null)
@@ -463,8 +469,10 @@ object ASMMixinCompiler
                             if(minsn.owner.equals(cnode.name)) {
                                 if(methodSigs.contains(minsn.name+minsn.desc))//call the interface method
                                     minsn.setOpcode(INVOKEINTERFACE)
-                                else//cast to parent class and call
+                                else {//cast to parent class and call
+                                    insertBefore(new TypeInsnNode(CHECKCAST, cnode.superName))
                                     minsn.owner = cnode.superName
+                                }
                             }
                         case _ =>
                     }
