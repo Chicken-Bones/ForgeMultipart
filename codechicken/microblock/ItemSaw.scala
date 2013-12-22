@@ -25,12 +25,16 @@ import net.minecraft.client.renderer.texture.IconRegister
 /**
  * Interface for items that are 'saws'
  */
-trait Saw
+trait Saw extends Item
 {
+    /**
+     * The maximum harvest level that some version of this saw is capable of cutting
+     */
+    def getMaxCuttingStrength:Int = getCuttingStrength(new ItemStack(this))
     /**
      * The harvest level this saw is capable of cutting
      */
-    def getCuttingStrength:Int
+    def getCuttingStrength(item:ItemStack):Int
 }
 
 class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag("id").getIntValue(nextItemID)) with Saw
@@ -52,7 +56,7 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
     
     override def doesContainerItemLeaveCraftingGrid(stack:ItemStack) = false
     
-    def getCuttingStrength = harvestLevel
+    def getCuttingStrength(item:ItemStack) = harvestLevel
     
     override def registerIcons(register:IconRegister){}
 }
@@ -70,7 +74,7 @@ object ItemSawRenderer extends IItemRenderer
     
     def renderItem(renderType:ItemRenderType, item:ItemStack, data:Object*)
     {
-        var t = renderType match {
+        val t = renderType match {
             case INVENTORY => new TransformationList(new Scale(1.8), new Translation(0, 0, -0.6), new Rotation(-pi/4, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0))
             case ENTITY => new TransformationList(new Scale(1), new Translation(0, 0, -0.25), new Rotation(-pi/4, 1, 0, 0))
             case EQUIPPED_FIRST_PERSON => new TransformationList(new Scale(1.5), new Rotation(-pi/3, 1, 0, 0), new Rotation(pi*3/4, 0, 1, 0), new Translation(0.5, 0.5, 0.5))
@@ -89,7 +93,7 @@ object ItemSawRenderer extends IItemRenderer
         CCRenderState.draw()
         GL11.glDisable(GL11.GL_CULL_FACE)
         CCRenderState.startDrawing(7)
-        blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength-1)*4/64D))
+        blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength(item)-1)*4/64D))
         CCRenderState.draw()
         GL11.glEnable(GL11.GL_CULL_FACE)
     }

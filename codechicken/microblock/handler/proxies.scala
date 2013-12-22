@@ -4,25 +4,19 @@ import net.minecraftforge.common.MinecraftForge
 import codechicken.multipart.handler.MultipartProxy._
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.MultiPartRegistry
-import codechicken.microblock.FaceMicroblock
-import codechicken.microblock.ItemMicroPart
+import codechicken.microblock._
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import codechicken.microblock.MicroblockClass
 import net.minecraftforge.client.MinecraftForgeClient
-import codechicken.microblock.ItemMicroPartRenderer
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraft.item.crafting.CraftingManager
-import codechicken.microblock.MicroRecipe
 import net.minecraft.item.Item
-import codechicken.microblock.ItemSaw
 import net.minecraft.item.crafting.IRecipe
 import java.util.{List => JList}
 import cpw.mods.fml.common.registry.LanguageRegistry
 import codechicken.lib.config.ConfigTag
 import codechicken.lib.config.ConfigFile
 import net.minecraftforge.oredict.OreDictionary
-import codechicken.microblock.ItemSawRenderer
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
 import net.minecraft.block.Block
@@ -91,6 +85,7 @@ class MicroblockProxy_serverImpl
     
     def postInit()
     {
+        MicroMaterialRegistry.calcMaxCuttingStrength()
     }
 }
 

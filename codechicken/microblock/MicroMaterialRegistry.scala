@@ -1,6 +1,5 @@
 package codechicken.microblock
 
-import codechicken.lib.vec.Cuboid6
 import codechicken.multipart.IDWriter
 import codechicken.lib.lighting.LightMatrix
 import codechicken.lib.packet.PacketCustom
@@ -10,12 +9,11 @@ import codechicken.lib.data.MCDataInput
 import codechicken.multipart.MultiPartRegistry
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.microblock.handler.MicroblockProxy
 import codechicken.lib.vec.Vector3
 import net.minecraft.util.Icon
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.lib.render.Vertex5
-import net.minecraft.item.ItemStack
+import net.minecraft.item.{Item, ItemStack}
 import scala.collection.mutable.ListBuffer
 import net.minecraft.block.StepSound
 import net.minecraft.util.MovingObjectPosition
@@ -52,17 +50,17 @@ object MicroMaterialRegistry
          * Get the render pass for which this material renders in.
          */
         @SideOnly(Side.CLIENT)
-        def getRenderPass():Int
+        def getRenderPass:Int
         
         /**
          * Return true if this material is not opaque (glass, ice).
          */
-        def isTransparent():Boolean
+        def isTransparent:Boolean
         
         /**
          * Return the light level emitted by this material (glowstone)
          */
-        def getLightValue():Int
+        def getLightValue:Int
         
         /**
          * Return the strength of this material
@@ -72,27 +70,27 @@ object MicroMaterialRegistry
         /**
          * Return the localised name of this material (normally the block name)
          */
-        def getLocalizedName():String
+        def getLocalizedName:String
         
         /**
          * Get the item that this material is cut from (full block -> slabs)
          */
-        def getItem():ItemStack
+        def getItem:ItemStack
         
         /**
          * Get the strength of saw requried to cut this material
          */
-        def getCutterStrength():Int
+        def getCutterStrength:Int
         
         /**
          * Get the breaking/walking sound
          */
-        def getSound():StepSound
+        def getSound:StepSound
         
         /**
          * Return true if this material is solid and opaque (can run wires on etc)
          */
-        def isSolid() = !isTransparent
+        def isSolid = !isTransparent
     }
     
     /**
@@ -106,12 +104,13 @@ object MicroMaterialRegistry
         def renderHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, mcrClass:MicroblockClass, size:Int, material:Int):Boolean
     }
     
-    private val typeMap:HashMap[String, IMicroMaterial] = new HashMap
-    private val nameMap:HashMap[String, Int] = new HashMap
+    private val typeMap = HashMap[String, IMicroMaterial]()
+    private val nameMap = HashMap[String, Int]()
     private var idMap:Array[(String, IMicroMaterial)] = _
     private val idWriter = new IDWriter
     
     private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
+    private var maxCuttingStrength:Int = _
     
     /**
      * Register a micro material with unique identifier name
@@ -156,10 +155,20 @@ object MicroMaterialRegistry
     {
         idMap = typeMap.toList.sortBy(_._1).toArray
         idWriter.setMax(idMap.length)
-        nameMap.clear
+        nameMap.clear()
         for(i <- 0 until idMap.length)
             nameMap.put(idMap(i)._1, i)
     }
+
+    private [microblock] def calcMaxCuttingStrength()
+    {
+        maxCuttingStrength = Item.itemsList.flatMap {
+            case saw: Saw => Some(saw.getMaxCuttingStrength)
+            case _ => None
+        }.max
+    }
+
+    def getMaxCuttingStrength = maxCuttingStrength
     
     def writeIDMap(packet:PacketCustom)
     {
@@ -187,22 +196,23 @@ object MicroMaterialRegistry
         }
         return missing
     }
-    
+
+    //TODO: change to material
     def writePartID(data:MCDataOutput, id:Int)
     {
         idWriter.write(data, id)
     }
-    
+
+    //TODO: change to material
     def readPartID(data:MCDataInput) = idWriter.read(data)
     
     def materialName(id:Int) = idMap(id)._1
     
     def materialID(name:String) = nameMap.get(name) match {
         case Some(v) => v
-        case None => {
+        case None =>
             System.err.println("Missing mapping for part with ID: "+name)
             0
-        }
     }
     
     def getMaterial(name:String) = typeMap.getOrElse(name, null)
@@ -213,8 +223,8 @@ object MicroMaterialRegistry
     
     def renderHighlight(world:World, player:EntityPlayer, hit:MovingObjectPosition, mcrClass:MicroblockClass, size:Int, material:Int):Boolean =
     {
-        val overriden = highlightRenderers.find(_.renderHighlight(world, player, hit, mcrClass, size, material))
-        if(overriden.isDefined)
+        val overridden = highlightRenderers.find(_.renderHighlight(world, player, hit, mcrClass, size, material))
+        if(overridden.isDefined)
             return true
         
         return mcrClass.renderHighlight(world, player, hit, size, material)
