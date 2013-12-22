@@ -395,9 +395,9 @@ object ASMMixinCompiler
         inode.sourceFile = cnode.sourceFile
         
         val fields = cnode.fields.map(f => (f.name, FieldMixin(f.name, f.desc, f.access))).toMap
-        val superInfo = getNodeInfo(cnode.superName)
         val supers = MMap[String, String]()//nameDesc to super owner
         val methods = MList[MethodNode]()
+        val methodSigs = cnode.methods.map(m => m.name+m.desc).toSet
         
         val tnode = new ClassNode()//trait node (interface)
         tnode.visit(V1_6, ACC_INTERFACE|ACC_ABSTRACT|ACC_PUBLIC, cnode.name, null, "java/lang/Object", Array(cnode.interfaces:_*))
@@ -460,8 +460,12 @@ object ASMMixinCompiler
                             if(getSuper(minsn, stack).isDefined)
                                 replace(superInsn(minsn))
                         case INVOKEVIRTUAL =>
-                            if(minsn.owner.equals(cnode.name))
-                                minsn.setOpcode(INVOKEINTERFACE)
+                            if(minsn.owner.equals(cnode.name)) {
+                                if(methodSigs.contains(minsn.name+minsn.desc))//call the interface method
+                                    minsn.setOpcode(INVOKEINTERFACE)
+                                else//cast to parent class and call
+                                    minsn.owner = cnode.superName
+                            }
                         case _ =>
                     }
                     case _ =>

@@ -120,20 +120,22 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
     def setL(i:Int, entry:StackEntry) = 
     {
         while(i+entry.getType.getSize > locals.size) locals += null
-        locals(i) = (entry)
+        locals(i) = entry
         if(entry.getType.getSize == 2)
             locals(i+1) = entry
     }
     
     def push(entry:StackEntry) = insert(0, entry)
-    
+
+    def _pop(i:Int = 0) = stack.remove(stack.size-i-1)
+
     def pop(i:Int = 0) = 
     {
-        val e = stack.remove(stack.size-i-1)
+        val e = _pop(i)
         if(e.getType.getSize == 2)
         {
             if(peek(i) != e) throw new IllegalStateException("Wide stack entry elems don't match ("+e+","+peek(i))
-            stack.remove(stack.size-i-1)
+            _pop(i)
         }
         e
     }
@@ -179,13 +181,13 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case DCONST_0 => push(Const(0D))
                 case DCONST_1 => push(Const(1D))
                 
-                case i if(i >= IALOAD && i <= SALOAD) =>
+                case i if i >= IALOAD && i <= SALOAD =>
                     push(ArrayLoad(pop(), pop()))
-                case i if(i >= IASTORE && i <= SASTORE) =>
+                case i if i >= IASTORE && i <= SASTORE =>
                     pop(); pop(); pop()
                 
-                case POP => pop()
-                case POP2 => pop(); pop()
+                case POP => _pop()
+                case POP2 => _pop(); _pop()
                 case DUP => push(peek())
                 case DUP_X1 => insert(2, peek())
                 case DUP_X2 => insert(3, peek())
@@ -194,11 +196,11 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case DUP2_X2 => insert(4, peek(1)); insert(4, peek())
                 case SWAP => push(pop(1))
                 
-                case i if(i >= IADD && i <= DREM) => 
+                case i if i >= IADD && i <= DREM =>
                     push(BinaryOp(i, pop(), pop()))
-                case i if(i >= INEG && i <= DNEG) => 
+                case i if i >= INEG && i <= DNEG =>
                     push(UnaryOp(i, pop()))
-                case i if(i >= ISHL && i <= LXOR) => 
+                case i if i >= ISHL && i <= LXOR =>
                     push(BinaryOp(i, pop(), pop()))
                     
                 case L2I|F2I|D2I => push(PrimitiveCast(pop(), DOUBLE_TYPE))
@@ -209,10 +211,10 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case I2C => push(PrimitiveCast(pop(), CHAR_TYPE))
                 case I2S => push(PrimitiveCast(pop(), SHORT_TYPE))
                 
-                case i if(i >= LCMP && i <= DCMPG) =>
+                case i if i >= LCMP && i <= DCMPG =>
                     push(BinaryOp(i, pop(), pop()))
                 
-                case i if(i >= IRETURN && i <= ARETURN) => pop()
+                case i if i >= IRETURN && i <= ARETURN => pop()
                 
                 case ARRAYLENGTH => push(ArrayLength(pop()))
                 case ATHROW => pop()
@@ -232,9 +234,9 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
             }
             case vinsn:VarInsnNode => ainsn.getOpcode match
             {
-                case i if(i >= ILOAD && i <= ALOAD) => 
+                case i if i >= ILOAD && i <= ALOAD =>
                     push(locals(vinsn.`var`))
-                case i if(i >= ISTORE && i <= ASTORE) => 
+                case i if i >= ISTORE && i <= ASTORE =>
                     setL(vinsn.`var`, pop())
             }
             case incinsn:IincInsnNode => ainsn.getOpcode match
@@ -243,8 +245,8 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
             }
             case jinsn:JumpInsnNode => ainsn.getOpcode match
             {
-                case i if(i >= IFEQ && i <= IFLE) => pop()
-                case i if(i >= IF_ICMPEQ && i <= IF_ACMPNE) => pop(); pop()
+                case i if i >= IFEQ && i <= IFLE => pop()
+                case i if i >= IF_ICMPEQ && i <= IF_ACMPNE => pop(); pop()
                 case JSR => push(ReturnAddress())
                 case IFNULL|IFNONNULL => pop()
                 case GOTO =>
