@@ -115,15 +115,7 @@ class TileMultipart extends TileEntity
     {
         operate(_.onChunkLoad())
     }
-    
-    override def validate()
-    {
-        val wasInvalid = isInvalid
-        super.validate()
-        if(wasInvalid)
-            onMoved()
-    }
-    
+
     final def setValid(b:Boolean)
     {
         if(b)
