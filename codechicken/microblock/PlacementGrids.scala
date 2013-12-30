@@ -67,7 +67,7 @@ class FaceEdgeGrid(size:Double) extends PlacementGrid
             
             GL11.glVertex3d( size, 0,-size)
             GL11.glVertex3d(-size, 0,-size)
-        GL11.glEnd();
+        GL11.glEnd()
         GL11.glPopMatrix()
     }
     
@@ -116,7 +116,7 @@ object CornerPlacementGrid extends PlacementGrid
             GL11.glVertex3d(-0.5, 0, 0)
             GL11.glVertex3d( 0.5, 0, 0)
         
-        GL11.glEnd();
+        GL11.glEnd()
         GL11.glPopMatrix()
     }
     

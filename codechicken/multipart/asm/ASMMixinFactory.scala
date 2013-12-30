@@ -55,16 +55,16 @@ object ASMMixinFactory extends IMultipartFactory
             case _ => false
         }
         
-        override def hashCode() = set.hashCode
+        override def hashCode = set.hashCode()
         
-        def generate():TileMultipart = get.generate
+        def generate:TileMultipart = get.generate()
         
-        def get() = generatorMap.getOrElse(this, gen_sync)
+        def get = generatorMap.getOrElse(this, gen_sync())
         
         def gen_sync():Constructor = ASMMixinFactory.synchronized
         {
             return generatorMap.getOrElse(this, {
-                var gen = generator
+                val gen = generator()
                 generatorMap = generatorMap+(this->gen)
                 gen
             })
@@ -125,8 +125,8 @@ object ASMMixinFactory extends IMultipartFactory
             val mv = cnode.visitMethod(ACC_PUBLIC, "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V", null, null)
             mv.visitVarInsn(ALOAD, 0)
             mv.visitVarInsn(ALOAD, 1)
-            mv.visitMethodInsn(INVOKESPECIAL, "codechicken/multipart/TileMultipart", "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V");
-            
+            mv.visitMethodInsn(INVOKESPECIAL, "codechicken/multipart/TileMultipart", "copyFrom", "(Lcodechicken/multipart/TileMultipart;)V")
+
             mv.visitVarInsn(ALOAD, 1)
             mv.visitTypeInsn(INSTANCEOF, cnode.name)
             val end = new Label()
@@ -299,7 +299,7 @@ object ASMMixinFactory extends IMultipartFactory
             finishBridgeCall(mv, m.desc, INVOKEINTERFACE, iname, m.name, m.desc)
         }
         
-        methods(inode).values.foreach(generatePassThroughMethod(_))
+        methods(inode).values.foreach(generatePassThroughMethod)
         
         cw.visitEnd()
         internalDefine(tname, cw.toByteArray)

@@ -67,7 +67,7 @@ trait JPartialOcclusion
     /**
      * Return a list of partial occlusion boxes
      */
-    def getPartialOcclusionBoxes():Iterable[Cuboid6]
+    def getPartialOcclusionBoxes:Iterable[Cuboid6]
     
     /**
      * Return true if this part may be completely obscured

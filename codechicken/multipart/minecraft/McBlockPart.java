@@ -38,7 +38,7 @@ public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusio
     @Override
     public Iterable<Cuboid6> getCollisionBoxes()
     {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     @Override
@@ -79,7 +79,7 @@ public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusio
     }
     
     @Override
-    public void addDestroyEffects(EffectRenderer effectRenderer)
+    public void addDestroyEffects(MovingObjectPosition hit, EffectRenderer effectRenderer)
     {
         IconHitEffects.addDestroyEffects(this, effectRenderer, false);
     }

@@ -5,12 +5,9 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MovingObjectPosition
 import codechicken.lib.vec.Vector3
 import codechicken.lib.vec.BlockCoord
-import codechicken.multipart.TileMultipart
 import codechicken.lib.vec.Rotation
 import codechicken.multipart.ControlKeyModifer._
 import net.minecraft.item.ItemStack
-import codechicken.microblock.handler.MicroblockProxy
-import codechicken.multipart.TMultiPart
 import codechicken.multipart.TileMultipart
 import codechicken.lib.raytracer.ExtendedMOP
 
@@ -56,9 +53,9 @@ abstract class PlacementProperties
     
     def expand(slot:Int, side:Int) = true
     
-    def microClass():MicroblockClass
+    def microClass:MicroblockClass
     
-    def placementGrid():PlacementGrid
+    def placementGrid:PlacementGrid
     
     def customPlacement(pmt:MicroblockPlacement):ExecutablePlacement = null
 }

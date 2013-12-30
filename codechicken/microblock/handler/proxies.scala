@@ -2,10 +2,7 @@ package codechicken.microblock.handler
 
 import net.minecraftforge.common.MinecraftForge
 import codechicken.multipart.handler.MultipartProxy._
-import codechicken.multipart.TMultiPart
-import codechicken.multipart.MultiPartRegistry
 import codechicken.microblock._
-import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import net.minecraftforge.client.MinecraftForgeClient
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
@@ -13,20 +10,15 @@ import net.minecraft.item.crafting.CraftingManager
 import net.minecraft.item.Item
 import net.minecraft.item.crafting.IRecipe
 import java.util.{List => JList}
-import cpw.mods.fml.common.registry.LanguageRegistry
-import codechicken.lib.config.ConfigTag
 import codechicken.lib.config.ConfigFile
 import net.minecraftforge.oredict.OreDictionary
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
 import net.minecraft.block.Block
-import codechicken.lib.lang.LangUtil
-import net.minecraft.util.ResourceLocation
 import codechicken.lib.packet.PacketCustom
-import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry
 import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
-import java.io.File
 
 class MicroblockProxy_serverImpl
 {
@@ -94,7 +86,7 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     @SideOnly(Side.CLIENT)
     private var _renderBlocks:RenderBlocks = _
     @SideOnly(Side.CLIENT)
-    def renderBlocks() =
+    def renderBlocks =
     {
         if(_renderBlocks == null)
             _renderBlocks = new RenderBlocks

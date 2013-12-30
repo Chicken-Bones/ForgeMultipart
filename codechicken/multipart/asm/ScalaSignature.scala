@@ -154,7 +154,7 @@ object ScalaSignature
     
     class SigEntry(val start:Int, val bytes:Bytes)
     {
-        def id() = bytes.bytes(start)
+        def id = bytes.bytes(start)
         
         def delete()
         {
@@ -172,12 +172,11 @@ case class ScalaSignature(major:Int, minor:Int, table:Array[SigEntry], bytes:Byt
         {
             case 1|2 => bcr.readString(bc.len)
             case 3 => NoSymbol.full
-            case 9|10 => {
+            case 9|10 =>
                 var s = evalS(bcr.readNat)
                 if(bc.pos+bc.len > bcr.pos)
                     s = evalS(bcr.readNat)+"."+s
                 s
-            }
         }
     }
     
@@ -217,13 +216,13 @@ class ByteCodeReader(val bc:Bytes)
 {
     var pos = bc.pos
     
-    def more() = pos < bc.pos+bc.len
+    def more = pos < bc.pos+bc.len
     
     def readString(len:Int) = advance(len)(new String(bc.bytes drop pos take len))
     
-    def readByte() = advance(1)(bc.bytes(pos))
+    def readByte = advance(1)(bc.bytes(pos))
     
-    def readNat():Int = 
+    def readNat:Int =
     {
         var r = 0
         var b = 0
@@ -244,7 +243,7 @@ class ByteCodeReader(val bc:Bytes)
         return r
     }
     
-    def readEntry() = 
+    def readEntry =
     {
         val p = pos
         val tpe:Int = readByte
@@ -252,7 +251,7 @@ class ByteCodeReader(val bc:Bytes)
         advance(len)(new SigEntry(p, new Bytes(bc.bytes, pos, len)))
     }
     
-    def readSig() = 
+    def readSig =
     {
         val major = readByte
         val minor = readByte
@@ -321,7 +320,7 @@ class ScalaSigSideTransformer
                         {
                             val m = it.next
                             if(m.name == sym.name && m.desc == sym.jDesc(sig))
-                                it.remove
+                                it.remove()
                         }
                     }
                 }

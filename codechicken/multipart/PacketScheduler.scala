@@ -1,4 +1,5 @@
 package codechicken.multipart
+
 import scala.collection.mutable.{Map => MMap}
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
@@ -56,7 +57,7 @@ trait IScheduledPacketPart
     /**
      * Returns the width (in bytes) of the data type required to hold all valid mask bits. Valid values are 1, 2, 4 and 8
      */
-    def maskWidth():Int
+    def maskWidth:Int
     
     /**
      * Read data matching mask. Estiablishes a method for subclasses to override. This should be called from read

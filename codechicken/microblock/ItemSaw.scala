@@ -10,7 +10,6 @@ import net.minecraftforge.client.IItemRenderer.ItemRenderType
 import net.minecraftforge.client.IItemRenderer.ItemRendererHelper
 import codechicken.lib.vec.SwapYZ
 import codechicken.lib.render.CCRenderState
-import codechicken.lib.vec.Transformation
 import codechicken.lib.vec.TransformationList
 import codechicken.lib.vec.Translation
 import codechicken.lib.vec.Scale
@@ -64,7 +63,7 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
 object ItemSawRenderer extends IItemRenderer
 {
     val models = CCModel.parseObjModels(new ResourceLocation("microblock", "models/saw.obj"), 7, new SwapYZ())
-    val handle = models.get("Handle");
+    val handle = models.get("Handle")
     val holder = models.get("BladeSupport")
     val blade = models.get("Blade")
     

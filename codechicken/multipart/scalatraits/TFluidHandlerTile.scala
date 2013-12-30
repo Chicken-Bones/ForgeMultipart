@@ -6,7 +6,6 @@ import codechicken.multipart.TMultiPart
 import codechicken.multipart.TileMultipart
 import net.minecraftforge.fluids.IFluidHandler
 import net.minecraftforge.fluids.FluidStack
-import net.minecraftforge.fluids.IFluidTank
 import net.minecraftforge.fluids.FluidTankInfo
 import net.minecraftforge.fluids.Fluid
 

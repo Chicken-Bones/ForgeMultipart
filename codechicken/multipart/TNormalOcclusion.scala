@@ -43,7 +43,7 @@ trait JNormalOcclusion
     /**
      * Return a list of normal occlusion boxes
      */
-    def getOcclusionBoxes():Iterable[Cuboid6]
+    def getOcclusionBoxes:Iterable[Cuboid6]
 }
 
 /**

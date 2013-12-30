@@ -1,22 +1,18 @@
 package codechicken.multipart.handler
 
 import codechicken.multipart.BlockMultipart
-import cpw.mods.fml.common.network.PacketDispatcher
 import cpw.mods.fml.client.registry.RenderingRegistry
 import cpw.mods.fml.client.registry.ClientRegistry
 import net.minecraft.tileentity.TileEntity
 import codechicken.lib.config.ConfigFile
-import cpw.mods.fml.common.registry.GameRegistry
 import java.io.File
 import codechicken.multipart.handler.MultipartProxy._
 import codechicken.multipart.MultipartRenderer
-import java.util.HashMap
 import net.minecraftforge.common.MinecraftForge
 import codechicken.multipart.MultipartGenerator
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.lib.packet.PacketCustom
-import codechicken.multipart.TileMultipart
 import cpw.mods.fml.client.registry.KeyBindingRegistry
 import codechicken.multipart.ControlKeyHandler
 import cpw.mods.fml.common.network.NetworkRegistry
@@ -80,7 +76,7 @@ class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
     override def postInit()
     {
         super.postInit()
-        RenderingRegistry.registerBlockHandler(MultipartRenderer);
+        RenderingRegistry.registerBlockHandler(MultipartRenderer)
         PacketCustom.assignHandler(MultipartCPH.channel, MultipartCPH)
         PacketCustom.assignHandler(MultipartCPH.registryChannel, 1, 127, MultipartCPH)
         KeyBindingRegistry.registerKeyBinding(ControlKeyHandler)

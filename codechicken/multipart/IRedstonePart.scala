@@ -2,10 +2,8 @@ package codechicken.multipart
 
 import net.minecraft.world.World
 import net.minecraft.block.Block
-import net.minecraft.block.BlockRedstoneWire
 import net.minecraft.world.IBlockAccess
 import net.minecraft.util.Direction
-import PartMap._
 import codechicken.lib.vec.Rotation._
 
 /**
@@ -38,7 +36,7 @@ trait IFaceRedstonePart extends IRedstonePart
     /**
      * Return the face to which this redstone part is attached
      */
-    def getFace():Int
+    def getFace:Int
 }
 
 /**
@@ -231,8 +229,8 @@ object RedstoneInteractions
         val vside = vanillaSideMap(side)
         if(block == Block.redstoneRepeaterActive || block == Block.redstoneRepeaterIdle)//stupid minecraft hardcodes
         {
-             val meta = world.getBlockMetadata(x, y, z);
-             if(vside == (meta & 3) || vside == Direction.rotateOpposite(meta & 3))
+             val meta = world.getBlockMetadata(x, y, z)
+            if(vside == (meta & 3) || vside == Direction.rotateOpposite(meta & 3))
                  return 4
              return 0
         }

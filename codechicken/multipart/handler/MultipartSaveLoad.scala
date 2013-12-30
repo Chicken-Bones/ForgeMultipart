@@ -43,7 +43,7 @@ object MultipartSaveLoad
         classToNameMap.put(t, "savedMultipart")
     }
     
-    def getClassToNameMap() =
+    def getClassToNameMap =
     {
         val field = classOf[TileEntity].getDeclaredField(
                 new ObfMapping("net/minecraft/tileentity/TileEntity", "classToNameMap", "Ljava/util/Map;")
@@ -65,11 +65,11 @@ object MultipartSaveLoad
                 if(t != null)
                 {
                     t.setWorldObj(e.getValue.worldObj)
-                    t.validate
+                    t.validate()
                     e.setValue(t)
                 }
                 else
-                    iterator.remove
+                    iterator.remove()
             }
         }
     }

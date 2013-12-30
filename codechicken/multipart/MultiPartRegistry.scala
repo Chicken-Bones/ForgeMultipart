@@ -1,4 +1,4 @@
-package codechicken.multipart;
+package codechicken.multipart
 
 import scala.collection.mutable.HashMap
 import codechicken.lib.packet.PacketCustom
@@ -25,7 +25,7 @@ object MultiPartRegistry
          * Create a new instance of the part with the specified type name identifier
          * @param client If the part instance is for the client or the server
          */
-        def createPart(name:String, client:Boolean):TMultiPart;
+        def createPart(name:String, client:Boolean):TMultiPart
     }
     
     /**
@@ -60,7 +60,7 @@ object MultiPartRegistry
      */
     def registerParts(partFactory:IPartFactory, types:Array[String])
     {
-        registerParts(partFactory.createPart _, types:_*);
+        registerParts(partFactory.createPart _, types:_*)
     }
     
     /**
@@ -78,9 +78,9 @@ object MultiPartRegistry
         
         types.foreach{s => 
             if(typeMap.contains(s))
-                throw new IllegalStateException("Part with id "+s+" is already registered.");
-            
-            typeMap.put(s, (c:Boolean) => partFactory(s, c));
+                throw new IllegalStateException("Part with id "+s+" is already registered.")
+
+            typeMap.put(s, (c:Boolean) => partFactory(s, c))
             containers.put(s, container)
         }
     }
@@ -99,7 +99,7 @@ object MultiPartRegistry
     {
         idMap = typeMap.toList.sortBy(_._1).toArray
         idWriter.setMax(idMap.length)
-        nameMap.clear
+        nameMap.clear()
         for(i <- 0 until idMap.length)
             nameMap.put(idMap(i)._1, i)
     }

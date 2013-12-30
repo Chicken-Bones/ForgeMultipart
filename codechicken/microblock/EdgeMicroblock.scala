@@ -11,13 +11,10 @@ import Rotation._
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TNormalOcclusion
 import codechicken.multipart.JPartialOcclusion
-import codechicken.multipart.NormalOcclusionTest
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.MultiPartRegistry
 import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import cpw.mods.fml.relauncher.SideOnly
-import cpw.mods.fml.relauncher.Side
 import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.multipart.TEdgePart
 import scala.collection.JavaConversions._
@@ -36,7 +33,7 @@ object EdgePlacement extends PlacementProperties
         if(slot < 0)//custom placement
             return slot
         val e = slot-15
-        return 15+(packEdgeBits(e, unpackEdgeBits(e)^(1<<(side>>1))))
+        return 15+ packEdgeBits(e, unpackEdgeBits(e)^(1<<(side>>1)))
     }
     
     override def customPlacement(pmt:MicroblockPlacement):ExecutablePlacement = 

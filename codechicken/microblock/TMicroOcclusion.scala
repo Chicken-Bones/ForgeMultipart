@@ -2,9 +2,6 @@ package codechicken.microblock
 
 import codechicken.multipart.TMultiPart
 import codechicken.lib.vec.Cuboid6
-import cpw.mods.fml.relauncher.SideOnly
-import cpw.mods.fml.relauncher.Side
-import codechicken.multipart.TileMultipart
 import codechicken.multipart.PartMap._
 
 /**
@@ -160,11 +157,11 @@ object MicroOcclusion
 
 trait JMicroShrinkRender
 {
-    def getPriorityClass():Int
-    def getSlot():Int
-    def getSize():Int
-    def isTransparent():Boolean
-    def getBounds():Cuboid6
+    def getPriorityClass:Int
+    def getSlot:Int
+    def getSize:Int
+    def isTransparent:Boolean
+    def getBounds:Cuboid6
 }
 
 trait TMicroOcclusionClient extends TMicroOcclusion with JMicroShrinkRender
@@ -197,10 +194,10 @@ trait TMicroOcclusion extends TMultiPart
 {
     import MicroOcclusion._
     
-    def getSlot():Int
-    def getSize():Int
-    def getMaterial():Int
-    def getBounds():Cuboid6
+    def getSlot:Int
+    def getSize:Int
+    def getMaterial:Int
+    def getBounds:Cuboid6
     
     override def occlusionTest(npart:TMultiPart):Boolean = 
     {

@@ -1,9 +1,6 @@
 package codechicken.microblock
 
-import net.minecraft.util.Icon
 import codechicken.lib.vec.Vector3
-import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.block.Block
 import codechicken.lib.render.Vertex5
 import codechicken.lib.render.IconTransformation

@@ -1,6 +1,5 @@
 package codechicken.multipart.handler
 
-import net.minecraft.nbt.NBTTagCompound
 import codechicken.multipart.TileMultipart
 import net.minecraftforge.event.ForgeSubscribe
 import cpw.mods.fml.common.network.IConnectionHandler
@@ -31,7 +30,7 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     @ForgeSubscribe(priority = EventPriority.HIGHEST)
     def tileEntityLoad(event:ChunkDataEvent.Load)
     {
-        MultipartSaveLoad.loadTiles(event.getChunk())
+        MultipartSaveLoad.loadTiles(event.getChunk)
     }
     
     @ForgeSubscribe

@@ -2,38 +2,20 @@ package codechicken.multipart
 
 import net.minecraft.tileentity.TileEntity
 import scala.collection.mutable.ListBuffer
-import net.minecraft.network.packet.Packet
 import codechicken.lib.packet.PacketCustom
-import codechicken.multipart.handler.MultipartCPH
 import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.World
 import java.util.List
-import scala.collection.JavaConverters._
 import net.minecraft.nbt.NBTTagCompound
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
-import java.io.DataInputStream
-import codechicken.lib.data.MCDataInputStream
 import codechicken.lib.data.MCDataOutput
-import codechicken.lib.data.MCDataOutputStream
-import net.minecraft.client.multiplayer.NetClientHandler
-import codechicken.lib.vec.Cuboid6
-import scala.collection.mutable.HashSet
 import codechicken.multipart.handler.MultipartProxy
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
 import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
-import net.minecraft.client.particle.EffectRenderer
-import net.minecraft.util.MovingObjectPosition
-import scala.collection.mutable.ArrayBuffer
 import java.util.Random
-import cpw.mods.fml.relauncher.SideOnly
-import cpw.mods.fml.relauncher.Side
-import scala.collection.mutable.Queue
 import codechicken.multipart.handler.MultipartSPH
 import codechicken.lib.lighting.LazyLightMatrix
-import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
@@ -42,7 +24,6 @@ import java.util.Collection
 import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.util.Vec3
 import java.lang.Iterable
-import codechicken.multipart.handler.MultipartSaveLoad
 import scala.collection.mutable.{Map => MMap}
 import net.minecraft.util.AxisAlignedBB
 
@@ -91,12 +72,12 @@ class TileMultipart extends TileEntity
      */
     def jPartList():List[TMultiPart] = partList
     
-    override def canUpdate() = doesTick
+    override def canUpdate = doesTick
     
     def operate(f:(TMultiPart)=>Unit) {
         val it = partList.iterator
         while(it.hasNext) {
-            val p = it.next
+            val p = it.next()
             if(p.tile != null) f(p)
         }
     }
@@ -167,7 +148,7 @@ class TileMultipart extends TileEntity
      */
     def multiPartChange(parts:Collection[TMultiPart])
     {
-        operate(p => if(!parts.contains(p)) parts.foreach(p.onPartChanged(_)))
+        operate(p => if(!parts.contains(p)) parts.foreach(p.onPartChanged))
     }
     
     /**
@@ -188,7 +169,7 @@ class TileMultipart extends TileEntity
      */
     def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int) {}
     
-    def getLightValue() = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
+    def getLightValue = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
     
     /**
      * Callback for parts to mark the chunk as needs saving
@@ -436,10 +417,9 @@ class TileMultipart extends TileEntity
         var list = ListBuffer[ExtendedMOP]()
         for((p, i) <- partList.view.zipWithIndex)
             p.collisionRayTrace(start, end) match {
-                case mop:ExtendedMOP => {
+                case mop:ExtendedMOP =>
                     mop.data = (i, mop.data)
                     list+=mop
-                }
                 case _ =>
             }
         
@@ -525,7 +505,7 @@ class TileMultipartClient extends TileMultipart
         true
     }
     
-    override def getRenderBoundingBox() = AxisAlignedBB.getAABBPool.getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1)
+    override def getRenderBoundingBox = AxisAlignedBB.getAABBPool.getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1)
 }
 
 /**
@@ -580,14 +560,12 @@ object TileMultipart
     /**
      * Gets the multipart tile instance at pos, or null if it doesn't exist or is not a multipart tile
      */
-    def getTile(world:World, pos:BlockCoord):TileMultipart =
-    {
-        val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
-        if(t.isInstanceOf[TileMultipart])
-            return t.asInstanceOf[TileMultipart]
-        return null
-    }
-    
+    def getTile(world:World, pos:BlockCoord) =
+        world.getBlockTileEntity(pos.x, pos.y, pos.z) match {
+            case t:TileMultipart => t
+            case _ => null
+        }
+
     /**
      * Returns whether part can be added to the space at pos. Will do conversions as necessary.
      * This function is the recommended way to add parts to the world.
@@ -595,7 +573,7 @@ object TileMultipart
     def canPlacePart(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
     {
         part.getCollisionBoxes.foreach{b => 
-            if(!world.checkNoEntityCollision(b.toAABB().offset(pos.x, pos.y, pos.z)))
+            if(!world.checkNoEntityCollision(b.toAABB.offset(pos.x, pos.y, pos.z)))
                 return false
         }
         
@@ -666,11 +644,10 @@ object TileMultipart
         
         i match
         {
-            case 253 => {
+            case 253 =>
                 val part = MultiPartRegistry.readPart(packet)
                 part.readDesc(packet)
                 MultipartGenerator.addPart(world, pos, part)
-            }
             case 254 => tilemp.remPart_impl(tilemp.partList(packet.readUByte))
             case _ => tilemp.partList(i).read(packet)
         }

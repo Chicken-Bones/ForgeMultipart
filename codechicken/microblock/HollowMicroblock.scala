@@ -1,10 +1,8 @@
 package codechicken.microblock
 
-import net.minecraft.world.World
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MovingObjectPosition
 import codechicken.multipart.TFacePart
-import codechicken.lib.vec.BlockCoord
 import codechicken.lib.vec.Cuboid6
 import codechicken.lib.vec.Rotation
 import codechicken.lib.vec.Vector3
@@ -20,7 +18,6 @@ import Rotation._
 import Vector3._
 import codechicken.lib.raytracer.IndexedCuboid6
 import org.lwjgl.opengl.GL11
-import codechicken.multipart.TMultiPart
 
 object HollowPlacement extends PlacementProperties
 {
@@ -129,20 +126,17 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
         getSlot match 
         {
             case 0 | 1 => 
-            {
                 if(face)
                     iMask = 0x3C
                 f(pos, olm, mat, new Cuboid6(d1, y1, d2, d2, y2, z2), 0x3B|iMask)//-z internal
                 f(pos, olm, mat, new Cuboid6(d1, y1, z1, d2, y2, d1), 0x37|iMask)//+z internal
-                
+
                 f(pos, olm, mat, new Cuboid6(d2, y1, d1, x2, y2, d2), faceMask&0x23|0xC|iMask)//-x internal -y+y+x external
                 f(pos, olm, mat, new Cuboid6(x1, y1, d1, d1, y2, d2), faceMask&0x13|0xC|iMask)//+x internal -y+y-x external
-                
+
                 f(pos, olm, mat, new Cuboid6(x1, y1, d2, x2, y2, z2), faceMask&0x3B|4|iMask)//-y+y+z-x+x external
                 f(pos, olm, mat, new Cuboid6(x1, y1, z1, x2, y2, d1), faceMask&0x37|8|iMask)//-y+y-z-x+x external
-            }
             case 2 | 3 =>
-            {
                 if(face)
                     iMask = 0x33
                 f(pos, olm, mat, new Cuboid6(d2, d1, z1, x2, d2, z2), 0x2F|iMask)//-x internal
@@ -153,9 +147,7 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
                 
                 f(pos, olm, mat, new Cuboid6(d2, y1, z1, x2, y2, z2), faceMask&0x2F|0x10|iMask)//-z+z+x-y+y external
                 f(pos, olm, mat, new Cuboid6(x1, y1, z1, d1, y2, z2), faceMask&0x1F|0x20|iMask)//-z+z-x-y+y external
-            }
-            case 4 | 5 => 
-            {
+            case 4 | 5 =>
                 if(face)
                     iMask = 0xF
                 f(pos, olm, mat, new Cuboid6(x1, d2, d1, x2, y2, d2), 0x3E|iMask)//-y internal
@@ -166,7 +158,6 @@ class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowM
                 
                 f(pos, olm, mat, new Cuboid6(x1, d2, z1, x2, y2, z2), faceMask&0x3E|1|iMask)//-x+x+y-z+z external
                 f(pos, olm, mat, new Cuboid6(x1, y1, z1, x2, d1, z2), faceMask&0x3D|2|iMask)//-x+x-y-z+z external
-            }
         }
     }
     
@@ -236,26 +227,20 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
         getSlot match 
         {
             case 0 | 1 => 
-            {
                 Seq(new Cuboid6(d2, y1, d1, x2, y2, d2),
                 new Cuboid6(x1, y1, d1, d1, y2, d2),
                 new Cuboid6(x1, y1, d2, x2, y2, z2),
                 new Cuboid6(x1, y1, z1, x2, y2, d1))
-            }
             case 2 | 3 =>
-            {
                 Seq(new Cuboid6(d1, d2, z1, d2, y2, z2),
                 new Cuboid6(d1, y1, z1, d2, d1, z2),
                 new Cuboid6(d2, y1, z1, x2, y2, z2),
                 new Cuboid6(x1, y1, z1, d1, y2, z2))
-            }
-            case 4 | 5 => 
-            {
+            case 4 | 5 =>
                 Seq(new Cuboid6(x1, d1, d2, x2, d2, z2),
                 new Cuboid6(x1, d1, z1, x2, d2, d1),
                 new Cuboid6(x1, d2, z1, x2, y2, z2),
                 new Cuboid6(x1, y1, z1, x2, d1, z2))
-            }
         }
     }
     
@@ -280,5 +265,5 @@ class HollowMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobl
     
     override def solid(side:Int) = false
     
-    override def redstoneConductionMap() = 0x10
+    override def redstoneConductionMap = 0x10
 }

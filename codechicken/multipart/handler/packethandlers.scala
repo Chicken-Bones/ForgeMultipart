@@ -8,11 +8,8 @@ import net.minecraft.client.Minecraft
 import codechicken.multipart.MultiPartRegistry
 import net.minecraft.network.NetServerHandler
 import net.minecraft.entity.player.EntityPlayerMP
-import codechicken.multipart.TileMultipart
 import codechicken.multipart.ControlKeyModifer
-import codechicken.multipart.TileMultipart
 import net.minecraft.network.packet.Packet255KickDisconnect
-import net.minecraft.server.MinecraftServer
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import java.util.Map
@@ -92,7 +89,7 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     
     def handlePacket(packet:PacketCustom, netHandler:NetServerHandler, sender:EntityPlayerMP)
     {
-        packet.getType() match
+        packet.getType match
         {
             case 1 => ControlKeyModifer.map.put(sender, packet.readBoolean)
         }
@@ -172,6 +169,6 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
                 .writeShort(num)
                 .writeByteArray(s.getBytes)
         }
-        return null;
+        return null
     }
 }

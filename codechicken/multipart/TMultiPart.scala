@@ -10,14 +10,9 @@ import codechicken.lib.raytracer.IndexedCuboid6
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraft.client.particle.EffectRenderer
-import net.minecraft.util.Icon
 import net.minecraft.client.renderer.RenderBlocks
-import codechicken.lib.render.RenderUtils
-import codechicken.lib.render.IconTransformation
 import codechicken.lib.vec.BlockCoord
-import net.minecraft.world.World
 import net.minecraft.tileentity.TileEntity
-import codechicken.lib.render.CCRenderState
 import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
@@ -39,11 +34,11 @@ abstract class TMultiPart
      * Legacy helper function for getting the tile entity (from when TileMultipart was a trait). Use tile() now.
      */
     @Deprecated
-    def getTile():TileEntity = tile
+    def getTile:TileEntity = tile
     /**
      * Getter for tile.worldObj
      */
-    def world() = if(tile == null) null else tile.worldObj
+    def world = if(tile == null) null else tile.worldObj
     /**
      * Short getter for xCoord
      */
@@ -187,7 +182,7 @@ abstract class TMultiPart
      * Gets a MCDataOutput instance for writing update data to clients with this part loaded.
      * The write stream functions as a buffer which is flushed in a compressed databurst packet at the end of the tick.
      */
-    def getWriteStream():MCDataOutput = tile.getWriteStream(this)
+    def getWriteStream:MCDataOutput = tile.getWriteStream(this)
     /**
      * Read and operate on data written to getWriteStream. Ensure all data this part wrote is read even if it's not going to be used.
      * The default implementation assumes a call to sendDescUpdate as the only use of getWriteStream.

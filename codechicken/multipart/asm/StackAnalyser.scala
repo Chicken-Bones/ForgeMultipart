@@ -235,7 +235,7 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case MONITORENTER|MONITOREXIT => pop()
                 
                 case _ =>
-                
+
             }
             case iinsn:IntInsnNode => ainsn.getOpcode match
             {
@@ -289,13 +289,11 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case CHECKCAST => push(Cast(pop(), getType(tinsn.desc)))
                 case INSTANCEOF => push(UnaryOp(INSTANCEOF, pop()))
             }
-            case mainsn:MultiANewArrayInsnNode => 
-            {
+            case mainsn:MultiANewArrayInsnNode =>
                 val sizes = new Array[StackEntry](mainsn.dims)
                 for(i <- 0 until sizes.length)
                     sizes(i) = pop()
                 push(NewMultiArray(sizes, getType(mainsn.desc)))
-            }
             /*case fnode:FrameNode => fnode.`type` match
             {
                 case F_NEW|F_FULL => println("reset stacks/locals")
@@ -305,14 +303,11 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
                 case F_SAME1 => println("reset locals and all but bottom stack")
             }*/
             case lnode:LabelNode =>
-            {
                 catchHandlers.get(lnode) match
                 {
                     case Some(tcblock) => push(CaughtException(Type.getType(tcblock.`type`)))
                     case None =>
                 }
-            }
-                
             case _ =>
         }
     }

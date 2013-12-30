@@ -1,7 +1,6 @@
 package codechicken.microblock
 
 import codechicken.multipart.MultiPartRegistry
-import codechicken.microblock.handler.MicroblockProxy
 
 object MicroblockClassRegistry
 {

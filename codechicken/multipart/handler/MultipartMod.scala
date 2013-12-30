@@ -8,7 +8,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent
 import cpw.mods.fml.common.Mod.EventHandler
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent
 import codechicken.multipart.MultiPartRegistry
-import cpw.mods.fml.relauncher.SideOnly
 import codechicken.lib.packet.PacketCustom.CustomTinyPacketHandler
 
 @Mod(modid = "ForgeMultipart", acceptedMinecraftVersions = "[1.6.4]", 

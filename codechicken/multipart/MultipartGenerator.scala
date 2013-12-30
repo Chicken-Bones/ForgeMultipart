@@ -5,12 +5,8 @@ import scala.collection.immutable.Map
 import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 import codechicken.multipart.handler.MultipartProxy
-import cpw.mods.fml.common.FMLCommonHandler
-import cpw.mods.fml.relauncher.Side
 import codechicken.lib.packet.PacketCustom
 import net.minecraft.network.packet.Packet53BlockChange
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.ListBuffer
 import codechicken.multipart.asm.IMultipartFactory
 import codechicken.multipart.asm.ASMMixinFactory
 
@@ -109,7 +105,7 @@ object MultipartGenerator
     {
     	val chunk = world.getChunkFromBlockCoords(pos.x, pos.z)
     	if(chunk != null)
-    		chunk.setChunkBlockTileEntity(pos.x & 15, pos.y, pos.z & 15, tile);
+    		chunk.setChunkBlockTileEntity(pos.x & 15, pos.y, pos.z & 15, tile)
     }
     
     /**

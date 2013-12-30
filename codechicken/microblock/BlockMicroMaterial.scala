@@ -3,15 +3,12 @@ package codechicken.microblock
 import net.minecraft.block.Block
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import net.minecraft.util.Icon
-import codechicken.lib.vec.Cuboid6
 import codechicken.lib.lighting.LC
 import codechicken.lib.lighting.LightMatrix
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.lib.render.MultiIconTransformation
 import codechicken.lib.render.IUVTransformation
-import codechicken.microblock.MicroblockClassRegistry._
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import codechicken.lib.vec.Vector3
 import net.minecraft.entity.player.EntityPlayer
@@ -20,9 +17,7 @@ import codechicken.lib.render.UV
 import net.minecraft.client.renderer.Tessellator
 import codechicken.lib.render.CCRenderState
 import codechicken.lib.vec.Rotation
-import net.minecraft.tileentity.TileEntity
 import net.minecraftforge.common.MinecraftForge
-import net.minecraft.client.renderer.RenderBlocks
 import codechicken.microblock.handler.MicroblockProxy
 
 /**
@@ -36,7 +31,7 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     @SideOnly(Side.CLIENT)
     override def loadIcons()
     {
-        var iblock = Block.blocksList(block.blockID)//Reacquire the block instance incase a mod replaced it.
+        val iblock = Block.blocksList(block.blockID)//Reacquire the block instance incase a mod replaced it.
         val icons = new Array[Icon](6)
         
         if(iblock == null)

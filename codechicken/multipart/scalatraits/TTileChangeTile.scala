@@ -35,9 +35,7 @@ trait TTileChangeTile extends TileMultipart {
     
     override def partRemoved(part:TMultiPart, p:Int) {
         super.partRemoved(part, p)
-        weakTileChanges = partList.find{p =>
-                p.isInstanceOf[INeighborTileChange] && p.asInstanceOf[INeighborTileChange].weakTileChanges
-            }.isDefined
+        weakTileChanges = partList.exists(p => p.isInstanceOf[INeighborTileChange] && p.asInstanceOf[INeighborTileChange].weakTileChanges)
     }
     
     override def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int)

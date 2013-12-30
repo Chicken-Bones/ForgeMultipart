@@ -1,8 +1,6 @@
 package codechicken.multipart
 
-import codechicken.lib.lighting.LightMatrix
 import codechicken.lib.render.CCRenderState
-import codechicken.lib.vec.Cuboid6
 import codechicken.lib.vec.Vector3
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler
 import cpw.mods.fml.client.registry.RenderingRegistry
@@ -11,9 +9,6 @@ import net.minecraft.client.renderer.RenderBlocks
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.IBlockAccess
-import codechicken.lib.vec.BlockCoord
-import net.minecraft.world.IWorldAccess
-import net.minecraft.util.MovingObjectPosition
 import net.minecraft.client.Minecraft
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side

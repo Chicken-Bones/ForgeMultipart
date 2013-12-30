@@ -21,7 +21,7 @@ object ControlKeyModifer
     
     class ControlKeyValue(p:EntityPlayer)
     {
-        def isControlDown() = map(p)
+        def isControlDown = map(p)
     }
     
     val map = HashMap[EntityPlayer, Boolean]().withDefaultValue(false)
@@ -41,7 +41,7 @@ object ControlKeyHandler extends KeyHandler (
 {
     import ControlKeyModifer._
     
-    LanguageRegistry.instance.addStringLocalization("key.control", "Placement Modifier");
+    LanguageRegistry.instance.addStringLocalization("key.control", "Placement Modifier")
     
     def keyDown(types:EnumSet[TickType], kb:KeyBinding, tickEnd:Boolean, isRepeat:Boolean)
     {
@@ -65,7 +65,7 @@ object ControlKeyHandler extends KeyHandler (
         }
     }
     
-    def getLabel() = "Control Key Modifer";
-    
-    def ticks() = EnumSet.of(TickType.CLIENT)
+    def getLabel = "Control Key Modifer"
+
+    def ticks = EnumSet.of(TickType.CLIENT)
 }

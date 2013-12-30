@@ -59,7 +59,7 @@ object ConfigContent
         if(split1(0) == "")
             return
         
-        var split2 = split1(1).split(",")
+        val split2 = split1(1).split(",")
         val meta = split2.flatMap{s => 
             if(s.contains("-"))
             {
@@ -104,10 +104,9 @@ object ConfigContent
                 }
                 catch
                 {
-                    case e:Exception => {
+                    case e:Exception =>
                         System.err.println("Invalid line in microblocks.cfg: "+s)
                         System.err.println(e.getMessage)
-                    }
                 }
             }
         }
@@ -129,7 +128,7 @@ object ConfigContent
             }
             else if(block != null)
             {
-                val name = block.getUnlocalizedName()
+                val name = block.getUnlocalizedName
                 val value = nameMap.get(name)
                 if(value.isDefined)
                 {
@@ -141,10 +140,9 @@ object ConfigContent
 	                    catch {
 	                    	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
 	                    	        materialKey(block, m)+"\n\t"+e.getMessage)
-	            	        case e:Exception => {
+	            	        case e:Exception =>
 	            	            System.err.println("Unable to register micro material: "+materialKey(block, m))
 	        	                e.printStackTrace()
-	            	        }
 	                    }
                 	}
                 }

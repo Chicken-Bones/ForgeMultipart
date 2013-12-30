@@ -76,7 +76,7 @@ object TickScheduler extends WorldExtensionInstantiator
             schedTime+=1
         }
         
-        def saveDir():File = 
+        def saveDir:File =
         {
             if(world.provider.dimensionId == 0)//Calling DimensionManager.getCurrentSaveRootDirectory too early breaks game saves, we have a world reference, use it
                 return world.getSaveHandler.asInstanceOf[SaveHandler].getWorldDirectory
@@ -84,7 +84,7 @@ object TickScheduler extends WorldExtensionInstantiator
             return new File(DimensionManager.getCurrentSaveRootDirectory, world.provider.getSaveFolder)
         }
         
-        def saveFile():File = new File(saveDir, "multipart.dat")
+        def saveFile:File = new File(saveDir, "multipart.dat")
         
         override def load() 
         {
@@ -110,7 +110,7 @@ object TickScheduler extends WorldExtensionInstantiator
                 schedTime = world.getTotalWorldTime
         }
         
-        def saveTag():NBTTagCompound = 
+        def saveTag:NBTTagCompound =
         {
             val tag = new NBTTagCompound
             tag.setLong("schedTime", schedTime)
@@ -124,9 +124,9 @@ object TickScheduler extends WorldExtensionInstantiator
             if(!file.exists)
                 file.createNewFile()
             
-            val dout = new DataOutputStream(new FileOutputStream(file));
-            CompressedStreamTools.writeCompressed(saveTag, dout);
-            dout.close();
+            val dout = new DataOutputStream(new FileOutputStream(file))
+            CompressedStreamTools.writeCompressed(saveTag, dout)
+            dout.close()
         }
         
         def nextRandomTick = world.rand.nextInt(800)+800
@@ -147,7 +147,7 @@ object TickScheduler extends WorldExtensionInstantiator
             val it = tickList.iterator
             while(it.hasNext)
             {
-                val e = it.next
+                val e = it.next()
                 if(e.part == part)
                 {
                     if(e.random && !random)//only override an existing tick if we're going from random->scheduled
@@ -167,7 +167,7 @@ object TickScheduler extends WorldExtensionInstantiator
         
         def processTicks():Boolean =
         {
-            tickList = tickList.filter(processTick(_))
+            tickList = tickList.filter(processTick)
             return !tickList.isEmpty
         }
         

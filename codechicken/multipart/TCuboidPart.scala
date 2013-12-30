@@ -5,7 +5,6 @@ import codechicken.lib.raytracer.IndexedCuboid6
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.lib.render.CCRenderState
 import codechicken.lib.render.RenderUtils
-import codechicken.lib.vec.Vector3
 import codechicken.lib.render.IconTransformation
 import scala.collection.JavaConversions._
 import java.lang.Iterable

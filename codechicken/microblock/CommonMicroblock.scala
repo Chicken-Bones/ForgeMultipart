@@ -2,7 +2,6 @@ package codechicken.microblock
 
 import net.minecraft.nbt.NBTTagCompound
 import codechicken.lib.lighting.LightMatrix
-import codechicken.lib.packet.PacketCustom
 import codechicken.microblock.MicroMaterialRegistry._
 import codechicken.lib.vec.BlockCoord
 import org.lwjgl.opengl.GL11
@@ -18,12 +17,9 @@ import codechicken.multipart.TCuboidPart
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.entity.player.EntityPlayer
 import codechicken.multipart.JPartialOcclusion
-import codechicken.lib.vec.Rotation
-import codechicken.multipart.TileMultipart
 import codechicken.lib.render.Vertex5
 import net.minecraft.item.ItemStack
 import scala.collection.mutable.ListBuffer
-import codechicken.multipart.TMultiPart
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
 import codechicken.lib.render.RenderUtils
@@ -48,7 +44,7 @@ object CommonMicroblock
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
         
         CCRenderState.reset()
-        TextureUtils.bindAtlas(0);
+        TextureUtils.bindAtlas(0)
         CCRenderState.useNormals(true)
         CCRenderState.setBrightness(world, pos.x, pos.y, pos.z)
         CCRenderState.setAlpha(80)
@@ -81,9 +77,7 @@ object JMicroblockClient
 
 trait MicroblockClient extends Microblock with TIconHitEffects with IMicroMaterialRender
 {
-import CommonMicroblock._
-    
-    def getBrokenIcon(side:Int):Icon = 
+    def getBrokenIcon(side:Int):Icon =
     {
         val mat = MicroMaterialRegistry.getMaterial(material)
         if(mat != null)
@@ -122,13 +116,13 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     
     def itemClassID:Int = -1
     
-    override def getDrops() =
+    override def getDrops =
     {
         var size = getSize
         val items = ListBuffer[ItemStack]()
         for(s <- Seq(4, 2, 1))
         {
-            var m = size/s
+            val m = size/s
             size-=m*s
             if(m > 0)
                 items+=ItemMicroPart.create(m, s|itemClassID<<8, MicroMaterialRegistry.materialName(material))
@@ -199,7 +193,7 @@ trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with
 
 abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TMicroOcclusion with TSlottedPart
 {
-    def microClass():MicroblockClass
+    def microClass:MicroblockClass
     
     def getType = microClass.getName
     

@@ -10,27 +10,18 @@ import net.minecraft.world.World
 import net.minecraftforge.common.ForgeDirection
 import net.minecraft.util.Vec3
 import net.minecraft.util.MovingObjectPosition
-import java.util.LinkedList
-import codechicken.lib.raytracer.IndexedCuboid6
-import codechicken.lib.vec.Cuboid6
 import codechicken.lib.raytracer.RayTracer
-import codechicken.lib.vec.Vector3
-import codechicken.lib.vec.BlockCoord
 import net.minecraft.entity.player.EntityPlayer
 import java.util.Random
 import java.util.ArrayList
 import net.minecraft.item.ItemStack
 import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.client.Minecraft
-import net.minecraft.util.Icon
 import net.minecraft.client.renderer.texture.IconRegister
-import codechicken.lib.render.TextureSpecial
 import codechicken.lib.render.TextureUtils
 import net.minecraft.world.IBlockAccess
 import codechicken.lib.raytracer.ExtendedMOP
 import scala.collection.JavaConversions._
-import java.util.Collections
-import codechicken.multipart.scalatraits.TTileChangeTile
 
 object BlockMultipart
 {
@@ -127,7 +118,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
         val (index, mop) = reduceMOP(hit)
         if(world.isRemote)
         {
-            tile.partList(index).addDestroyEffects(mop, Minecraft.getMinecraft().effectRenderer)
+            tile.partList(index).addDestroyEffects(mop, Minecraft.getMinecraft.effectRenderer)
             return true
         }
         
@@ -166,7 +157,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
         if(tile != null)
             tile.partList.foreach(part => 
                 part.getCollisionBoxes.foreach{c => 
-                        val aabb = c.toAABB().offset(x, y, z)
+                        val aabb = c.toAABB.offset(x, y, z)
                         if(aabb.intersectsWith(ebb))
                             list.add(aabb)
                 })
@@ -187,9 +178,9 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     
     override def renderAsNormalBlock() = false
     
-    override def isOpaqueCube() = false
+    override def isOpaqueCube = false
     
-    override def getRenderType() = TileMultipart.renderID
+    override def getRenderType = TileMultipart.renderID
     
     override def isAirBlock(world:World, x:Int, y:Int, z:Int):Boolean = 
     {
@@ -226,7 +217,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
         val tile = getTile(world, x, y, z)
         if(hit != null && tile != null) {
             val (index, mop) = reduceMOP(hit)
-            return tile.partList(index).getStrength(mop, player)/30F;
+            return tile.partList(index).getStrength(mop, player)/30F
         }
         
         return 1/100F
@@ -237,8 +228,8 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
      */
     override def registerIcons(register:IconRegister)
     {
-        val n = getUnlocalizedName();
-        val icon = TextureUtils.getBlankIcon(16, register);
+        val n = getUnlocalizedName
+        val icon = TextureUtils.getBlankIcon(16, register)
         setTextureName(icon.getIconName)
         super.registerIcons(register)
     }
@@ -259,7 +250,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     
     override def onBlockActivated(world:World, x:Int, y:Int, z:Int, player:EntityPlayer, side:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
     {
-        val hit = RayTracer.retraceBlock(world, player, x, y, z);
+        val hit = RayTracer.retraceBlock(world, player, x, y, z)
         if(hit == null)
             return false
         
@@ -273,7 +264,7 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     
     override def onBlockClicked(world:World, x:Int, y:Int, z:Int, player:EntityPlayer)
     {
-        val hit = RayTracer.retraceBlock(world, player, x, y, z);
+        val hit = RayTracer.retraceBlock(world, player, x, y, z)
         if(hit == null)
             return
         

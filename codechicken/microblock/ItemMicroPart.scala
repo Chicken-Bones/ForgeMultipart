@@ -9,7 +9,6 @@ import net.minecraftforge.client.IItemRenderer.ItemRenderType
 import net.minecraftforge.client.IItemRenderer.ItemRendererHelper
 import org.lwjgl.opengl.GL11
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import net.minecraft.util.StatCollector
 import java.util.List
 import net.minecraft.creativetab.CreativeTabs
 import codechicken.microblock.MicroblockClassRegistry._
@@ -91,7 +90,7 @@ object ItemMicroPart
 {
     def checkTagCompound(stack:ItemStack)
     {
-        if(!stack.hasTagCompound())
+        if(!stack.hasTagCompound)
             stack.setTagCompound(new NBTTagCompound("tag"))
     }
     
@@ -103,26 +102,26 @@ object ItemMicroPart
     {
         val stack = new ItemStack(MicroblockProxy.itemMicro, amount, damage)
         checkTagCompound(stack)
-        stack.getTagCompound().setString("mat", material)
+        stack.getTagCompound.setString("mat", material)
         return stack
     }
     
     def getMaterial(stack:ItemStack):IMicroMaterial =
     {
         checkTagCompound(stack)
-        if(!stack.getTagCompound().hasKey("mat"))
-            return null;
-        
-        return MicroMaterialRegistry.getMaterial(stack.getTagCompound().getString("mat"))
+        if(!stack.getTagCompound.hasKey("mat"))
+            return null
+
+        return MicroMaterialRegistry.getMaterial(stack.getTagCompound.getString("mat"))
     }
     
     def getMaterialID(stack:ItemStack):Int =
     {
         checkTagCompound(stack)
-        if(!stack.getTagCompound().hasKey("mat"))
-            return 0;
-        
-        return MicroMaterialRegistry.materialID(stack.getTagCompound().getString("mat"))
+        if(!stack.getTagCompound.hasKey("mat"))
+            return 0
+
+        return MicroMaterialRegistry.materialID(stack.getTagCompound.getString("mat"))
     }
 }
 
@@ -147,7 +146,7 @@ object ItemMicroPartRenderer extends IItemRenderer
             GL11.glTranslatef(-0.5F, -0.5F, -0.5F)
         
         CCRenderState.reset()
-        TextureUtils.bindAtlas(0);
+        TextureUtils.bindAtlas(0)
         CCRenderState.useNormals(true)
         CCRenderState.useModelColours(true)
         CCRenderState.pullLightmap()

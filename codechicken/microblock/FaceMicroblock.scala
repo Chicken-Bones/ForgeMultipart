@@ -1,29 +1,10 @@
 package codechicken.microblock
 
-import codechicken.lib.packet.PacketCustom
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.MovingObjectPosition
-import net.minecraft.item.ItemStack
 import codechicken.lib.vec.Cuboid6
-import net.minecraft.entity.player.EntityPlayer
-import codechicken.multipart.TCuboidPart
 import codechicken.multipart.TFacePart
 import codechicken.lib.vec.Vector3
 import codechicken.lib.vec.Rotation
-import codechicken.multipart.PartMap
-import cpw.mods.fml.relauncher.SideOnly
-import cpw.mods.fml.relauncher.Side
-import codechicken.lib.lighting.CCRBModel
-import net.minecraft.world.World
-import codechicken.lib.vec.BlockCoord
-import codechicken.multipart.MultipartRenderer
-import codechicken.lib.render.CCModel
-import codechicken.multipart.TileMultipart
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import net.minecraft.block.Block
-import scala.collection.immutable.Vector
-import scala.collection.mutable.ListBuffer
-import codechicken.multipart.BlockMultipart
 import codechicken.lib.lighting.LazyLightMatrix
 import Rotation._
 import Vector3._
@@ -43,7 +24,7 @@ object FacePlacement extends PlacementProperties
 
 object FaceMicroClass extends MicroblockClass
 {
-    var aBounds:Array[Cuboid6] = new Array(256);
+    var aBounds:Array[Cuboid6] = new Array(256)
     
     for(s <- 0 until 6)
     {

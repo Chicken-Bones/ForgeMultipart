@@ -8,9 +8,6 @@ import com.google.common.collect.LinkedListMultimap
 import scala.collection.JavaConversions._
 import codechicken.multipart.handler.MultipartSPH
 import net.minecraft.world.WorldServer
-import java.util.{List => JList}
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
 import java.util.Arrays
 import net.minecraft.server.management.PlayerInstance
 import codechicken.lib.asm.ObfMapping
@@ -42,7 +39,7 @@ object MultipartHelper
             return null
         
         MultipartSaveLoad.loadingWorld = world
-        return TileMultipart.createFromNBT(tag);
+        return TileMultipart.createFromNBT(tag)
     }
     
     /**

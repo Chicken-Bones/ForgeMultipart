@@ -50,7 +50,7 @@ object DebugPrinter
     def defined(name:String, bytes:Array[Byte])
     {
         if((permGenUsed+bytes.length)/16000 != permGenUsed/16000)
-            log((permGenUsed+bytes.length)+" bytes of permGen has been used by ASMMixinCompiler");
+            log((permGenUsed+bytes.length)+" bytes of permGen has been used by ASMMixinCompiler")
         
         permGenUsed += bytes.length
     }
@@ -95,7 +95,7 @@ object ASMMixinCompiler
             return null
         
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
-                .find(jName.startsWith(_)).isEmpty
+                .find(jName.startsWith).isEmpty
         
         val obfName = FMLDeobfuscatingRemapper.INSTANCE.unmap(name).replace('/', '.')
         val bytes = cl.getClassBytes(obfName)
@@ -182,7 +182,7 @@ object ASMMixinCompiler
             case class JMethodInfoSource(method:Method) extends MethodInfoSource
             {
                 def name = method.getName
-                def desc = getType(method).getDescriptor()
+                def desc = getType(method).getDescriptor
                 def isPrivate = Modifier.isPrivate(method.getModifiers)
                 def isAbstract = Modifier.isAbstract(method.getModifiers)
             }
@@ -208,7 +208,7 @@ object ASMMixinCompiler
             def superClass = Option(getNodeInfo(cnode.superName))
             def interfaces = cnode.interfaces match {
                 case null => Seq()
-                case v => v.map(getNodeInfo(_))
+                case v => v.map(getNodeInfo)
             }
             def methods = cnode.methods.map(MethodNodeInfoSource(_))
         }
@@ -219,7 +219,7 @@ object ASMMixinCompiler
             val csym = sig.evalT(0):ClassSymbol
             
             override def superClass = Option(getNodeInfo(csym.jParent(sig)))
-            override def interfaces = csym.jInterfaces(sig).map(getNodeInfo(_))
+            override def interfaces = csym.jInterfaces(sig).map(getNodeInfo)
         }
         
         def classInfo(name:String):ClassInfoSource = name match {
