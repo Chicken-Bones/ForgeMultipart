@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=Kamena Pila
+item.microblock:sawIron.name=Željezna Pila
+item.microblock:sawDiamond.name=Dijamantna Pila
+item.microblock:stoneRod.name=Kameni Štap
+
+mcr_face.1.name=%si Pokrivač
+mcr_face.1.subset=Pokrivač
+mcr_face.2.name=%si Panel
+mcr_face.2.subset=Panel
+mcr_face.4.name=%sa Ploča
+mcr_face.4.subset=Ploča
+
+mcr_hllw.1.name=Izdubljen %si Pokrivač
+mcr_hllw.1.subset=Izdubljen Pokrivač
+mcr_hllw.2.name=Izdubljen %si Panel
+mcr_hllw.2.subset=Izdubljen Panel
+mcr_hllw.4.name=Izdubljena %sa Ploča
+mcr_hllw.4.subset=Izdubljena Ploča
+
+mcr_edge.1.name=%sa Pruga
+mcr_edge.1.subset=Pruga
+mcr_edge.2.name=%si Post
+mcr_edge.2.subset=Post
+mcr_edge.4.name=%si Stup
+mcr_edge.4.subset=Stup
+
+mcr_cnr.1.name=%si Kutak
+mcr_cnr.1.subset=Kutak
+mcr_cnr.2.name=%si Ugao
+mcr_cnr.2.subset=Ugao
+mcr_cnr.4.name=%si Usjek
+mcr_cnr.4.subset=Usjek
