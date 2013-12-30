@@ -132,7 +132,7 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
     @Override
     public void scheduledTick()
     {
-        if(isBeingPowered() == active())
+        if(!world().isRemote && isBeingPowered() == active())
             toggle();
     }
 

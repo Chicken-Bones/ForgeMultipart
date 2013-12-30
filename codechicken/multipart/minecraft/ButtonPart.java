@@ -131,7 +131,7 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
         meta^=8;
         world().playSoundEffect(x() + 0.5, y() + 0.5, z() + 0.5, "random.click", 0.3F, in ? 0.6F : 0.5F);
         if(in)
-            TickScheduler.scheduleTick(this, delay());
+            scheduleTick(delay());
         
         sendDescUpdate();
         tile().notifyPartChange(this);
@@ -148,7 +148,7 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
         if(arrows != pressed)
             toggle();
         if(arrows && pressed)
-            TickScheduler.scheduleTick(this, delay());
+            scheduleTick(delay());
     }
     
     @Override
