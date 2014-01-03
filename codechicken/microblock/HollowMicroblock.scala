@@ -71,6 +71,8 @@ object HollowMicroClass extends MicroblockClass
             new HollowMicroblock(size, slot, material)
     
     def placementProperties = HollowPlacement
+
+    def getResistanceFactor = 1
 }
 
 class HollowMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends HollowMicroblock(shape$, material$) with CommonMicroblockClient

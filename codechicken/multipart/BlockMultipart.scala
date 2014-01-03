@@ -74,13 +74,11 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     override def hasTileEntity(meta:Int = 0) = true
     
     override def isBlockSolidOnSide(world:World, x:Int, y:Int, z:Int, side:ForgeDirection):Boolean =
-    {
-        return getTile(world, x, y, z) match {
+        getTile(world, x, y, z) match {
             case null => false
             case tile => tile.isSolid(side.ordinal())
         }
-    }
-    
+
     override def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, id:Int)
     {
         val tile = getTile(world, x, y, z)
@@ -89,20 +87,16 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     }
     
     override def collisionRayTrace(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):ExtendedMOP = 
-    {
         getTile(world, x, y, z) match {
             case null => null
             case tile => tile.collisionRayTrace(start, end) 
         }
-    }
-    
+
     def rayTraceAll(world:World, x:Int, y:Int, z:Int, start:Vec3, end:Vec3):Iterable[ExtendedMOP] =
-    {
         getTile(world, x, y, z) match {
             case null => Seq()
             case tile => tile.rayTraceAll(start, end) 
         }
-    }
 
     override def removeBlockByPlayer(world:World, player:EntityPlayer, x:Int, y:Int, z:Int):Boolean =
     {
@@ -182,14 +176,12 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     
     override def getRenderType = TileMultipart.renderID
     
-    override def isAirBlock(world:World, x:Int, y:Int, z:Int):Boolean = 
-    {
-        return getTile(world, x, y, z) match {
+    override def isAirBlock(world:World, x:Int, y:Int, z:Int):Boolean =
+        getTile(world, x, y, z) match {
             case null => true
             case tile => tile.partList.isEmpty
         }
-    }
-    
+
     override def isBlockReplaceable(world:World, x:Int, y:Int, z:Int) = isAirBlock(world, x, y, z)
     
     override def getRenderBlockPass = 1
@@ -228,24 +220,22 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
      */
     override def registerIcons(register:IconRegister)
     {
-        val n = getUnlocalizedName
         val icon = TextureUtils.getBlankIcon(16, register)
         setTextureName(icon.getIconName)
         super.registerIcons(register)
     }
     
     override def getLightValue(world:IBlockAccess, x:Int, y:Int, z:Int):Int = 
-    {
-        return getTile(world, x, y, z) match {
+        getTile(world, x, y, z) match {
             case null => 0
             case tile => tile.getLightValue 
         }
-    }
-    
+
     override def randomDisplayTick(world:World, x:Int, y:Int, z:Int, random:Random)
     {
         val tile = getClientTile(world, x, y, z)
-        if(tile != null) tile.randomDisplayTick(random)
+        if(tile != null)
+            tile.randomDisplayTick(random)
     }
     
     override def onBlockActivated(world:World, x:Int, y:Int, z:Int, player:EntityPlayer, side:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
@@ -277,29 +267,23 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
     }
     
     override def isProvidingStrongPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
-    {
-        return getTile(world, x, y, z) match {
+        getTile(world, x, y, z) match {
             case null => 0
             case tile => tile.strongPowerLevel(side^1)
         }
-    }
-    
+
     override def isProvidingWeakPower(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Int =
-    {
-        return getTile(world, x, y, z) match {
+        getTile(world, x, y, z) match {
             case null => 0
             case tile => tile.weakPowerLevel(side^1)
         }
-    }
-    
+
     override def canConnectRedstone(world:IBlockAccess, x:Int, y:Int, z:Int, side:Int):Boolean =
-    {
-        return getTile(world, x, y, z) match {
+        getTile(world, x, y, z) match {
             case null => false
             case tile => tile.canConnectRedstone(side)
         }
-    }
-    
+
     override def onEntityCollidedWithBlock(world:World, x:Int, y:Int, z:Int, entity:Entity)
     {
         val tile = getTile(world, x, y, z)
@@ -314,7 +298,13 @@ class BlockMultipart(id:Int) extends Block(id, Material.rock)
             case tile => tile.onNeighborTileChange(tileX, tileY, tileZ)
         }
     }
-    
+
+    override def getExplosionResistance(entity:Entity, world:World, x:Int, y:Int, z:Int, explosionX:Double, explosionY:Double, explosionZ:Double):Float =
+        getTile(world, x, y, z) match {
+            case null => 0
+            case tile => tile.getExplosionResistance(entity)
+        }
+
     override def weakTileChanges() = true
     
     override def canProvidePower = true

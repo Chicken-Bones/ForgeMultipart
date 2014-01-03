@@ -19,6 +19,7 @@ import codechicken.lib.render.CCRenderState
 import codechicken.lib.vec.Rotation
 import net.minecraftforge.common.MinecraftForge
 import codechicken.microblock.handler.MicroblockProxy
+import net.minecraft.entity.Entity
 
 /**
  * Standard micro material class suitable for most blocks.
@@ -106,6 +107,8 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     def getCutterStrength = toolClasses.foldLeft(0)((level, tool) => Math.max(level, MinecraftForge.getBlockHarvestLevel(block, meta, tool)))
     
     def getSound = block.stepSound
+
+    def explosionResistance(entity:Entity):Float = block.getExplosionResistance(entity)
 }
 
 /**

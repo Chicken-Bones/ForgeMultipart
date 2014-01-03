@@ -27,6 +27,7 @@ import codechicken.lib.render.IFaceRenderer
 import codechicken.multipart.TSlottedPart
 import scala.collection.JavaConversions._
 import codechicken.lib.render.TextureUtils
+import net.minecraft.entity.Entity
 
 object CommonMicroblock
 {
@@ -173,6 +174,10 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     def isTransparent = MicroMaterialRegistry.getMaterial(material).isTransparent
     
     override def getLightValue = MicroMaterialRegistry.getMaterial(material).getLightValue
+
+    def getResistanceFactor:Float
+
+    override def explosionResistance(entity:Entity) = MicroMaterialRegistry.getMaterial(material).explosionResistance(entity)*getResistanceFactor
 }
 
 trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with TMicroOcclusionClient
@@ -199,9 +204,11 @@ abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Micr
     
     def getSlot = getShape
     
-    override def getSlotMask = 1<<getSlot
+    def getSlotMask = 1<<getSlot
     
     def getPartialOcclusionBoxes = Seq(getBounds)
     
     override def itemClassID = microClass.classID
+
+    def getResistanceFactor = microClass.getResistanceFactor
 }

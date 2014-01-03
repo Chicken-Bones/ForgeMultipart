@@ -49,6 +49,8 @@ object CornerMicroClass extends MicroblockClass
             new CornerMicroblock(size, slot, material)
     
     def placementProperties = CornerPlacement
+
+    def getResistanceFactor = 1
 }
 
 class CornerMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends CornerMicroblock(shape$, material$) with CommonMicroblockClient

@@ -113,7 +113,14 @@ abstract class TMultiPart
      * The light level emitted by this part
      */
     def getLightValue = 0
-    
+
+    /**
+     * Explosion resistance of the host tile is the maximum explosion resistance of the contained parts
+     * @param entity The entity responsible for this explosion
+     * @return The resistance of this part the the explosion
+     */
+    def explosionResistance(entity:Entity) = 0F
+
     /**
      * Add particles and other effects when a player is mining this part
      * @param hit An instance of ExtendedMOP from collisionRayTrace

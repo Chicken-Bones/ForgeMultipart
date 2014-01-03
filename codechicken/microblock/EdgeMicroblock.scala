@@ -99,6 +99,8 @@ object EdgeMicroClass extends MicroblockClass
             new EdgeMicroblock(size, slot, material)
     
     def placementProperties = EdgePlacement
+
+    def getResistanceFactor = 0.5F
 }
 
 class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicroblock(shape$, material$) with CommonMicroblockClient
@@ -147,6 +149,8 @@ object PostMicroClass
             new PostMicroblock(size, slot, material)
     
     def register() = MultiPartRegistry.registerParts((_, c:Boolean) => create(c), getName)
+
+    def getResistanceFactor = 0.5F
 }
 
 class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicroblock(shape$, material$) with MicroblockClient
@@ -263,4 +267,6 @@ class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shap
         
         return super.occlusionTest(npart)
     }
+
+    def getResistanceFactor = PostMicroClass.getResistanceFactor
 }

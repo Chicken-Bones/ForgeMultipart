@@ -34,4 +34,6 @@ trait MicroblockClass
     def placementProperties:PlacementProperties
     
     def register(id:Int) = MicroblockClassRegistry.registerMicroClass(this, id)
+
+    def getResistanceFactor:Float
 }

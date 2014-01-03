@@ -51,6 +51,8 @@ object FaceMicroClass extends MicroblockClass
             new FaceMicroblock(size, slot, material)
     
     def placementProperties = FacePlacement
+
+    def getResistanceFactor = 1
 }
 
 class FaceMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends FaceMicroblock(shape$, material$) with CommonMicroblockClient

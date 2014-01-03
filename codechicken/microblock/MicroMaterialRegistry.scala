@@ -18,6 +18,7 @@ import scala.collection.mutable.ListBuffer
 import net.minecraft.block.StepSound
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.world.World
+import net.minecraft.entity.Entity
 
 object MicroMaterialRegistry
 {
@@ -91,6 +92,11 @@ object MicroMaterialRegistry
          * Return true if this material is solid and opaque (can run wires on etc)
          */
         def isSolid = !isTransparent
+
+        /**
+         * Get the explosion resistance of this part to an explosion caused by entity
+         */
+        def explosionResistance(entity:Entity):Float
     }
     
     /**

@@ -169,7 +169,9 @@ class TileMultipart extends TileEntity
      */
     def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int) {}
     
-    def getLightValue = partList.foldLeft(0)((l, p) => Math.max(l, p.getLightValue))
+    def getLightValue = partList.view.map(_.getLightValue).max
+
+    def getExplosionResistance(entity:Entity) = partList.view.map(_.explosionResistance(entity)).max
     
     /**
      * Callback for parts to mark the chunk as needs saving
