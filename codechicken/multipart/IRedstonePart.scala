@@ -82,6 +82,7 @@ trait IRedstoneTile extends IRedstoneConnector
 
 /**
  * Block version of IRedstoneConnector
+ * Due to the inadequate Block.canConnectRedstone not handling the bottom side (nor the top particularly well)
  */
 trait IRedstoneConnectorBlock
 {
@@ -100,6 +101,18 @@ object RedstoneInteractions
     
     val vanillaSideMap = Array(-2, -1, 0, 2, 3, 1)
     val sideVanillaMap = Array(1, 2, 5, 3, 4)
+
+    /**
+     * Hardcoded vanilla overrides for Block.canConnectRedstone (see @IRedstoneConnectorBlock)
+     */
+    val fullVanillaBlocks = Array.ofDim[Boolean](Block.blocksList.length)
+    Seq(Block.torchRedstoneActive,
+        Block.torchRedstoneIdle,
+        Block.lever,
+        Block.stoneButton,
+        Block.woodenButton,
+        Block.blockRedstone)
+        .foreach(b => fullVanillaBlocks(b.blockID) = true)
     
     /**
      * Get the direct power to p on side
@@ -201,7 +214,7 @@ object RedstoneInteractions
      */
     def vanillaConnectionMask(block:Block, world:IBlockAccess, x:Int, y:Int, z:Int, side:Int, power:Boolean):Int =
     {
-        if(block == Block.torchRedstoneActive || block == Block.torchRedstoneIdle || block == Block.lever || block == Block.stoneButton || block == Block.woodenButton)
+        if(fullVanillaBlocks(block.blockID))
             return 0x1F
         
         if(side == 0)//vanilla doesn't handle side 0
