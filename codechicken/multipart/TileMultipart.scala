@@ -450,7 +450,7 @@ class TileMultipart extends TileEntity
         items.foreach(item => TileMultipart.dropItem(item, worldObj, pos))
     }
     
-    override def writeToNBT(tag:NBTTagCompound)
+    final override def writeToNBT(tag:NBTTagCompound)
     {
         super.writeToNBT(tag)
         val taglist = new NBTTagList
@@ -459,7 +459,7 @@ class TileMultipart extends TileEntity
             parttag.setString("id", part.getType)
             part.save(parttag)
             taglist.appendTag(parttag)
-    }
+        }
         tag.setTag("parts", taglist)
     }
     
