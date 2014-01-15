@@ -111,8 +111,8 @@ object RedstoneInteractions
         Block.lever,
         Block.stoneButton,
         Block.woodenButton,
-        Block.blockRedstone)
-        .foreach(b => fullVanillaBlocks(b.blockID) = true)
+        Block.blockRedstone
+    ).foreach(b => fullVanillaBlocks(b.blockID) = true)
     
     /**
      * Get the direct power to p on side
@@ -218,33 +218,26 @@ object RedstoneInteractions
             return 0x1F
         
         if(side == 0)//vanilla doesn't handle side 0
-        {
-            if(power)
-                return 0x1F
-            
+            return if(power) 0x1F else 0
+
+        /**
+         * so that these can be conducted to from face parts on the other side of the block.
+         * Due to vanilla's in adequecy with redstone/logic on walls
+         */
+        if(block == Block.redstoneWire || block ==  Block.redstoneComparatorActive || block == Block.redstoneComparatorIdle) {
+            if(side != 0)
+                return if(power) 0x1F else 4
+
             return 0
         }
-        
-        if(block == Block.redstoneWire)
-        {
-            if(side != 1)
-                return 4
-            return 0x1F
-        }
-        
-        if(block == Block.redstoneComparatorActive || block == Block.redstoneComparatorIdle)
-        {
-            if(side != 1)
-                return 4
-            return 0
-        }
-        
+
         val vside = vanillaSideMap(side)
         if(block == Block.redstoneRepeaterActive || block == Block.redstoneRepeaterIdle)//stupid minecraft hardcodes
         {
-             val meta = world.getBlockMetadata(x, y, z)
+            val meta = world.getBlockMetadata(x, y, z)
             if(vside == (meta & 3) || vside == Direction.rotateOpposite(meta & 3))
-                 return 4
+                 return if(power) 0x1F else 4
+
              return 0
         }
         
