@@ -114,7 +114,7 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
             }
             if(d < 0.5)
             {
-                var ret = internalPlacement(htile, slot)
+                val ret = internalPlacement(htile, slot)
                 if(ret != null && !oppMod)
                     return ret
                 if(ret != null && oppMod || ret == null && !oppMod)
@@ -124,14 +124,14 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
                     return externalPlacement(slot)
                 return null
             }
-            var ret = internalPlacement(htile, oslot)
+            val ret = internalPlacement(htile, oslot)
             if(!oppMod)
                 return ret
             if(ret != null)
                 return externalPlacement(slot)
             return null
         }
-        var ret = externalPlacement(slot)
+        val ret = externalPlacement(slot)
         if(ret != null && oppMod && useOppMod)
             return externalPlacement(oslot)
         return ret
@@ -141,8 +141,9 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     
     def expand(mpart:Microblock, npart:Microblock):ExecutablePlacement = 
     {
-        if(mpart.tile.canReplacePart(mpart, npart))
-            return new ExpandingPlacement(new BlockCoord(mpart.tile), npart, mpart)
+        val pos = new BlockCoord(mpart.tile)
+        if(TileMultipart.checkNoEntityCollision(world, pos, npart) && mpart.tile.canReplacePart(mpart, npart))
+            return new ExpandingPlacement(pos, npart, mpart)
         return null
     }
     
@@ -150,8 +151,9 @@ class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:Movi
     
     def internalPlacement(htile:TileMultipart, npart:Microblock):ExecutablePlacement = 
     {
-        if(htile.canAddPart(npart))
-            return new AdditionPlacement(new BlockCoord(htile), npart)
+        val pos = new BlockCoord(htile)
+        if(TileMultipart.checkNoEntityCollision(world, pos, npart) && htile.canAddPart(npart))
+            return new AdditionPlacement(pos, npart)
         return null
     }
     

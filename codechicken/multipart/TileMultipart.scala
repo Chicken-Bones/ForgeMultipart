@@ -568,17 +568,18 @@ object TileMultipart
             case _ => null
         }
 
+    def checkNoEntityCollision(world:World, pos:BlockCoord, part:TMultiPart) =
+        part.getCollisionBoxes.forall(b => world.checkNoEntityCollision(b.toAABB.offset(pos.x, pos.y, pos.z)))
+
     /**
      * Returns whether part can be added to the space at pos. Will do conversions as necessary.
      * This function is the recommended way to add parts to the world.
      */
     def canPlacePart(world:World, pos:BlockCoord, part:TMultiPart):Boolean =
     {
-        part.getCollisionBoxes.foreach{b => 
-            if(!world.checkNoEntityCollision(b.toAABB.offset(pos.x, pos.y, pos.z)))
-                return false
-        }
-        
+        if(!checkNoEntityCollision(world, pos, part))
+            return false
+
         val t = getOrConvertTile(world, pos)
         if(t != null)
             return t.canAddPart(part)
