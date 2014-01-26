@@ -56,6 +56,8 @@ class MultipartProxy_serverImpl
         TickRegistry.registerTickHandler(MultipartEventHandler, Side.SERVER)
         
         WorldExtensionManager.registerWorldExtension(TickScheduler)
+
+        MultipartCompatiblity.load()
     }
     
     def getFreeBlockID(preferred:Int):Int =

@@ -8,13 +8,12 @@ import net.minecraft.world.World
 import java.util.List
 import net.minecraft.nbt.NBTTagCompound
 import codechicken.lib.data.MCDataOutput
-import codechicken.multipart.handler.MultipartProxy
+import codechicken.multipart.handler.{MultipartCompatiblity, MultipartProxy, MultipartSPH}
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
 import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import java.util.Random
-import codechicken.multipart.handler.MultipartSPH
 import codechicken.lib.lighting.LazyLightMatrix
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
@@ -225,14 +224,11 @@ class TileMultipart extends TileEntity
     /**
      * Returns true if part can be added to this space
      */
-    def canAddPart(part:TMultiPart):Boolean =
-    {
-        if(partList.contains(part))
-            return false
-        
-        return occlusionTest(partList, part)
-    }
-    
+    def canAddPart(part:TMultiPart) =
+        MultipartCompatiblity.canAddPart(worldObj, xCoord, yCoord, zCoord) &&
+        !partList.contains(part) &&
+        occlusionTest(partList, part)
+
     /**
      * Returns true if opart can be replaced with npart (note opart and npart may be the exact same object)
      * 
@@ -583,6 +579,8 @@ object TileMultipart
         val t = getOrConvertTile(world, pos)
         if(t != null)
             return t.canAddPart(part)
+        else if(!MultipartCompatiblity.canAddPart(world, pos.x, pos.y, pos.z))
+            return false
         
         if(!replaceable(world, pos))
             return false
