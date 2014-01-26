@@ -1,6 +1,5 @@
 package codechicken.multipart.scalatraits
 
-import scala.collection.mutable.ListBuffer
 import net.minecraftforge.common.ForgeDirection
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TileMultipart
@@ -8,6 +7,8 @@ import net.minecraftforge.fluids.IFluidHandler
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.FluidTankInfo
 import net.minecraftforge.fluids.Fluid
+import java.util.LinkedList
+import scala.collection.JavaConversions._
 
 /**
  * Mixin trait implementation for parts implementing IFluidHandler.
@@ -15,7 +16,7 @@ import net.minecraftforge.fluids.Fluid
  */
 trait TFluidHandlerTile extends TileMultipart with IFluidHandler
 {
-    var tankList = ListBuffer[IFluidHandler]()
+    var tankList = new LinkedList[IFluidHandler]()
     
     override def copyFrom(that:TileMultipart)
     {
