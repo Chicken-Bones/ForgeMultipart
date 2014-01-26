@@ -18,7 +18,7 @@ object MCPCCompatModule
 {
     def load() {
         try {
-            val m_canPlacePart = classOf[World].getDeclaredMethod("canPlaceMultipart", classOf[World], classOf[Block], classOf[Int], classOf[Int], classOf[Int])
+            val m_canPlacePart = classOf[World].getDeclaredMethod("canPlaceMultipart", classOf[Block], classOf[Int], classOf[Int], classOf[Int])
             MultipartCompatiblity.canAddPart = (world:World, x:Int, y:Int, z:Int) => {
                 m_canPlacePart.invoke(world, MultipartProxy.block, x:Integer, y:Integer, z:Integer).asInstanceOf[Boolean].booleanValue()
             }
