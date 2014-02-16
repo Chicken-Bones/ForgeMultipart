@@ -3,7 +3,7 @@ package codechicken.multipart
 import net.minecraft.tileentity.TileEntity
 import scala.collection.mutable.ListBuffer
 import codechicken.lib.packet.PacketCustom
-import codechicken.lib.vec.BlockCoord
+import codechicken.lib.vec.{Cuboid6, BlockCoord, Vector3}
 import net.minecraft.world.World
 import java.util.List
 import net.minecraft.nbt.NBTTagCompound
@@ -11,7 +11,6 @@ import codechicken.lib.data.MCDataOutput
 import codechicken.multipart.handler.{MultipartCompatiblity, MultipartProxy, MultipartSPH}
 import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
-import codechicken.lib.vec.Vector3
 import net.minecraft.nbt.NBTTagList
 import java.util.Random
 import codechicken.lib.lighting.LazyLightMatrix
@@ -503,7 +502,11 @@ class TileMultipartClient extends TileMultipart
         true
     }
     
-    override def getRenderBoundingBox = AxisAlignedBB.getAABBPool.getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1)
+    override def getRenderBoundingBox = {
+        val c = Cuboid6.full.copy
+        partList.foreach(part => c.enclose(part.getRenderBounds))
+        c.add(Vector3.fromTileEntity(this)).toAABB
+    }
 }
 
 /**
@@ -511,7 +514,7 @@ class TileMultipartClient extends TileMultipart
  */
 object TileMultipart
 {
-    var renderID:Int = -1
+    var renderID = -1
     
     /**
      * Playerinstance will often remove the tile entity instance and set the block to air on the client before the multipart packet handler fires it's updates.

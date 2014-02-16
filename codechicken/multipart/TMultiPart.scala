@@ -166,7 +166,11 @@ abstract class TMultiPart
      */
     @SideOnly(Side.CLIENT)
     def drawHighlight(hit:MovingObjectPosition, player:EntityPlayer, frame:Float):Boolean = false
-    
+    /**
+     * @return A Cuboid6 bounding the render of this part for frustum culling. The bounds are relative to the tile coordinates.
+     */
+    def getRenderBounds = Cuboid6.full
+
     /**
      * Write all the data required to describe a client version of this part to the packet.
      * Called serverside, when a client loads this part for the first time.
