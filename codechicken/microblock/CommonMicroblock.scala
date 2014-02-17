@@ -78,35 +78,29 @@ object JMicroblockClient
 
 trait MicroblockClient extends Microblock with TIconHitEffects with IMicroMaterialRender
 {
-    def getBrokenIcon(side:Int):Icon =
-    {
-        val mat = MicroMaterialRegistry.getMaterial(material)
-        if(mat != null)
-            return mat.getBreakingIcon(side)
-        return Block.stone.getIcon(0, 0)
+    def getBrokenIcon(side:Int) = MicroMaterialRegistry.getMaterial(material) match {
+        case null => Block.stone.getIcon(0, 0)
+        case mat => mat.getBreakingIcon(side)
     }
-    
+
     def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
         renderCuboid(pos, olm, mat, c, sideMask)
     
     def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
         JMicroblockClient.renderCuboid(pos, olm, mat, c, sideMask, this)
     
-    def getRenderBounds = getBounds
+    override def getRenderBounds = getBounds
 }
 
 abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCuboidPart
 {    
     def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
     
-    override def getStrength(hit:MovingObjectPosition, player:EntityPlayer):Float = 
-    {
-        val mat = MicroMaterialRegistry.getMaterial(material)
-        if(mat != null)
-            return mat.getStrength(player)
-        return super.getStrength(hit, player)
+    override def getStrength(hit:MovingObjectPosition, player:EntityPlayer) = MicroMaterialRegistry.getMaterial(material) match {
+        case null => super.getStrength(hit, player)
+        case mat => mat.getStrength(player)
     }
-    
+
     override def doesTick = false
     
     def getSize = shape>>4
