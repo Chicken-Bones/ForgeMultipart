@@ -603,7 +603,11 @@ object ASMMixinCompiler
                     }
                     else if(!sym.name.equals("$init$") && !sym.isPrivate)
                     {
-                        methods+=findMethod(new ObfMapping(cnode.name, sym.name, desc), cnode)
+                        val map = new ObfMapping(cnode.name, sym.name, desc)
+                        val method = findMethod(map, cnode)
+                        if(method == null)
+                            throw new RuntimeException("Unable to add multipart trait: "+map+" found in scala signature but not in class file. Most likely an obfuscation issue.")
+                        methods+=method
                     }
                 }
                 else
