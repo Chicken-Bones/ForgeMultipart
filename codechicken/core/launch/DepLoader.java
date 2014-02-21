@@ -1,29 +1,20 @@
 package codechicken.core.launch;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,6 +44,8 @@ import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import sun.misc.URLClassPath;
+import sun.net.util.URLUtil;
 
 /**
  * For autodownloading stuff.
@@ -329,6 +322,44 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             }
         }
 
+        private void deleteMod(File mod) {
+            if(mod.delete())
+                return;
+
+            try
+            {
+                ClassLoader cl = DepLoader.class.getClassLoader();
+                URL url = mod.toURI().toURL();
+                Field f_ucp = URLClassLoader.class.getDeclaredField("ucp");
+                Field f_loaders = URLClassPath.class.getDeclaredField("loaders");
+                Field f_lmap = URLClassPath.class.getDeclaredField("lmap");
+                f_ucp.setAccessible(true);
+                f_loaders.setAccessible(true);
+                f_lmap.setAccessible(true);
+
+                URLClassPath ucp = (URLClassPath) f_ucp.get(cl);
+                Closeable loader = ((Map<String, Closeable>)f_lmap.get(ucp)).remove(URLUtil.urlNoFragString(url));
+                if(loader != null) {
+                    loader.close();
+                    ((List<?>)f_loaders.get(ucp)).remove(loader);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            if(!mod.delete()) {
+                mod.deleteOnExit();
+                String msg = owner+" was unable to delete file "+mod.getPath()+" the game will now try to delete it on exit. If this dialog appears again, delete it manually.";
+                System.err.println(msg);
+                if(!GraphicsEnvironment.isHeadless())
+                    JOptionPane.showMessageDialog(null, msg, "An update error has occured", JOptionPane.ERROR_MESSAGE);
+
+                System.exit(1);
+            }
+        }
+
         private void download(Dependancy dep)
         {
             popupWindow = (JDialog) downloadMonitor.makeDialog();
@@ -427,45 +458,42 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             }
         }
 
-        private String checkExisting(String[] dependancy)
+        private String checkExisting(String[] dependency)
         {
             for(File f : modsDir.listFiles())
             {
                 String[] split = splitFileName(f.getName());
-                if(split == null || !split[0].equals(dependancy[0]))
+                if(split == null || !split[0].equals(dependency[0]))
                     continue;
 
                 if(f.renameTo(new File(v_modsDir, f.getName())))
                     continue;
                 
-                if(f.delete())
-                    continue;
-                
-                f.deleteOnExit();
+                deleteMod(f);
             }
             
             for(File f : v_modsDir.listFiles())
             {
                 String[] split = splitFileName(f.getName());
-                if(split == null || !split[0].equals(dependancy[0]))
+                if(split == null || !split[0].equals(dependency[0]))
                     continue;
                 
                 ComparableVersion found = new ComparableVersion(split[1]);
-                ComparableVersion requested = new ComparableVersion(dependancy[1]);
+                ComparableVersion requested = new ComparableVersion(dependency[1]);
                 
                 int cmp = found.compareTo(requested);
                 if(cmp < 0)
                 {
                     System.out.println("Deleted old version "+f.getName());
-                    f.delete();
+                    deleteMod(f);
                     return null;
                 }
                 if(cmp > 0)
                 {
-                    System.err.println("Warning: version of "+dependancy[0]+", "+split[1]+" is newer than request "+dependancy[1]);
+                    System.err.println("Warning: version of "+dependency[0]+", "+split[1]+" is newer than request "+dependency[1]);
                     return f.getName();
                 }
-                return f.getName();//found dependancy
+                return f.getName();//found dependency
             }
             return null;
         }
@@ -545,13 +573,14 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
             {
                 ZipFile zip = new ZipFile(file);
                 ZipEntry e = zip.getEntry("dependancies.info");
+                if(e == null) e = zip.getEntry("dependencies.info");
                 if(e != null)
                     loadJSon(zip.getInputStream(e));
                 zip.close();
             }
             catch(Exception e)
             {
-                System.err.println("Failed to load dependancies.info from "+file.getName()+" as JSON");
+                System.err.println("Failed to load dependencies.info from "+file.getName()+" as JSON");
                 e.printStackTrace();
             }
         }
@@ -596,12 +625,12 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
                 if(!e.getValue().hasText() || reserved.contains(s))
                     continue;
                 
-                file = file.replaceAll("@"+s.toUpperCase()+"@", e.getValue().getText());
+                file = file.replaceAll("@"+s.toUpperCase(Locale.ENGLISH)+"@", e.getValue().getText());
             }
             
             String[] split = splitFileName(file);
             if(split == null)
-                throw new RuntimeException("Invalid filename format for dependancy: "+file);
+                throw new RuntimeException("Invalid filename format for dependency: "+file);
             
             addDep(new Dependancy(repo, split, coreLib));
         }
@@ -675,10 +704,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook
         
         return null;
     }
-    
-    @Override
-    public String[] getLibraryRequestClass()
-    {
+
+    @Deprecated
+    public String[] getLibraryRequestClass() {
         return null;
     }
 }
