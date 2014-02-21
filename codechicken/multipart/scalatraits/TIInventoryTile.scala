@@ -124,3 +124,10 @@ trait TIInventoryTile extends TileMultipart with ISidedInventory
         }
     }
 }
+
+/**
+ * To handle obfuscation issues, this is registered as a java trait.
+ */
+class JInventoryTile extends TileMultipart with TIInventoryTile
+{
+}
