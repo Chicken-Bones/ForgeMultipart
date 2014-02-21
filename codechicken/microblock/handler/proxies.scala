@@ -46,6 +46,7 @@ class MicroblockProxy_serverImpl
         GameRegistry.registerItem(sawDiamond, "sawDiamond")
         stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
             .setUnlocalizedName("microblock:stoneRod").setTextureName("microblock:stoneRod")
+        GameRegistry.registerItem(stoneRod, "stoneRod")
         
         OreDictionary.registerOre("stoneRod", stoneRod)
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
