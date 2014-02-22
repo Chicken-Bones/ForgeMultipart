@@ -38,12 +38,17 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     {
         MultipartSPH.onWorldUnload(event.world)
     }
-    
+
     @ForgeSubscribe
     def chunkWatch(event:ChunkWatchEvent.Watch)
     {
-        val cc = event.chunk
-        MultipartSPH.onChunkWatch(event.player, event.player.worldObj.getChunkFromChunkCoords(cc.chunkXPos, cc.chunkZPos))
+        MultipartSPH.onChunkWatch(event.player, event.chunk)
+    }
+
+    @ForgeSubscribe
+    def chunkUnWatch(event:ChunkWatchEvent.UnWatch)
+    {
+        MultipartSPH.onChunkUnWatch(event.player, event.chunk)
     }
     
     @ForgeSubscribe

@@ -12,20 +12,21 @@ import codechicken.multipart.ControlKeyModifer
 import net.minecraft.network.packet.Packet255KickDisconnect
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
-import java.util.Map
+import java.util.{Map => JMap}
 import java.util.Iterator
 import net.minecraft.tileentity.TileEntity
 import codechicken.multipart.TileMultipart
 import net.minecraft.entity.player.EntityPlayer
-import scala.collection.mutable.{Map => MMap}
+import scala.collection.mutable.{Map, Set, HashMap, MultiMap}
 import codechicken.lib.vec.BlockCoord
 import codechicken.lib.data.MCOutputStreamWrapper
 import java.io.DataOutputStream
 import java.io.ByteArrayOutputStream
-import net.minecraft.world.WorldServer
 import net.minecraft.world.ChunkCoordIntPair
 import MultipartProxy._
 import codechicken.multipart.PacketScheduler
+import java.util.LinkedList
+import scala.collection.JavaConversions._
 
 class MultipartPH
 {
@@ -85,8 +86,10 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
         def getBytes = bout.toByteArray
     }
     
-    private val updateMap = MMap[World, MMap[BlockCoord, MCByteStream]]()
-    
+    private val updateMap = Map[World, Map[BlockCoord, MCByteStream]]()
+    private val chunkWatchers = new HashMap[EntityPlayer, Set[ChunkCoordIntPair]] with MultiMap[EntityPlayer, ChunkCoordIntPair]
+    private val newWatchers = Map[EntityPlayer, LinkedList[ChunkCoordIntPair]]()
+
     def handlePacket(packet:PacketCustom, netHandler:NetServerHandler, sender:EntityPlayerMP)
     {
         packet.getType match
@@ -105,7 +108,7 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
         updateMap.getOrElseUpdate(world, {
             if(world.isRemote)
                 throw new IllegalArgumentException("Cannot use MultipartSPH on a client world")
-            MMap()
+            Map()
         }).getOrElseUpdate(pos, {
             val s = new MCByteStream(new ByteArrayOutputStream)
             s.writeCoord(pos)
@@ -115,36 +118,49 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler
     def onTickEnd(players:Seq[EntityPlayerMP])
     {
         PacketScheduler.sendScheduled()
-        
-        players.foreach{p =>
-            val m = updateMap.getOrElse(p.worldObj, null)
-            if(m != null && !m.isEmpty)
-            {
-                val manager = p.worldObj.asInstanceOf[WorldServer].getPlayerManager
-                val packet = new PacketCustom(channel, 3).setChunkDataPacket().compressed()
-                var send = false
-                m.foreach(e => 
-                    if(manager.isPlayerWatchingChunk(p, e._1.x>>4, e._1.z>>4))
-                    {
+
+        for(p <- players if chunkWatchers.containsKey(p)) {
+            updateMap.get(p.worldObj) match {
+                case Some(m) if !m.isEmpty =>
+                    val chunks = chunkWatchers(p)
+                    val packet = new PacketCustom(channel, 3).setChunkDataPacket().compressed()
+                    var send = false
+                    for((pos, stream) <- m if chunks(new ChunkCoordIntPair(pos.x>>4, pos.z>>4))) {
                         send = true
-                        packet.writeByteArray(e._2.getBytes)
+                        packet.writeByteArray(stream.getBytes)
                         packet.writeByte(255)//terminator
-                    })
-                if(send)
-                {
-                    packet.writeInt(Int.MaxValue)//terminator
-                    packet.sendToPlayer(p)
-                }
+                    }
+                    if(send) {
+                        packet.writeInt(Int.MaxValue)//terminator
+                        packet.sendToPlayer(p)
+                    }
+                case _ =>
             }
         }
         updateMap.foreach(_._2.clear())
+        for((p, chunks) <- newWatchers) {
+            chunks.foreach{ c =>
+                val chunk = p.worldObj.getChunkFromChunkCoords(c.chunkXPos, c.chunkZPos)
+                val pkt = getDescPacket(chunk, chunk.chunkTileEntityMap.asInstanceOf[JMap[_, TileEntity]].values.iterator)
+                if(pkt != null) pkt.sendToPlayer(p)
+                chunkWatchers.addBinding(p, c)
+            }
+            chunks.clear()
+        }
     }
     
-    def onChunkWatch(player:EntityPlayer, chunk:Chunk)
+    def onChunkWatch(player:EntityPlayer, c:ChunkCoordIntPair)
     {
-        val pkt = getDescPacket(chunk, chunk.chunkTileEntityMap.asInstanceOf[Map[_, TileEntity]].values.iterator)
-        if(pkt != null)
-            pkt.sendToPlayer(player)
+        newWatchers.getOrElseUpdate(player, new LinkedList).add(c)
+    }
+
+    def onChunkUnWatch(player:EntityPlayer, c:ChunkCoordIntPair)
+    {
+        newWatchers.get(player) match {
+            case Some(chunks) => chunks.remove(c)
+            case _ =>
+        }
+        chunkWatchers.removeBinding(player, c)
     }
     
     def getDescPacket(chunk:Chunk, it:Iterator[TileEntity]):PacketCustom =
