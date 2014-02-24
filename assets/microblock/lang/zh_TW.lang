@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=石鋸子
+item.microblock:sawIron.name=鐵鋸子
+item.microblock:sawDiamond.name=鑽石鋸子
+item.microblock:stoneRod.name=石棍
+
+mcr_face.1.name=%s 薄板
+mcr_face.1.subset=薄板
+mcr_face.2.name=%s 面板
+mcr_face.2.subset=面板
+mcr_face.4.name=%s 厚板
+mcr_face.4.subset=厚板
+
+mcr_hllw.1.name=凹 %s 薄板
+mcr_hllw.1.subset=凹 薄板
+mcr_hllw.2.name=凹 %s 面板
+mcr_hllw.2.subset=凹 面板
+mcr_hllw.4.name=凹 %s 厚板
+mcr_hllw.4.subset=凹 厚板
+
+mcr_edge.1.name=%s 條
+mcr_edge.1.subset=條
+mcr_edge.2.name=%s 柱
+mcr_edge.2.subset=柱
+mcr_edge.4.name=%s 支柱
+mcr_edge.4.subset=支柱
+
+mcr_cnr.1.name=%s 角
+mcr_cnr.1.subset=角
+mcr_cnr.2.name=%s 棱角
+mcr_cnr.2.subset=棱角
+mcr_cnr.4.name=%s 切口
+mcr_cnr.4.subset=切口
