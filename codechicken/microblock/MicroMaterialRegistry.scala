@@ -126,9 +126,11 @@ object MicroMaterialRegistry
         if(MultiPartRegistry.loaded)
             throw new IllegalStateException("You must register your materials in the init methods.")
         
-        if(typeMap.contains(name))
-            throw new IllegalStateException("Material with id "+name+" is already registered.")
-        
+        if(typeMap.contains(name)) {
+            System.err.println("Material with id "+name+" is already registered.")
+            return
+        }
+
         System.out.println("Registered micro material: "+name)
         
         typeMap.put(name, material)
