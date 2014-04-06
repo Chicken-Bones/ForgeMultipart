@@ -166,11 +166,11 @@ class TileMultipart extends TileEntity
      * Blank implementation, overriden by TTileChangeTile
      */
     def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int) {}
-    
-    def getLightValue = partList.view.map(_.getLightValue).max
 
-    def getExplosionResistance(entity:Entity) = partList.view.map(_.explosionResistance(entity)).max
-    
+    def getLightValue = if (partList.isEmpty) 0 else partList.view.map(_.getLightValue).max
+
+    def getExplosionResistance(entity:Entity) = if (partList.isEmpty) 0.0F else partList.view.map(_.explosionResistance(entity)).max
+
     /**
      * Callback for parts to mark the chunk as needs saving
      */
