@@ -11,7 +11,7 @@ import codechicken.lib.vec.BlockCoord
 /**
  * Java class implementation
  */
-abstract class JItemMultiPart(id:Int) extends Item(id) with TItemMultiPart
+abstract class JItemMultiPart extends Item with TItemMultiPart
 
 /**
  * Simple multipart item class for easy placement. Simply override the newPart function and it the part will be added to the block space if it passes the occlusion tests.

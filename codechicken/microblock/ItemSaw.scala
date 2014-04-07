@@ -15,11 +15,11 @@ import codechicken.lib.vec.Translation
 import codechicken.lib.vec.Scale
 import codechicken.lib.vec.Rotation
 import org.lwjgl.opengl.GL11
-import codechicken.lib.render.UVTranslation
 import ItemRenderType._
 import codechicken.lib.math.MathHelper._
 import net.minecraft.util.ResourceLocation
-import net.minecraft.client.renderer.texture.IconRegister
+import net.minecraft.client.renderer.texture.IIconRegister
+import codechicken.lib.render.uv.UVTranslation
 
 /**
  * Interface for items that are 'saws'
@@ -36,7 +36,7 @@ trait Saw extends Item
     def getCuttingStrength(item:ItemStack):Int
 }
 
-class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag("id").getIntValue(nextItemID)) with Saw
+class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item with Saw
 {
     {
         val maxDamage = sawTag.getTag("durability").getIntValue(1<<harvestLevel+8)
@@ -47,9 +47,9 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
     
     override def hasContainerItem = true
         
-    override def getContainerItemStack(stack:ItemStack) = 
+    override def getContainerItem(stack:ItemStack) =
         if(isDamageable)
-            new ItemStack(stack.itemID, 1, stack.getItemDamage+1)
+            new ItemStack(stack.getItem, 1, stack.getItemDamage+1)
         else
             stack
     
@@ -57,7 +57,7 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item(sawTag.getTag
     
     def getCuttingStrength(item:ItemStack) = harvestLevel
     
-    override def registerIcons(register:IconRegister){}
+    override def registerIcons(register:IIconRegister){}
 }
 
 object ItemSawRenderer extends IItemRenderer
@@ -82,16 +82,15 @@ object ItemSawRenderer extends IItemRenderer
         }
         
         CCRenderState.reset()
-        CCRenderState.useNormals(true)
+        CCRenderState.useNormals = true
         CCRenderState.pullLightmap()
         CCRenderState.changeTexture("microblock:textures/items/saw.png")
-        CCRenderState.setColour(0xFFFFFFFF)
-        CCRenderState.startDrawing(7)
-        handle.render(t, null)
-        holder.render(t, null)
+        CCRenderState.startDrawing()
+        handle.render(t)
+        holder.render(t)
         CCRenderState.draw()
         GL11.glDisable(GL11.GL_CULL_FACE)
-        CCRenderState.startDrawing(7)
+        CCRenderState.startDrawing()
         blade.render(t, new UVTranslation(0, (item.getItem.asInstanceOf[Saw].getCuttingStrength(item)-1)*4/64D))
         CCRenderState.draw()
         GL11.glEnable(GL11.GL_CULL_FACE)

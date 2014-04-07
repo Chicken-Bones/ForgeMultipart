@@ -2,92 +2,83 @@ package codechicken.microblock
 
 import net.minecraft.block.Block
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import net.minecraft.util.Icon
-import codechicken.lib.lighting.LC
-import codechicken.lib.lighting.LightMatrix
+import net.minecraft.util.IIcon
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import codechicken.lib.render.MultiIconTransformation
-import codechicken.lib.render.IUVTransformation
 import net.minecraft.item.ItemStack
-import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.{Cuboid6, Vector3}
 import net.minecraft.entity.player.EntityPlayer
-import codechicken.lib.render.Vertex5
-import codechicken.lib.render.UV
-import net.minecraft.client.renderer.Tessellator
-import codechicken.lib.render.CCRenderState
-import codechicken.lib.vec.Rotation
-import net.minecraftforge.common.MinecraftForge
+import codechicken.lib.render.{CCRenderPipeline, ColourMultiplier, CCRenderState}
 import codechicken.microblock.handler.MicroblockProxy
 import net.minecraft.entity.Entity
+import codechicken.lib.render.uv.{UVTransformation, MultiIconTransformation}
+
+object MaterialRenderHelper
+{
+    private var pass = 0
+    private var builder:CCRenderPipeline#PipelineBuilder = _
+
+    def start(pos:Vector3, pass:Int, uvt:UVTransformation) = {
+        this.pass = pass
+        builder = CCRenderState.pipeline.builder()
+        builder.add(pos.translation()).add(uvt)
+        this
+    }
+
+    def blockColour(colour:Int) = {
+        builder.add(ColourMultiplier.instance(colour))
+        this
+    }
+
+    def lighting() = {
+        if(pass != -1)
+            builder.add(CCRenderState.lightMatrix)
+        this
+    }
+
+    def render() = builder.render()
+}
 
 /**
  * Standard micro material class suitable for most blocks.
  */
 class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMaterial
 {
+    val blockKey = Block.blockRegistry.getNameForObject(block)
+
     @SideOnly(Side.CLIENT)
     var icont:MultiIconTransformation = _
-    
+
     @SideOnly(Side.CLIENT)
-    override def loadIcons()
-    {
-        val iblock = Block.blocksList(block.blockID)//Reacquire the block instance incase a mod replaced it.
-        val icons = new Array[Icon](6)
-        
-        if(iblock == null)
-            for(i <- 0 until 6)
-                icons(i) = MicroblockProxy.renderBlocks.getIconSafe(null)
-        else
-            for(i <- 0 until 6)
-                icons(i) = MicroblockProxy.renderBlocks.getIconSafe(iblock.getIcon(i, meta))
-        
-        icont = new MultiIconTransformation(icons:_*)
+    override def loadIcons() {
+        def safeIcon(block:Block, side:Int):IIcon = {
+            try {
+                return MicroblockProxy.renderBlocks.getIconSafe(block.getIcon(side, meta))
+            }
+            catch {
+                case e:Exception =>
+            }
+            return MicroblockProxy.renderBlocks.getIconSafe(null)
+        }
+
+        val iblock = Block.getBlockFromName(blockKey)//reacquire block instance incase a mod replcaed it
+        icont = new MultiIconTransformation(Array.tabulate(6)(side => safeIcon(iblock, side)):_*)
     }
-    
-    def getRenderPass = if(block.canRenderInPass(1)) 1 else 0
-    
-    def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
-    {
-        renderMicroFace(verts, side, pos, lightMatrix, getColour(part), icont)
+
+    def renderMicroFace(pos:Vector3, pass:Int, bounds:Cuboid6) {
+        MaterialRenderHelper.start(pos, pass, icont).blockColour(getColour(pass)).lighting().render()
     }
-    
-    def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, colour:Int, uvt:IUVTransformation)
-    {
-        val uv = new UV
-        val t = Tessellator.instance
-        var i = 0
-        while(i < 4)
-        {
-            if(CCRenderState.useNormals)
-            {
-                val n = Rotation.axes(side%6)
-                t.setNormal(n.x.toFloat, n.y.toFloat, n.z.toFloat)
-            }
-            val vert = verts(i)
-            if(lightMatrix != null)
-            {
-                val lc = LC.computeO(vert.vec, side)
-                if(CCRenderState.useModelColours)
-                    lightMatrix.setColour(t, lc, colour)
-                lightMatrix.setBrightness(t, lc)
-            }
-            else 
-            {
-                if(CCRenderState.useModelColours)
-                    CCRenderState.vertexColour(colour)
-            }
-            uvt.transform(uv.set(vert.uv))
-            t.addVertexWithUV(vert.vec.x+pos.x, vert.vec.y+pos.y, vert.vec.z+pos.z, uv.u, uv.v)
-            i+=1
+
+    def getColour(pass:Int) = {
+        if(pass == -1)
+            block.getBlockColor<<8|0xFF
+        else {
+            val pos = CCRenderState.lightMatrix.pos
+            block.colorMultiplier(CCRenderState.lightMatrix.access, pos.x, pos.y, pos.z)<<8|0xFF
         }
     }
-    
-    def getColour(part:IMicroMaterialRender) = 
-        if(part.world == null) 
-            block.getBlockColor<<8|0xFF
-        else 
-            block.colorMultiplier(part.world, part.x, part.y, part.z)<<8|0xFF
+
+    override def canRenderInPass(pass:Int) = block.canRenderInPass(pass)
     
     @SideOnly(Side.CLIENT)
     def getBreakingIcon(side:Int) = block.getIcon(side, meta)
@@ -96,15 +87,23 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     
     def getLocalizedName = getItem.getDisplayName
     
-    def getStrength(player:EntityPlayer) = player.getCurrentPlayerStrVsBlock(block, false, meta)/block.blockHardness
+    def getStrength(player:EntityPlayer) = {
+        var hardness = 30F
+        try {
+            hardness = block.getBlockHardness(null, 0, 0, 0)
+        } catch {
+            case e:Exception =>
+        }
+        player.getBreakSpeed(block, false, meta) / hardness
+    }
     
     def isTransparent = !block.isOpaqueCube
     
-    def getLightValue = Block.lightValue(block.blockID)
+    def getLightValue = block.getLightValue
     
     def toolClasses = Seq("axe", "pickaxe", "shovel")
     
-    def getCutterStrength = toolClasses.foldLeft(0)((level, tool) => Math.max(level, MinecraftForge.getBlockHarvestLevel(block, meta, tool)))
+    def getCutterStrength = block.getHarvestLevel(meta)
     
     def getSound = block.stepSound
 
@@ -116,20 +115,31 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
  */
 object BlockMicroMaterial
 {
-    def materialKey(block:Block, meta:Int) = block.getUnlocalizedName+(if(meta > 0) "_"+meta else "")
-    
-    def createAndRegister(block:Block)
+    def materialKey(block:Block, meta:Int):String = materialKey(block.getUnlocalizedName, meta)
+    def materialKey(name:String, meta:Int) = name+(if(meta > 0) "_"+meta else "")
+
+    def createAndRegister(block:Block, name:String)
     {
-        createAndRegister(block, 0)
+        createAndRegister(block, 0, name)
     }
-    
-    def createAndRegister(block:Block, meta:Int)
+
+    def createAndRegister(block:Block, meta:Int = 0)
     {
         MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), materialKey(block, meta))
     }
-    
+
     def createAndRegister(block:Block, meta:Seq[Int])
     {
         meta.foreach(m => createAndRegister(block, m))
+    }
+
+    def createAndRegister(block:Block, meta:Int, name:String)
+    {
+        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), materialKey(name, meta))
+    }
+
+    def createAndRegister(block:Block, meta:Seq[Int], name:String)
+    {
+        meta.foreach(m => createAndRegister(block, m, name))
     }
 }

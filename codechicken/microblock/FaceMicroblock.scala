@@ -5,9 +5,9 @@ import codechicken.multipart.TFacePart
 import codechicken.lib.vec.Vector3
 import codechicken.lib.vec.Rotation
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
-import codechicken.lib.lighting.LazyLightMatrix
 import Rotation._
 import Vector3._
+import codechicken.lib.lighting.LightMatrix
 
 object FacePlacement extends PlacementProperties
 {
@@ -58,15 +58,16 @@ object FaceMicroClass extends MicroblockClass
 class FaceMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends FaceMicroblock(shape$, material$) with CommonMicroblockClient
 {
     def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
-    
-    override def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int)
-    {
-        if(isTransparent)
-            renderCuboid(pos, olm, mat, c, sideMask)
-        else
-        {
-            renderCuboid(pos, olm, mat, c, sideMask|1<<getSlot)
-            renderCuboid(pos, olm, mat, new Cuboid6(0, 0, 0, 1, 1, 1), ~(1<<getSlot))
+
+    override def render(pos:Vector3, pass:Int) {
+        if(pass < 0)
+            MicroblockRender.renderCuboid(pos, getIMaterial, pass, getBounds, 0)
+        else if(isTransparent)
+            MicroblockRender.renderCuboid(pos, getIMaterial, pass, renderBounds, renderMask)
+        else {
+            val mat = getIMaterial
+            MicroblockRender.renderCuboid(pos, mat, pass, renderBounds, renderMask | 1<<getSlot)
+            MicroblockRender.renderCuboid(pos, mat, pass, Cuboid6.full, ~(1<<getSlot))
         }
     }
 }
@@ -79,5 +80,5 @@ class FaceMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobloc
     
     def getBounds = FaceMicroClass.aBounds(shape)
     
-    override def solid(side:Int) = MicroMaterialRegistry.getMaterial(material).isSolid
+    override def solid(side:Int) = getIMaterial.isSolid
 }

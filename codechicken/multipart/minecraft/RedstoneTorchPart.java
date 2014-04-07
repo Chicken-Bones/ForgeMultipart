@@ -4,10 +4,11 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneTorch;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IFaceRedstonePart;
@@ -16,8 +17,8 @@ import codechicken.multipart.RedstoneInteractions;
 
 public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, IRandomUpdateTick
 {
-    public static BlockRedstoneTorch torchActive = (BlockRedstoneTorch) Block.torchRedstoneActive;
-    public static BlockRedstoneTorch torchIdle = (BlockRedstoneTorch) Block.torchRedstoneIdle;
+    public static BlockRedstoneTorch torchActive = (BlockRedstoneTorch) Blocks.redstone_torch;
+    public static BlockRedstoneTorch torchIdle = (BlockRedstoneTorch) Blocks.unlit_redstone_torch;
     
     public class BurnoutEntry
     {
@@ -75,7 +76,7 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
         if(side == 0)
             return null;
         pos = pos.copy().offset(side^1);
-        if(!world.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
+        if(!world.isSideSolid(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
             return null;
         
         return new RedstoneTorchPart(sideMetaMap[side^1]|0x10);

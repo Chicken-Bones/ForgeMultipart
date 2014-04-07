@@ -1,6 +1,6 @@
 package codechicken.multipart.scalatraits
 
-import net.minecraftforge.common.ForgeDirection
+import net.minecraftforge.common.util.ForgeDirection
 import codechicken.multipart.TMultiPart
 import codechicken.multipart.TileMultipart
 import net.minecraftforge.fluids.IFluidHandler

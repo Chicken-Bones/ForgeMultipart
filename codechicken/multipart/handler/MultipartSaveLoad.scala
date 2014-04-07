@@ -14,57 +14,50 @@ import net.minecraft.world.World
  */
 object MultipartSaveLoad
 {
-    var loadingWorld:World = _
-    
+    var loadingWorld: World = _
+
     class TileNBTContainer extends TileEntity
     {
-        var tag:NBTTagCompound = _
-        
-        override def readFromNBT(t:NBTTagCompound)
-        {
+        var tag: NBTTagCompound = _
+
+        override def readFromNBT(t: NBTTagCompound) {
             super.readFromNBT(t)
             tag = t
         }
     }
-    
-    def hookLoader()
-    {
+
+    def hookLoader() {
         val field = classOf[TileEntity].getDeclaredField(
-                new ObfMapping("net/minecraft/tileentity/TileEntity", "nameToClassMap", "Ljava/util/Map;")
+            new ObfMapping("net/minecraft/tileentity/TileEntity", "field_145855_i", "Ljava/util/Map;")
                 .toRuntime.s_name)
         field.setAccessible(true)
         val map = field.get(null).asInstanceOf[Map[String, Class[_ <: TileEntity]]]
         map.put("savedMultipart", classOf[TileNBTContainer])
     }
-    
+
     private val classToNameMap = getClassToNameMap
-    def registerTileClass(t:Class[_ <: TileEntity])
-    {
+
+    def registerTileClass(t: Class[_ <: TileEntity]) {
         classToNameMap.put(t, "savedMultipart")
     }
-    
-    def getClassToNameMap =
-    {
+
+    def getClassToNameMap = {
         val field = classOf[TileEntity].getDeclaredField(
-                new ObfMapping("net/minecraft/tileentity/TileEntity", "classToNameMap", "Ljava/util/Map;")
+            new ObfMapping("net/minecraft/tileentity/TileEntity", "field_145853_j", "Ljava/util/Map;")
                 .toRuntime.s_name)
         field.setAccessible(true)
         field.get(null).asInstanceOf[Map[Class[_ <: TileEntity], String]]
     }
-    
-    def loadTiles(chunk:Chunk)
-    {
+
+    def loadTiles(chunk: Chunk) {
         loadingWorld = chunk.worldObj
         val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[ChunkPosition, TileEntity]].entrySet.iterator
-        while(iterator.hasNext)
-        {
+        while (iterator.hasNext) {
             val e = iterator.next
-            if(e.getValue.isInstanceOf[TileNBTContainer])
-            {
+            if (e.getValue.isInstanceOf[TileNBTContainer]) {
                 val t = TileMultipart.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
-                if(t != null)
-                {
-                    t.setWorldObj(e.getValue.worldObj)
+                if (t != null) {
+                    t.setWorldObj(e.getValue.getWorldObj)
                     t.validate()
                     e.setValue(t)
                 }

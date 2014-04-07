@@ -9,8 +9,6 @@ import scala.collection.JavaConversions._
 import codechicken.multipart.handler.MultipartSPH
 import net.minecraft.world.WorldServer
 import java.util.Arrays
-import net.minecraft.server.management.PlayerInstance
-import codechicken.lib.asm.ObfMapping
 
 /**
  * Static helper class for handling the unusual way that multipart tile entities load from nbt and send description packets
@@ -27,12 +25,12 @@ import codechicken.lib.asm.ObfMapping
  */
 object MultipartHelper
 {
-    val f_playersInChunk = classOf[PlayerInstance].getDeclaredField(
+    /*val f_playersInChunk = classOf[PlayerInstance].getDeclaredField(
                 new ObfMapping("net/minecraft/server/management/PlayerInstance", "playersInChunk", "Ljava/util/List;")
                 .toRuntime.s_name)
     f_playersInChunk.setAccessible(true)
     
-    def playersInChunk(inst:PlayerInstance) = f_playersInChunk.get(inst).asInstanceOf[List[_]]
+    def playersInChunk(inst:PlayerInstance) = f_playersInChunk.get(inst).asInstanceOf[List[_]]*/
     
     def createTileFromNBT(world:World, tag:NBTTagCompound):TileEntity = {
         if(!tag.getString("id").equals("savedMultipart"))
@@ -62,7 +60,7 @@ object MultipartHelper
             val c = world.getChunkFromBlockCoords((coord>>32).toInt, coord.toInt)
             lazy val pkt = MultipartSPH.getDescPacket(c, e.getValue.iterator)
             val inst = mgr.getOrCreateChunkWatcher(c.xPosition, c.zPosition, false)
-            if(!playersInChunk(inst).isEmpty)
+            if(!inst.playersWatchingChunk.isEmpty)
                 inst.sendToAllPlayersWatchingChunk(pkt.toPacket)
         }
     }

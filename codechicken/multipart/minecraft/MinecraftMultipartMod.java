@@ -2,15 +2,12 @@ package codechicken.multipart.minecraft;
 
 import net.minecraftforge.common.MinecraftForge;
 import codechicken.lib.packet.PacketCustom;
-import codechicken.lib.packet.PacketCustom.CustomTinyPacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.6.4]")
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, tinyPacketHandler=CustomTinyPacketHandler.class)
+@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.7.2]")
 public class MinecraftMultipartMod
 {
     @Instance("McMultipart")

@@ -1,6 +1,7 @@
 package codechicken.multipart.minecraft;
 
 import codechicken.lib.vec.BlockCoord;
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
 public interface IPartMeta
@@ -9,7 +10,7 @@ public interface IPartMeta
     
     public World getWorld();
 
-    public int getBlockId();
+    public Block getBlock();
     
     public BlockCoord getPos();
 }

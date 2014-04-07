@@ -1,7 +1,7 @@
 package codechicken.multipart.minecraft;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import codechicken.multipart.TFacePart;
@@ -30,7 +30,7 @@ public abstract class McSidedMetaPart extends McMetaPart implements TFacePart
     public boolean canStay()
     {
         BlockCoord pos = new BlockCoord(tile()).offset(sideForMeta(meta));
-        return world().isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1));
+        return world().isSideSolid(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(sideForMeta(meta)^1));
     }
     
     public boolean dropIfCantStay()

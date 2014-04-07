@@ -17,7 +17,7 @@ object PacketScheduler
     /**
      * Add bits to the current update mask for part. (binary OR)
      */
-    def schedulePacket(part:TMultiPart, mask:Long) = {//TODO remove = in 1.7
+    def schedulePacket(part:TMultiPart, mask:Long) {
         if(part.world.isRemote)
             throw new IllegalArgumentException("Cannot use PacketScheduler on a client world")
 

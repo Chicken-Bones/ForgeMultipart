@@ -3,6 +3,7 @@ package codechicken.microblock
 import codechicken.multipart.TMultiPart
 import codechicken.lib.vec.Cuboid6
 import codechicken.multipart.PartMap._
+import codechicken.lib.data.MCDataInput
 
 /**
  * Suite of classes for performing microblock style occlusion and shrink rendering. Use at your own peril.
@@ -178,6 +179,12 @@ trait TMicroOcclusionClient extends TMicroOcclusion with JMicroShrinkRender
     override def onAdded()
     {
         super.onAdded()
+        recalcBounds()
+    }
+
+    override def read(packet:MCDataInput)
+    {
+        super.read(packet)
         recalcBounds()
     }
     

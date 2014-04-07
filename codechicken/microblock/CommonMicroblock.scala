@@ -9,9 +9,8 @@ import codechicken.lib.render.CCRenderState
 import net.minecraft.world.World
 import codechicken.lib.vec.Cuboid6
 import codechicken.lib.vec.Vector3
-import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.multipart.TIconHitEffects
-import net.minecraft.util.Icon
+import net.minecraft.util.IIcon
 import net.minecraft.block.Block
 import codechicken.multipart.TCuboidPart
 import net.minecraft.util.MovingObjectPosition
@@ -28,13 +27,22 @@ import codechicken.multipart.TSlottedPart
 import scala.collection.JavaConversions._
 import codechicken.lib.render.TextureUtils
 import net.minecraft.entity.Entity
+import net.minecraft.init.Blocks
+import cpw.mods.fml.relauncher.{Side, SideOnly}
+import codechicken.lib.render.BlockRenderer.BlockFace
 
-object CommonMicroblock
+object MicroblockRender
 {
-    val face = Array[Vertex5](new Vertex5, new Vertex5, new Vertex5, new Vertex5)
-    
-    def renderHighlight(world:World, pos:BlockCoord, part:MicroblockClient)
+    def renderHighlight(player:EntityPlayer, hit:MovingObjectPosition, mcrClass:MicroblockClass, size:Int, material:Int)
     {
+        mcrClass.placementProperties.placementGrid.render(new Vector3(hit.hitVec), hit.sideHit)
+
+        val placement = MicroblockPlacement(player, hit, size, material, !player.capabilities.isCreativeMode, mcrClass.placementProperties)
+        if(placement == null)
+            return
+        val pos = placement.pos
+        val part = placement.part.asInstanceOf[MicroblockClient]
+
         GL11.glPushMatrix()
         GL11.glTranslated(pos.x+0.5, pos.y+0.5, pos.z+0.5)
         GL11.glScaled(1.002, 1.002, 1.002)
@@ -43,60 +51,56 @@ object CommonMicroblock
         GL11.glEnable(GL11.GL_BLEND)
         GL11.glDepthMask(false)
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        
-        CCRenderState.reset()
+
         TextureUtils.bindAtlas(0)
-        CCRenderState.useNormals(true)
-        CCRenderState.setBrightness(world, pos.x, pos.y, pos.z)
-        CCRenderState.setAlpha(80)
-        CCRenderState.useModelColours(true)
-        CCRenderState.startDrawing(7)
-        part.render(new Vector3(), null, MicroMaterialRegistry.getMaterial(part.material), part.getBounds, 0)
+        CCRenderState.reset()
+        CCRenderState.alphaOverride = 80
+        CCRenderState.useNormals = true
+        CCRenderState.startDrawing()
+        part.render(Vector3.zero, -1)
         CCRenderState.draw()
         
         GL11.glDisable(GL11.GL_BLEND)
         GL11.glDepthMask(true)
         GL11.glPopMatrix()
     }
-}
 
-object JMicroblockClient
-{
-    def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int, part:IMicroMaterialRender)
-    {
-        var lightMatrix:LightMatrix = null
-        if(olm != null)
-            lightMatrix = olm.lightMatrix
-            
-        RenderUtils.renderBlock(c, sideMask, new IFaceRenderer()
-            {
-                def renderFace(face:Array[Vertex5], side:Int) = 
-                    mat.renderMicroFace(face, side, pos, lightMatrix, part)
-            })
+    val face = new BlockFace()
+    def renderCuboid(pos:Vector3, mat:IMicroMaterial, pass:Int, c:Cuboid6, faces:Int) {
+        CCRenderState.setModel(face)
+        for(s <- 0 until 6 if (faces & 1<<s) == 0) {
+            face.loadCuboidFace(c, s)
+            mat.renderMicroFace(pos, pass, c)
+        }
     }
 }
 
 trait MicroblockClient extends Microblock with TIconHitEffects with IMicroMaterialRender
 {
-    def getBrokenIcon(side:Int) = MicroMaterialRegistry.getMaterial(material) match {
-        case null => Block.stone.getIcon(0, 0)
+    def getBrokenIcon(side:Int) = getIMaterial match {
+        case null => Blocks.stone.getIcon(0, 0)
         case mat => mat.getBreakingIcon(side)
     }
 
-    def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
-        renderCuboid(pos, olm, mat, c, sideMask)
-    
-    def renderCuboid(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial, c:Cuboid6, sideMask:Int) = 
-        JMicroblockClient.renderCuboid(pos, olm, mat, c, sideMask, this)
-    
+    override def renderStatic(pos:Vector3, pass:Int) = {
+        if(getIMaterial.canRenderInPass(pass)) {
+            render(pos, pass)
+            true
+        }
+        else
+            false
+    }
+
+    def render(pos:Vector3, pass:Int)
+
     override def getRenderBounds = getBounds
 }
 
 abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCuboidPart
-{    
+{
     def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
     
-    override def getStrength(hit:MovingObjectPosition, player:EntityPlayer) = MicroMaterialRegistry.getMaterial(material) match {
+    override def getStrength(hit:MovingObjectPosition, player:EntityPlayer) = getIMaterial match {
         case null => super.getStrength(hit, player)
         case mat => mat.getStrength(player)
     }
@@ -106,8 +110,10 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     def getSize = shape>>4
     
     def getShape = shape&0xF
-    
+
     def getMaterial = material
+    
+    def getIMaterial = MicroMaterialRegistry.getMaterial(material)
     
     def itemClassID:Int = -1
     
@@ -137,13 +143,13 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     override def writeDesc(packet:MCDataOutput)
     {
         packet.writeByte(shape)
-        writePartID(packet, material)
+        writeMaterialID(packet, material)
     }
     
     override def readDesc(packet:MCDataInput)
     {
         shape = packet.readByte
-        material = readPartID(packet)
+        material = readMaterialID(packet)
     }
     
     override def read(packet:MCDataInput)
@@ -165,28 +171,22 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
         material = materialID(tag.getString("material"))
     }
     
-    def isTransparent = MicroMaterialRegistry.getMaterial(material).isTransparent
+    def isTransparent = getIMaterial.isTransparent
     
-    override def getLightValue = MicroMaterialRegistry.getMaterial(material).getLightValue
+    override def getLightValue = getIMaterial.getLightValue
 
     def getResistanceFactor:Float
 
-    override def explosionResistance(entity:Entity) = MicroMaterialRegistry.getMaterial(material).explosionResistance(entity)*getResistanceFactor
+    override def explosionResistance(entity:Entity) = getIMaterial.explosionResistance(entity)*getResistanceFactor
 }
 
 trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with TMicroOcclusionClient
 {
-    override def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int)
-    {
-        val mat = MicroMaterialRegistry.getMaterial(material)
-        if(mat != null && pass == mat.getRenderPass)
-            render(pos, olm, mat, renderBounds, renderMask)
-    }
-    
-    override def read(packet:MCDataInput)
-    {
-        super.read(packet)
-        recalcBounds()
+    def render(pos:Vector3, pass:Int) {
+        if(pass < 0)
+            MicroblockRender.renderCuboid(pos, getIMaterial, pass, getBounds, 0)
+        else
+            MicroblockRender.renderCuboid(pos, getIMaterial, pass, renderBounds, renderMask)
     }
 }
 

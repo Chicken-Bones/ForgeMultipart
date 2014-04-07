@@ -19,6 +19,7 @@ import codechicken.lib.packet.PacketCustom
 import cpw.mods.fml.common.registry.GameRegistry
 import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
+import net.minecraft.init.{Blocks, Items}
 
 class MicroblockProxy_serverImpl
 {
@@ -34,27 +35,23 @@ class MicroblockProxy_serverImpl
     
     def preInit()
     {
-        itemMicro = new ItemMicroPart(config.getTag("itemMicro.id").getIntValue(nextItemID))
-        itemMicro.setUnlocalizedName("microblock")
+        itemMicro = new ItemMicroPart
         GameRegistry.registerItem(itemMicro, "microblock")
-        
         sawStone = createSaw(config, "sawStone", 1)
-        GameRegistry.registerItem(sawStone, "sawStone")
         sawIron = createSaw(config, "sawIron", 2)
-        GameRegistry.registerItem(sawIron, "sawIron")
         sawDiamond = createSaw(config, "sawDiamond", 3)
-        GameRegistry.registerItem(sawDiamond, "sawDiamond")
-        stoneRod = new Item(config.getTag("stoneRod.id").getIntValue(nextItemID))
-            .setUnlocalizedName("microblock:stoneRod").setTextureName("microblock:stoneRod")
+        stoneRod = new Item().setUnlocalizedName("microblock:stoneRod").setTextureName("microblock:stoneRod")
         GameRegistry.registerItem(stoneRod, "stoneRod")
         
-        OreDictionary.registerOre("stoneRod", stoneRod)
+        OreDictionary.registerOre("rodStone", stoneRod)
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
-        NetworkRegistry.instance.registerConnectionHandler(MicroblockEventHandler)
     }
     
-    def createSaw(config:ConfigFile, name:String, strength:Int) = 
-        new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:"+name)
+    def createSaw(config:ConfigFile, name:String, strength:Int) = {
+        val saw = new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:"+name)
+        GameRegistry.registerItem(saw, name)
+        saw
+    }
     
     def addSawRecipe(saw:Item, blade:Item)
     {
@@ -62,23 +59,25 @@ class MicroblockProxy_serverImpl
                 new ShapedOreRecipe(new ItemStack(saw), 
                 "srr",
                 "sbr",
-                's':Character, Item.stick,
-                'r':Character, "stoneRod",
+                's':Character, Items.stick,
+                'r':Character, "rodStone",
                 'b':Character, blade))
     }
     
     def init()
     {
         CraftingManager.getInstance.getRecipeList.asInstanceOf[JList[IRecipe]].add(MicroRecipe)
-        CraftingManager.getInstance.addRecipe(new ItemStack(stoneRod, 4), "s", "s", 's':Character, Block.stone)
-        addSawRecipe(sawStone, Item.flint)
-        addSawRecipe(sawIron, Item.ingotIron)
-        addSawRecipe(sawDiamond, Item.diamond)
+        CraftingManager.getInstance.addRecipe(new ItemStack(stoneRod, 4), "s", "s", 's':Character, Blocks.stone)
+        addSawRecipe(sawStone, Items.flint)
+        addSawRecipe(sawIron, Items.iron_ingot)
+        addSawRecipe(sawDiamond, Items.diamond)
     }
     
     def postInit()
     {
+        MicroMaterialRegistry.loadIcons()
         MicroMaterialRegistry.calcMaxCuttingStrength()
+        PacketCustom.assignHandshakeHandler(MicroblockSPH.registryChannel, MicroblockSPH)
     }
 }
 
@@ -98,15 +97,15 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     override def postInit()
     {
         super.postInit()
-        MinecraftForgeClient.registerItemRenderer(itemMicro.itemID, ItemMicroPartRenderer)
-        PacketCustom.assignHandler(MicroblockCPH.registryChannel, 1, 127, MicroblockCPH)
+        MinecraftForgeClient.registerItemRenderer(itemMicro, ItemMicroPartRenderer)
+        PacketCustom.assignHandler(MicroblockCPH.registryChannel, MicroblockCPH)
     }
     
     @SideOnly(Side.CLIENT)
     override def createSaw(config:ConfigFile, name:String, strength:Int) = 
     {
         val saw = super.createSaw(config, name, strength)
-        MinecraftForgeClient.registerItemRenderer(saw.itemID, ItemSawRenderer)
+        MinecraftForgeClient.registerItemRenderer(saw, ItemSawRenderer)
         saw
     }
 }

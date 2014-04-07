@@ -13,12 +13,12 @@ import codechicken.multipart.TNormalOcclusion
 import codechicken.multipart.JPartialOcclusion
 import codechicken.multipart.TileMultipart
 import codechicken.multipart.MultiPartRegistry
-import codechicken.lib.lighting.LazyLightMatrix
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import codechicken.lib.raytracer.ExtendedMOP
 import codechicken.multipart.TEdgePart
 import scala.collection.JavaConversions._
 import codechicken.lib.data.MCDataInput
+import codechicken.lib.lighting.LightMatrix
 
 object EdgePlacement extends PlacementProperties
 {
@@ -103,11 +103,6 @@ object EdgeMicroClass extends MicroblockClass
     def getResistanceFactor = 0.5F
 }
 
-class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicroblock(shape$, material$) with CommonMicroblockClient
-{
-    def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
-}
-
 class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$) with TEdgePart
 {
     def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
@@ -117,6 +112,11 @@ class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobloc
     def getBounds = EdgeMicroClass.aBounds(shape)
     
     override def getSlot = getShape+15
+}
+
+class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicroblock(shape$, material$) with CommonMicroblockClient
+{
+    def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
 }
 
 object PostMicroClass
@@ -160,18 +160,16 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
     
     def this(size:Int, orient:Int, material:Int) = this((size<<4|orient).toByte, material)
     
-    override def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int)
+    override def render(pos:Vector3, pass:Int)
     {
-        val mat = MicroMaterialRegistry.getMaterial(material)
-        if(mat != null && pass == mat.getRenderPass)
-            render(pos, olm, mat)
-    }
-    
-    def render(pos:Vector3, olm:LazyLightMatrix, mat:IMicroMaterial)
-    {
-        renderCuboid(pos, olm, mat, renderBounds1, 0)
-        if(renderBounds2 != null)
-            renderCuboid(pos, olm, mat, renderBounds2, 0)
+        val mat = getIMaterial
+        if(pass == -1)
+            MicroblockRender.renderCuboid(pos, mat, pass, getBounds, 0)
+        else {
+            MicroblockRender.renderCuboid(pos, mat, pass, renderBounds1, 0)
+            if (renderBounds2 != null)
+                MicroblockRender.renderCuboid(pos, mat, pass, renderBounds2, 0)
+        }
     }
     
     override def onPartChanged(part:TMultiPart)
@@ -184,7 +182,7 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
         super.onAdded()
         recalcBounds()
     }
-    
+
     override def read(packet:MCDataInput)
     {
         super.read(packet)
@@ -220,15 +218,9 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
         if(thisShrinks(post))
         {
             if(renderBounds2 == null)
-            {
                 renderBounds2 = renderBounds1.copy
-                getShape match
-                {
-                    case 0 => renderBounds2.min.y = 0.5; renderBounds1.max.y = 0.5
-                    case 1 => renderBounds2.min.z = 0.5; renderBounds1.max.z = 0.5
-                    case 2 => renderBounds2.min.x = 0.5; renderBounds1.max.x = 0.5
-                }
-            }
+            else
+                renderBounds2.set(renderBounds1)
             MicroOcclusion.shrink(renderBounds1, post.getBounds, getShape<<1|1)
             MicroOcclusion.shrink(renderBounds2, post.getBounds, getShape<<1)
         }
@@ -264,7 +256,7 @@ class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shap
         if(npart.getType.equals("mcr_face"))
             if(npart.asInstanceOf[CommonMicroblock].getSlot>>1 == getShape)
                 return true
-        
+
         return super.occlusionTest(npart)
     }
 

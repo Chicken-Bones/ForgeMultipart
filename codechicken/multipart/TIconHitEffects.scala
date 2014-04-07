@@ -3,7 +3,7 @@ package codechicken.multipart
 import codechicken.lib.vec.Cuboid6
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
-import net.minecraft.util.Icon
+import net.minecraft.util.IIcon
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.client.particle.EffectRenderer
 import codechicken.lib.vec.Vector3
@@ -24,7 +24,7 @@ object IconHitEffects
 {
     def addHitEffects(part:JIconHitEffects, hit:MovingObjectPosition, effectRenderer:EffectRenderer)
     {
-        EntityDigIconFX.addBlockHitEffects(part.tile.worldObj, 
+        EntityDigIconFX.addBlockHitEffects(part.tile.getWorldObj,
                 part.getBounds.copy.add(Vector3.fromTileEntity(part.tile)), hit.sideHit, 
                 part.getBreakingIcon(ExtendedMOP.getData(hit), hit.sideHit), effectRenderer)
     }
@@ -36,13 +36,13 @@ object IconHitEffects
     
     def addDestroyEffects(part:JIconHitEffects, effectRenderer:EffectRenderer, scaleDensity:Boolean)
     {
-        val icons = new Array[Icon](6)
+        val icons = new Array[IIcon](6)
         for(i <- 0 until 6)
             icons(i) = part.getBrokenIcon(i)
         val bounds = 
             if(scaleDensity) part.getBounds.copy
             else Cuboid6.full.copy
-        EntityDigIconFX.addBlockDestroyEffects(part.tile.worldObj, 
+        EntityDigIconFX.addBlockDestroyEffects(part.tile.getWorldObj,
                 bounds.add(Vector3.fromTileEntity(part.tile)), icons, effectRenderer)
     }
 }
@@ -56,10 +56,10 @@ trait JIconHitEffects extends TMultiPart
     def getBounds:Cuboid6
     
     @SideOnly(Side.CLIENT)
-    def getBreakingIcon(subPart:Any, side:Int):Icon = getBrokenIcon(side)
+    def getBreakingIcon(subPart:Any, side:Int):IIcon = getBrokenIcon(side)
     
     @SideOnly(Side.CLIENT)
-    def getBrokenIcon(side:Int):Icon
+    def getBrokenIcon(side:Int):IIcon
 }
 
 /**

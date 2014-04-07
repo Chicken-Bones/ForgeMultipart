@@ -12,7 +12,7 @@ import codechicken.microblock.ConfigContent
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent
 import scala.collection.JavaConversions._
 
-@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.6.4]", 
+@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.7.2]",
             dependencies="required-after:ForgeMultipart;after:*", modLanguage="scala")
 object MicroblockMod
 {
@@ -34,8 +34,8 @@ object MicroblockMod
     @EventHandler
     def postInit(event:FMLPostInitializationEvent)
     {
-        MicroblockProxy.postInit()
         MicroMaterialRegistry.setupIDMap()
+        MicroblockProxy.postInit()
     }
     
     @EventHandler

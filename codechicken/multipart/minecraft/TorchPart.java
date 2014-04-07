@@ -4,15 +4,15 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 import codechicken.multipart.IRandomDisplayTick;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
 
 public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
 {
-    public static BlockTorch torch = (BlockTorch) Block.torchWood;
+    public static BlockTorch torch = (BlockTorch) Blocks.torch;
     public static int[] metaSideMap = new int[]{-1, 4, 5, 2, 3, 0};
     public static int[] sideMetaMap = new int[]{5, 0, 3, 4, 1, 2};
     
@@ -68,13 +68,7 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
     @Override
     public boolean canStay()
     {
-        if(sideForMeta(meta) == 0)
-        {
-            Block block = Block.blocksList[world().getBlockId(x(), y()-1, z())];
-            if(block != null && block.canPlaceTorchOnTop(world(), x(), y()-1, z()))
-                return true;
-        }
-        return super.canStay();
+        return sideForMeta(meta) == 0 && world().getBlock(x(), y() - 1, z()).canPlaceTorchOnTop(world(), x(), y() - 1, z()) || super.canStay();
     }
     
     public static McBlockPart placement(World world, BlockCoord pos, int side)
@@ -82,20 +76,10 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
         if(side == 0)
             return null;
         pos = pos.copy().offset(side^1);
-        if(!world.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
-        {
-            if(side == 1)
-            {
-                Block block = Block.blocksList[world.getBlockId(pos.x, pos.y, pos.z)];
-                if(block == null || !block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z))
-                    return null;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        
+        Block block = world.getBlock(pos.x, pos.y, pos.z);
+        if(!block.isBlockSolid(world, pos.x, pos.y, pos.z, side) && (side != 1 || block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z)))
+            return null;
+
         return new TorchPart(sideMetaMap[side^1]);
     }
 

@@ -62,12 +62,13 @@ abstract class PlacementProperties
 
 object MicroblockPlacement
 {
-    def apply(world:World, player:EntityPlayer, hit:MovingObjectPosition, size:Int, material:Int, checkMaterial:Boolean, pp:PlacementProperties):ExecutablePlacement =
-        new MicroblockPlacement(world, player, hit, size, material, checkMaterial, pp)()
+    def apply(player:EntityPlayer, hit:MovingObjectPosition, size:Int, material:Int, checkMaterial:Boolean, pp:PlacementProperties):ExecutablePlacement =
+        new MicroblockPlacement(player, hit, size, material, checkMaterial, pp)()
 }
 
-class MicroblockPlacement(val world:World, val player:EntityPlayer, val hit:MovingObjectPosition, val size:Int, val material:Int, val checkMaterial:Boolean, val pp:PlacementProperties)
+class MicroblockPlacement(val player:EntityPlayer, val hit:MovingObjectPosition, val size:Int, val material:Int, val checkMaterial:Boolean, val pp:PlacementProperties)
 {
+    val world = player.worldObj
     val mcrClass = pp.microClass
     val pos = new BlockCoord(hit.blockX, hit.blockY, hit.blockZ)
     val vhit = new Vector3(hit.hitVec).add(-pos.x, -pos.y, -pos.z)

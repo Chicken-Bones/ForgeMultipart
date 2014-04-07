@@ -13,7 +13,7 @@ import net.minecraft.client.particle.EffectRenderer
 import net.minecraft.client.renderer.RenderBlocks
 import codechicken.lib.vec.BlockCoord
 import net.minecraft.tileentity.TileEntity
-import codechicken.lib.lighting.LazyLightMatrix
+import codechicken.lib.lighting.LightMatrix
 import codechicken.lib.data.MCDataOutput
 import codechicken.lib.data.MCDataInput
 import net.minecraft.entity.Entity
@@ -38,7 +38,7 @@ abstract class TMultiPart
     /**
      * Getter for tile.worldObj
      */
-    def world = if(tile == null) null else tile.worldObj
+    def world = if(tile == null) null else tile.getWorldObj
     /**
      * Short getter for xCoord
      */
@@ -140,11 +140,11 @@ abstract class TMultiPart
     /**
      * Render the static, unmoving faces of this part into the world renderer.
      * The Tessellator is already drawing.
-     * @param olm An optional light matrix to be used for rendering things with perfect MC blended lighting (eg microblocks). Only use this if you have to.
      * @param pass The render pass, 1 or 0
+     * @return true if vertices were added to the tessellator
      */
     @SideOnly(Side.CLIENT)
-    def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int){}
+    def renderStatic(pos:Vector3, pass:Int) = false
     /**
      * Render the dynamic, changing faces of this part and other gfx as in a TESR. 
      * The Tessellator will need to be started if it is to be used.

@@ -78,17 +78,17 @@ trait TIInventoryTile extends TileMultipart with ISidedInventory
         inv.setInventorySlotContents(slot, itemstack)
     }
 
-    def getInvName = "Multipart Inventory"
+    def getInventoryName = "Multipart Inventory"
 
-    def isInvNameLocalized = false
+    def hasCustomInventoryName = false
 
     def getInventoryStackLimit = 64
 
     def isUseableByPlayer(entityplayer:EntityPlayer) = true
 
-    def openChest(){}
+    def openInventory(){}
 
-    def closeChest(){}
+    def closeInventory(){}
 
     def isItemValidForSlot(i:Int, itemstack:ItemStack) = {
         val (inv, slot) = slotMap(i)

@@ -1,24 +1,14 @@
 package codechicken.microblock
 
-import codechicken.lib.vec.Vector3
+import codechicken.lib.vec.{Cuboid6, Vector3}
 import net.minecraft.block.Block
-import codechicken.lib.render.Vertex5
-import codechicken.lib.render.IconTransformation
+import codechicken.lib.render.{ColourMultiplier, CCRenderState}
 import net.minecraft.block.BlockGrass
-import codechicken.lib.render.IUVTransformation
-import codechicken.lib.render.UV
-import codechicken.lib.lighting.LightMatrix
+import net.minecraft.init.Blocks
+import codechicken.lib.render.uv.{UVTranslation, IconTransformation}
+import codechicken.lib.render.BlockRenderer.BlockFace
 
-class TopIconTransformation(h:Double, uvt:IUVTransformation) extends IUVTransformation
-{
-    def transform(uv:UV)
-    {
-        uv.v -= 1-h
-        uvt.transform(uv)
-    }
-}
-
-class GrassMicroMaterial extends BlockMicroMaterial(Block.grass, 0)
+class GrassMicroMaterial extends BlockMicroMaterial(Blocks.grass, 0)
 {
     var sideIconT:IconTransformation = _
     
@@ -27,27 +17,32 @@ class GrassMicroMaterial extends BlockMicroMaterial(Block.grass, 0)
         super.loadIcons()
         sideIconT = new IconTransformation(BlockGrass.getIconSideOverlay)
     }
-    
-    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
-    {
-        val colour = getColour(part)
-        if(side%6 == 1)
-            renderMicroFace(verts, side, pos, lightMatrix, colour, icont)
+
+    override def renderMicroFace(pos:Vector3, pass:Int, bounds:Cuboid6) {
+        val face = CCRenderState.model.asInstanceOf[BlockFace]
+        if(pass != -1)
+            face.computeLightCoords()
+
+        if(face.side == 1)
+            MaterialRenderHelper.start(pos, pass, icont).blockColour(getColour(pass)).lighting().render()
         else
-            renderMicroFace(verts, side, pos, lightMatrix, -1, icont)
-        
-        if(side%6 > 1 && side%6 < 6)
-            renderMicroFace(verts, side, pos, lightMatrix, colour, new TopIconTransformation(part.getRenderBounds.max.y, sideIconT))
+            MaterialRenderHelper.start(pos, pass, icont).lighting().render()
+
+        if(face.side > 1)
+            MaterialRenderHelper.start(pos, pass, new UVTranslation(0, bounds.max.y-1) ++ sideIconT)
+                .blockColour(getColour(pass)).lighting().render()
     }
 }
 
 class TopMicroMaterial($block:Block, $meta:Int = 0) extends BlockMicroMaterial($block, $meta)
 {
-    override def renderMicroFace(verts:Array[Vertex5], side:Int, pos:Vector3, lightMatrix:LightMatrix, part:IMicroMaterialRender)
+    override def renderMicroFace(pos:Vector3, pass:Int, bounds:Cuboid6)
     {
-        if(side%6 > 1 && side%6 < 6)
-            renderMicroFace(verts, side, pos, lightMatrix, getColour(part), new TopIconTransformation(part.getRenderBounds.max.y, icont))
+        val face = CCRenderState.model.asInstanceOf[BlockFace]
+        if(face.side <= 1)
+            MaterialRenderHelper.start(pos, pass, icont).blockColour(getColour(pass)).lighting().render()
         else
-            super.renderMicroFace(verts, side, pos, lightMatrix, part)
+            MaterialRenderHelper.start(pos, pass, new UVTranslation(0, bounds.max.y-1) ++ icont)
+                .blockColour(getColour(pass)).lighting().render()
     }
 }

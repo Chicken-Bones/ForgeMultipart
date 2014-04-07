@@ -4,18 +4,19 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IFaceRedstonePart;
 
 public class LeverPart extends McSidedMetaPart implements IFaceRedstonePart
 {
-    public static BlockLever lever = (BlockLever) Block.lever;
+    public static BlockLever lever = (BlockLever) Blocks.lever;
     public static int[] metaSideMap = new int[]{1, 4, 5, 2, 3, 0, 0, 1};
     public static int[] sideMetaMap = new int[]{6, 0, 3, 4, 1, 2};
     public static int[] metaSwapMap = new int[]{5, 7};
@@ -77,7 +78,7 @@ public class LeverPart extends McSidedMetaPart implements IFaceRedstonePart
     public static McBlockPart placement(World world, BlockCoord pos, EntityPlayer player, int side)
     {
         pos = pos.copy().offset(side^1);
-        if(!world.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
+        if(!world.isSideSolid(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
             return null;
         
         int meta = sideMetaMap[side^1];

@@ -2,7 +2,7 @@ package codechicken.multipart.minecraft;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
-import codechicken.lib.lighting.LazyLightMatrix;
+import codechicken.lib.lighting.LightMatrix;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -59,12 +59,6 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     }
     
     @Override
-    public int getBlockId()
-    {
-        return getBlock().blockID;
-    }
-    
-    @Override
     public BlockCoord getPos()
     {
         return new BlockCoord(tile());
@@ -77,9 +71,12 @@ public abstract class McMetaPart extends McBlockPart implements IPartMeta
     }
     
     @Override
-    public void renderStatic(Vector3 pos, LazyLightMatrix olm, int pass)
+    public boolean renderStatic(Vector3 pos, int pass)
     {
-        if(pass == 0)
+        if(pass == 0) {
             new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), x(), y(), z());
+            return true;
+        }
+        return false;
     }
 }

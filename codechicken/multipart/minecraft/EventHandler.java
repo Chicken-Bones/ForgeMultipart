@@ -8,12 +8,13 @@ import codechicken.multipart.TileMultipart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.Packet15Place;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
@@ -22,7 +23,7 @@ public class EventHandler
 {
     private ThreadLocal<Object> placing = new ThreadLocal<Object>();
     
-    @ForgeSubscribe
+    @SubscribeEvent
     public void playerInteract(PlayerInteractEvent event)
     {
         if(event.action == Action.RIGHT_CLICK_BLOCK && event.entityPlayer.worldObj.isRemote)
@@ -47,16 +48,20 @@ public class EventHandler
         McBlockPart part = null;
         if(held == null)
             return false;
-        
-        if(held.itemID == Block.torchWood.blockID)
+
+        Block heldBlock = Block.getBlockFromItem(held.getItem());
+        if(heldBlock == Blocks.air)
+            return false;
+
+        if(heldBlock == Blocks.torch)
             part = TorchPart.placement(world, pos, hit.sideHit);
-        else if(held.itemID == Block.lever.blockID)
+        else if(heldBlock == Blocks.lever)
             part = LeverPart.placement(world, pos, player, hit.sideHit);
-        else if(held.itemID == Block.stoneButton.blockID)
+        else if(heldBlock == Blocks.stone_button)
             part = ButtonPart.placement(world, pos, hit.sideHit, 0);
-        else if(held.itemID == Block.woodenButton.blockID)
+        else if(heldBlock == Blocks.wooden_button)
             part = ButtonPart.placement(world, pos, hit.sideHit, 1);
-        else if(held.itemID == Block.torchRedstoneActive.blockID)
+        else if(heldBlock == Blocks.redstone_torch)
             part = RedstoneTorchPart.placement(world, pos, hit.sideHit);
         
         if(part == null)
@@ -65,11 +70,11 @@ public class EventHandler
         if(world.isRemote && !player.isSneaking())//attempt to use block activated like normal and tell the server the right stuff
         {
             Vector3 f = new Vector3(hit.hitVec).add(-hit.blockX, -hit.blockY, -hit.blockZ);
-            Block block = Block.blocksList[world.getBlockId(hit.blockX, hit.blockY, hit.blockZ)];
-            if(block != null && !ignoreActivate(block) && block.onBlockActivated(world, hit.blockX, hit.blockY, hit.blockZ, player, hit.sideHit, (float)f.x, (float)f.y, (float)f.z))
+            Block block = world.getBlock(hit.blockX, hit.blockY, hit.blockZ);
+            if(!ignoreActivate(block) && block.onBlockActivated(world, hit.blockX, hit.blockY, hit.blockZ, player, hit.sideHit, (float)f.x, (float)f.y, (float)f.z))
             {
                 player.swingItem();
-                PacketCustom.sendToServer(new Packet15Place(
+                PacketCustom.sendToServer(new C08PacketPlayerBlockPlacement(
                         hit.blockX, hit.blockY, hit.blockZ, hit.sideHit, 
                         player.inventory.getCurrentItem(), 
                         (float)f.x, (float)f.y, (float)f.z));
@@ -85,7 +90,7 @@ public class EventHandler
         {
             TileMultipart.addPart(world, pos, part);
             world.playSoundEffect(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 
-                    part.getBlock().stepSound.getPlaceSound(), 
+                    part.getBlock().stepSound.func_150496_b(),
                     (part.getBlock().stepSound.getVolume() + 1.0F) / 2.0F, 
                     part.getBlock().stepSound.getPitch() * 0.8F);
             if(!player.capabilities.isCreativeMode)

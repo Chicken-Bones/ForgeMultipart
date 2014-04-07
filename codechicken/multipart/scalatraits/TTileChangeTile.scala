@@ -49,12 +49,11 @@ trait TTileChangeTile extends TileMultipart {
             return
             
         val weak = diff == 2
-        if(weak && !weakTileChanges)
-            return
-        
-        operate{ p => 
+        operate{ p =>
             if(p.isInstanceOf[INeighborTileChange])
                 p.asInstanceOf[INeighborTileChange].onNeighborTileChanged(side, weak)
         }
     }
+
+    override def getWeakChanges() = weakTileChanges
 }

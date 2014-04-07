@@ -1,27 +1,22 @@
 package codechicken.multipart.handler
 
-import codechicken.multipart.BlockMultipart
+import codechicken.multipart._
 import cpw.mods.fml.client.registry.RenderingRegistry
 import cpw.mods.fml.client.registry.ClientRegistry
 import net.minecraft.tileentity.TileEntity
 import codechicken.lib.config.ConfigFile
 import java.io.File
 import codechicken.multipart.handler.MultipartProxy._
-import codechicken.multipart.MultipartRenderer
 import net.minecraftforge.common.MinecraftForge
-import codechicken.multipart.MultipartGenerator
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.lib.packet.PacketCustom
-import cpw.mods.fml.client.registry.KeyBindingRegistry
-import codechicken.multipart.ControlKeyHandler
-import cpw.mods.fml.common.network.NetworkRegistry
-import cpw.mods.fml.common.registry.TickRegistry
-import net.minecraft.block.Block
 import net.minecraft.world.ChunkCoordIntPair
 import codechicken.lib.vec.BlockCoord
 import codechicken.lib.world.WorldExtensionManager
-import codechicken.multipart.TickScheduler
+import cpw.mods.fml.common.FMLCommonHandler
+import cpw.mods.fml.common.registry.GameRegistry
+import net.minecraft.block.Block
 
 class MultipartProxy_serverImpl
 {
@@ -29,7 +24,10 @@ class MultipartProxy_serverImpl
     {
         config = new ConfigFile(new File(cfgdir, "multipart.cfg"))
             .setComment("Multipart API config file")
-        
+
+        GameRegistry.registerBlock(new BlockMultipart().setBlockName("multipart"), null, "block")
+        block = Block.blockRegistry.getObject("ForgeMultipart:block").asInstanceOf[BlockMultipart]
+
         MultipartGenerator.registerTrait("codechicken.multipart.TSlottedPart", "codechicken.multipart.scalatraits.TSlottedTile")
         MultipartGenerator.registerTrait("net.minecraftforge.fluids.IFluidHandler", "codechicken.multipart.scalatraits.TFluidHandlerTile")
         MultipartGenerator.registerTrait("net.minecraft.inventory.IInventory", "codechicken.multipart.scalatraits.JInventoryTile")
@@ -41,31 +39,19 @@ class MultipartProxy_serverImpl
         
         MultipartSaveLoad.hookLoader()
     }
-    
-    def init()
-    {
-        block = new BlockMultipart(config.getTag("block.id").getIntValue(getFreeBlockID(1281)))
-        block.setUnlocalizedName("ccmultipart")
-    }
-    
+
+    def init(){}
+
     def postInit()
     {
+        FMLCommonHandler.instance().bus().register(MultipartEventHandler)
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
-        NetworkRegistry.instance.registerConnectionHandler(MultipartEventHandler)
-        TickRegistry.registerTickHandler(MultipartEventHandler, Side.SERVER)
-        
+        PacketCustom.assignHandshakeHandler(MultipartSPH.registryChannel, MultipartSPH)
+
         WorldExtensionManager.registerWorldExtension(TickScheduler)
 
         MultipartCompatiblity.load()
-    }
-    
-    def getFreeBlockID(preferred:Int):Int =
-    {
-        for(i <- (preferred until 4096) ++ (preferred-1 until 255))
-            if(Block.blocksList(i) == null)
-                return i
-        throw new RuntimeException("Out of Block IDs")
     }
     
     def onTileClassBuilt(t:Class[_ <: TileEntity])
@@ -82,8 +68,10 @@ class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
         super.postInit()
         RenderingRegistry.registerBlockHandler(MultipartRenderer)
         PacketCustom.assignHandler(MultipartCPH.channel, MultipartCPH)
-        PacketCustom.assignHandler(MultipartCPH.registryChannel, 1, 127, MultipartCPH)
-        KeyBindingRegistry.registerKeyBinding(ControlKeyHandler)
+        PacketCustom.assignHandler(MultipartCPH.registryChannel, MultipartCPH)
+
+        FMLCommonHandler.instance().bus().register(ControlKeyHandler)
+        ClientRegistry.registerKeyBinding(ControlKeyHandler)
     }
     
     @SideOnly(Side.CLIENT)

@@ -6,9 +6,9 @@ import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 import codechicken.multipart.handler.MultipartProxy
 import codechicken.lib.packet.PacketCustom
-import net.minecraft.network.packet.Packet53BlockChange
 import codechicken.multipart.asm.IMultipartFactory
 import codechicken.multipart.asm.ASMMixinFactory
+import net.minecraft.network.play.server.S23PacketBlockChange
 
 /**
  * This class manages the dynamic construction and allocation of container TileMultipart instances.
@@ -71,9 +71,9 @@ object MultipartGenerator
             if(converted)//perform client conversion
             {
                 ntile.partList(0).invalidateConvertedTile()
-                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
+                world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block, 0, 0)
                 silentAddTile(world, pos, ntile)
-                PacketCustom.sendToChunk(new Packet53BlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)
+                PacketCustom.sendToChunk(new S23PacketBlockChange(pos.x, pos.y, pos.z, world), world, pos.x>>4, pos.z>>4)
                 ntile.partList(0).onConverted()
                 ntile.writeAddPart(ntile.partList(0))
             }
@@ -90,7 +90,7 @@ object MultipartGenerator
         }
         else
         {
-            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID, 0, 0)
+            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block, 0, 0)
             ntile = factory.generateTile(partTraits, world.isRemote)
             silentAddTile(world, pos, ntile)
         }
@@ -105,7 +105,7 @@ object MultipartGenerator
     {
     	val chunk = world.getChunkFromBlockCoords(pos.x, pos.z)
     	if(chunk != null)
-    		chunk.setChunkBlockTileEntity(pos.x & 15, pos.y, pos.z & 15, tile)
+    		chunk.func_150812_a(pos.x & 15, pos.y, pos.z & 15, tile)
     }
     
     /**
@@ -113,10 +113,10 @@ object MultipartGenerator
      */
     private[multipart] def generateCompositeTile(tile:TileEntity, parts:Seq[TMultiPart], client:Boolean):TileMultipart = 
     {
-        var partTraits = parts.flatMap(traitsForPart(_, client)).distinct
+        val partTraits = parts.flatMap(traitsForPart(_, client)).distinct
         if(tile != null && tile.isInstanceOf[TileMultipart])
         {
-            var tileTraits = tileTraitMap(tile.getClass)
+            val tileTraits = tileTraitMap(tile.getClass)
             if(partTraits.forall(tileTraits(_)) && partTraits.size == tileTraits.size)//equal contents
                 return tile.asInstanceOf[TileMultipart]
             
@@ -129,14 +129,14 @@ object MultipartGenerator
      */
     private[multipart] def partRemoved(tile:TileMultipart, part:TMultiPart):TileMultipart = 
     {
-        val client = tile.worldObj.isRemote
-        var partTraits = tile.partList.flatMap(traitsForPart(_, client))
-        var testSet = partTraits.toSet
+        val client = tile.getWorldObj.isRemote
+        val partTraits = tile.partList.flatMap(traitsForPart(_, client))
+        val testSet = partTraits.toSet
         if(!traitsForPart(part, client).forall(testSet(_)))
         {
             val ntile = factory.generateTile(testSet.toSeq, client)
             tile.setValid(false)
-            silentAddTile(tile.worldObj, new BlockCoord(tile), ntile)
+            silentAddTile(tile.getWorldObj, new BlockCoord(tile), ntile)
             ntile.from(tile)
             ntile.notifyTileChange()
             return ntile

@@ -5,7 +5,7 @@ import codechicken.lib.vec.Vector3
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler
 import cpw.mods.fml.client.registry.RenderingRegistry
 import net.minecraft.block.Block
-import net.minecraft.client.renderer.RenderBlocks
+import net.minecraft.client.renderer.{Tessellator, RenderBlocks}
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.IBlockAccess
@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import codechicken.lib.raytracer.ExtendedMOP
-import codechicken.lib.lighting.LazyLightMatrix
+import codechicken.lib.lighting.LightMatrix
 
 /**
  * Internal class for rendering callbacks. Should be moved to the handler package
@@ -22,8 +22,6 @@ import codechicken.lib.lighting.LazyLightMatrix
 object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRenderingHandler
 {
     TileMultipart.renderID = RenderingRegistry.getNextAvailableRenderId
-    private val olm = new LazyLightMatrix
-    
     var pass:Int = 0
     
     override def renderTileEntityAt(t:TileEntity, x:Double, y:Double, z:Double, f:Float)
@@ -34,7 +32,7 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
 
         CCRenderState.reset()
         CCRenderState.pullLightmap()
-        CCRenderState.useNormals(true)
+        CCRenderState.useNormals = true
         
         val pos = new Vector3(x, y, z)
         tmpart.renderDynamic(pos, f, pass)
@@ -44,7 +42,7 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
     
     override def renderWorldBlock(world:IBlockAccess, x:Int, y:Int, z:Int, block:Block, modelId:Int, renderer:RenderBlocks):Boolean =
     {
-        val t = world.getBlockTileEntity(x, y, z)
+        val t = world.getTileEntity(x, y, z)
         if(!t.isInstanceOf[TileMultipartClient])
             return false
 
@@ -65,14 +63,12 @@ object MultipartRenderer extends TileEntitySpecialRenderer with ISimpleBlockRend
         }
         
         CCRenderState.reset()
-        CCRenderState.useModelColours(true)
-        val pos = new Vector3(x, y, z)
-        olm.setPos(world, x, y, z)
-        tmpart.renderStatic(pos, olm, pass)
-        return true
+        CCRenderState.lightMatrix.locate(world, x, y, z)
+        return tmpart.renderStatic(new Vector3(x, y, z), pass)
     }
     
     override def renderInventoryBlock(block:Block, meta:Int, modelId:Int, renderer:RenderBlocks) {}
-    
-    override def shouldRender3DInInventory = false
+
+
+    def shouldRender3DInInventory(modelId:Int) = false
 }

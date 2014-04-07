@@ -7,7 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IconHitEffects;
@@ -60,14 +60,14 @@ public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusio
     }
     
     @Override
-    public Icon getBreakingIcon(Object subPart, int side)
+    public IIcon getBreakingIcon(Object subPart, int side)
     {
         return getBlock().getIcon(0, 0);
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getBrokenIcon(int side)
+    public IIcon getBrokenIcon(int side)
     {
         return getBlock().getIcon(0, 0);
     }
@@ -87,6 +87,6 @@ public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusio
     @Override
     public int getLightValue()
     {
-        return Block.lightValue[getBlock().blockID];
+        return getBlock().getLightValue();
     }
 }

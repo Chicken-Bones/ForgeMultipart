@@ -13,7 +13,7 @@ import net.minecraft.block.Block
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagList
 import java.util.Random
-import codechicken.lib.lighting.LazyLightMatrix
+import codechicken.lib.lighting.LightMatrix
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.Entity
@@ -129,8 +129,8 @@ class TileMultipart extends TileEntity
     {
         internalPartChange(part)
         
-        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, MultipartProxy.block.blockID)
-        worldObj.updateAllLightTypes(xCoord, yCoord, zCoord)
+        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, MultipartProxy.block)
+        worldObj.func_147451_t(xCoord, yCoord, zCoord)
     }
     
     /**
@@ -154,7 +154,7 @@ class TileMultipart extends TileEntity
      */
     def notifyTileChange()
     {
-    	worldObj.func_96440_m(xCoord, yCoord, zCoord, 0)
+    	worldObj.func_147453_f(xCoord, yCoord, zCoord, MultipartProxy.block)
     }
     
     def onNeighborBlockChange()
@@ -166,6 +166,11 @@ class TileMultipart extends TileEntity
      * Blank implementation, overriden by TTileChangeTile
      */
     def onNeighborTileChange(tileX:Int, tileY:Int, tileZ:Int) {}
+
+    /**
+     * Blank implementation, overriden by TTileChangeTile
+     */
+    def getWeakChanges() = false
     
     def getLightValue = partList.view.map(_.getLightValue).max
 
@@ -174,7 +179,7 @@ class TileMultipart extends TileEntity
     /**
      * Callback for parts to mark the chunk as needs saving
      */
-    def markDirty()
+    override def markDirty()
     {
         worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this)
     }
@@ -184,7 +189,7 @@ class TileMultipart extends TileEntity
      */
     def markRender()
     {
-        worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord)
+        worldObj.func_147479_m(xCoord, yCoord, zCoord)
     }
     
     /**
@@ -193,7 +198,7 @@ class TileMultipart extends TileEntity
     def notifyNeighborChange(side:Int)
     {
         val pos = new BlockCoord(this).offset(side)
-        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
+        worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block)
     }
     
     def isSolid(side:Int):Boolean = 
@@ -211,12 +216,12 @@ class TileMultipart extends TileEntity
             return
         
         doesTick = tick
-        if(worldObj != null && worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) == this)
+        if(worldObj != null && worldObj.getTileEntity(xCoord, yCoord, zCoord) == this)
         {
             if(tick)
                 worldObj.addTileEntity(this)
             else
-                worldObj.markTileEntityForDespawn(this)
+                worldObj.func_147457_a(this)
         }
     }
     
@@ -484,11 +489,9 @@ class TileMultipart extends TileEntity
 
 class TileMultipartClient extends TileMultipart
 {
-    def renderStatic(pos:Vector3, olm:LazyLightMatrix, pass:Int)
-    {
-        partList.foreach(part => part.renderStatic(pos, olm, pass))
-    }
-    
+    def renderStatic(pos:Vector3, pass:Int) =
+        partList.foldLeft(false)((r, part) => part.renderStatic(pos, pass) || r)
+
     def renderDynamic(pos:Vector3, frame:Float, pass:Int)
     {
         partList.foreach(part => part.renderDynamic(pos, frame, pass:Int))
@@ -539,12 +542,11 @@ object TileMultipart
      */
     def getOrConvertTile2(world:World, pos:BlockCoord):(TileMultipart, Boolean) =
     {
-        val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
+        val t = world.getTileEntity(pos.x, pos.y, pos.z)
         if(t.isInstanceOf[TileMultipart])
             return (t.asInstanceOf[TileMultipart], false)
         
-        val id = world.getBlockId(pos.x, pos.y, pos.z)
-        val p = MultiPartRegistry.convertBlock(world, pos, id)
+        val p = MultiPartRegistry.convertBlock(world, pos, world.getBlock(pos.x, pos.y, pos.z))
         if(p != null)
         {
             val t = MultipartGenerator.generateCompositeTile(null, Seq(p), world.isRemote)
@@ -562,7 +564,7 @@ object TileMultipart
      * Gets the multipart tile instance at pos, or null if it doesn't exist or is not a multipart tile
      */
     def getTile(world:World, pos:BlockCoord) =
-        world.getBlockTileEntity(pos.x, pos.y, pos.z) match {
+        world.getTileEntity(pos.x, pos.y, pos.z) match {
             case t:TileMultipart => t
             case _ => null
         }
@@ -596,8 +598,8 @@ object TileMultipart
      */
     def replaceable(world:World, pos:BlockCoord):Boolean = 
     {
-        val block = Block.blocksList(world.getBlockId(pos.x, pos.y, pos.z))
-        return block == null || block.isAirBlock(world, pos.x, pos.y, pos.z) || block.isBlockReplaceable(world, pos.x, pos.y, pos.z)
+        val block = world.getBlock(pos.x, pos.y, pos.z)
+        return block.isAir(world, pos.x, pos.y, pos.z) || block.isReplaceable(world, pos.x, pos.y, pos.z)
     }
     
     /**
@@ -627,10 +629,10 @@ object TileMultipart
         if(parts.size == 0)
             return
         
-        val t = world.getBlockTileEntity(pos.x, pos.y, pos.z)
+        val t = world.getTileEntity(pos.x, pos.y, pos.z)
         val tilemp = MultipartGenerator.generateCompositeTile(t, parts, true)
         if(tilemp != t) {
-            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block.blockID)
+            world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block)
             MultipartGenerator.silentAddTile(world, pos, tilemp)
         }
         
@@ -662,12 +664,12 @@ object TileMultipart
      */
     def createFromNBT(tag:NBTTagCompound):TileMultipart =
     {
-        val partList = tag.getTagList("parts")
+        val partList = tag.getTagList("parts", 10)
         val parts = ListBuffer[TMultiPart]()
         
         for(i <- 0 until partList.tagCount)
         {
-            val partTag = partList.tagAt(i).asInstanceOf[NBTTagCompound]
+            val partTag = partList.getCompoundTagAt(i)
             val partID = partTag.getString("id")
             val part = MultiPartRegistry.createPart(partID, false)
             if(part != null)

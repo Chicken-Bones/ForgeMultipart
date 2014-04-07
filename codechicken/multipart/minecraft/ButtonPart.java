@@ -10,15 +10,16 @@ import net.minecraft.block.BlockButton;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
 {
-    public static BlockButton stoneButton = (BlockButton) Block.stoneButton;
-    public static BlockButton woodenButton = (BlockButton) Block.woodenButton;
+    public static BlockButton stoneButton = (BlockButton) Blocks.stone_button;
+    public static BlockButton woodenButton = (BlockButton) Blocks.wooden_button;
     public static int[] metaSideMap = new int[]{-1, 4, 5, 2, 3};
     public static int[] sideMetaMap = new int[]{-1, -1, 3, 4, 1, 2};
     
@@ -88,7 +89,7 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart
             return null;
         
         pos = pos.copy().offset(side^1);
-        if(!world.isBlockSolidOnSide(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
+        if(!world.isSideSolid(pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)))
             return null;
         
         return new ButtonPart(sideMetaMap[side^1]|type<<4);

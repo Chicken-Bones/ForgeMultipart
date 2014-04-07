@@ -7,16 +7,20 @@ import java.io.BufferedReader
 import java.io.FileReader
 import scala.collection.mutable.{Map => MMap}
 import net.minecraft.block.Block
+import net.minecraft.item.Item
 import java.lang.Exception
 import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage
 import net.minecraft.item.ItemStack
 import BlockMicroMaterial.createAndRegister
 import BlockMicroMaterial.materialKey
+import java.util.ArrayList
+import scala.collection.JavaConversions._
+import net.minecraft.init.Blocks
 
 object ConfigContent
 {
     private val nameMap = MMap[String, Seq[Int]]()
-    private val idMap = new Array[Seq[Int]](Block.blocksList.length)
+    private val idMap = new ArrayList[Seq[Int]]()
     
     def parse(cfgDir:File)
     {
@@ -116,12 +120,12 @@ object ConfigContent
     
     def load()
     {
-        for(i <- 0 until idMap.length)
+        for(i <- 0 until idMap.size)
         {
-            val block = Block.blocksList(i)
+            val block = Block.getBlockById(i)
             if(idMap(i) != null)
             {
-                if(block == null)
+                if(block == Blocks.air)
                     System.err.println("Warning: Unable to add micro material for block with ID "+i+" as it doesn't exist")
                 else
                     createAndRegister(block, idMap(i))
@@ -163,17 +167,17 @@ object ConfigContent
                 error("value is not an instanceof ItemStack")
             else {
                 val stack = msg.getItemStackValue
-                if(stack.itemID >= Block.blocksList.length || Block.blocksList(stack.itemID) == null)
-                    System.err.println("Invalid blockID: "+stack.itemID)
+                if(Block.blockRegistry.containsId(Item.getIdFromItem(stack.getItem)))
+                    System.err.println("Invalid Block: "+stack.getItem)
                 else if(stack.getItemDamage < 0 || stack.getItemDamage >= 16)
                     System.err.println("Invalid metadata: "+stack.getItemDamage)
                 else {
                     try {
-	                    createAndRegister(Block.blocksList(stack.itemID), stack.getItemDamage)
+	                    createAndRegister(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)
                     }
                     catch {
                     	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
-                    	        materialKey(Block.blocksList(stack.itemID), stack.getItemDamage)+"\n\t"+e.getMessage)
+                    	        materialKey(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)+"\n\t"+e.getMessage)
                     }
                 }
             }

@@ -1,12 +1,15 @@
 package codechicken.multipart.minecraft;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.multipart.MultiPartRegistry.IPartConverter;
 import codechicken.multipart.MultiPartRegistry.IPartFactory;
 import codechicken.multipart.MultiPartRegistry;
 import codechicken.multipart.TMultiPart;
+
+import java.util.Arrays;
 
 public class Content implements IPartFactory, IPartConverter
 {
@@ -33,32 +36,26 @@ public class Content implements IPartFactory, IPartConverter
     }
 
     @Override
-    public boolean canConvert(int blockID)
-    {
-        return blockID == Block.torchWood.blockID || 
-                blockID == Block.lever.blockID || 
-                blockID == Block.stoneButton.blockID || 
-                blockID == Block.woodenButton.blockID || 
-                blockID == Block.torchRedstoneIdle.blockID || 
-                blockID == Block.torchRedstoneActive.blockID;
+    public Iterable<Block> blockTypes() {
+        return Arrays.asList(Blocks.torch, Blocks.lever, Blocks.stone_button, Blocks.wooden_button, Blocks.redstone_torch, Blocks.unlit_redstone_torch);
     }
 
     @Override
     public TMultiPart convert(World world, BlockCoord pos)
     {
-        int id = world.getBlockId(pos.x, pos.y, pos.z);
+        Block b = world.getBlock(pos.x, pos.y, pos.z);
         int meta = world.getBlockMetadata(pos.x, pos.y, pos.z);
-        if(id == Block.torchWood.blockID)
+        if(b == Blocks.torch)
             return new TorchPart(meta);
-        if(id == Block.lever.blockID)
+        if(b == Blocks.lever)
             return new LeverPart(meta);
-        if(id == Block.stoneButton.blockID)
+        if(b == Blocks.stone_button)
             return new ButtonPart(meta);
-        if(id == Block.woodenButton.blockID)
+        if(b == Blocks.wooden_button)
             return new ButtonPart(meta|0x10);
-        if(id == Block.torchRedstoneIdle.blockID)
+        if(b == Blocks.redstone_torch)
             return new RedstoneTorchPart(meta);
-        if(id == Block.torchRedstoneActive.blockID)
+        if(b == Blocks.unlit_redstone_torch)
             return new RedstoneTorchPart(meta|0x10);
         
         return null;

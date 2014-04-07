@@ -5,9 +5,8 @@ import codechicken.lib.world.WorldExtension
 import codechicken.lib.world.ChunkExtension
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.World
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.{NBTBase, NBTTagCompound, NBTTagList, CompressedStreamTools}
 import scala.collection.mutable.ListBuffer
-import net.minecraft.nbt.NBTTagList
 import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.ChunkCoordIntPair
 import net.minecraft.world.ChunkPosition
@@ -16,7 +15,6 @@ import java.io.DataOutputStream
 import net.minecraftforge.common.DimensionManager
 import java.io.File
 import java.io.FileOutputStream
-import net.minecraft.nbt.CompressedStreamTools
 import java.io.DataInputStream
 import java.io.FileInputStream
 import net.minecraft.world.storage.SaveHandler
@@ -218,11 +216,11 @@ object TickScheduler extends WorldExtensionInstantiator
             if(!data.hasKey("multipartTicks"))
                 return
             
-            val tagList = data.getTagList("multipartTicks")
+            val tagList = data.getTagList("multipartTicks", 10)
             val cc = new ChunkCoordIntPair(0, 0)
             for(i <- 0 until tagList.tagCount)
             {
-                val tag = tagList.tagAt(i).asInstanceOf[NBTTagCompound]
+                val tag = tagList.getCompoundTagAt(i)
                 val pos = indexInChunk(cc, tag.getShort("pos"))
                 val tile = chunk.chunkTileEntityMap.get(new ChunkPosition(pos.x, pos.y, pos.z))
                 if(tile.isInstanceOf[TileMultipart])
@@ -261,7 +259,7 @@ object TickScheduler extends WorldExtensionInstantiator
     
     private[multipart] def loadRandomTick(part:TMultiPart)
     {
-        getExtension(part.tile.worldObj).asInstanceOf[WorldTickScheduler].loadRandom(part)
+        getExtension(part.tile.getWorldObj).asInstanceOf[WorldTickScheduler].loadRandom(part)
     }
     
     /**
@@ -269,7 +267,7 @@ object TickScheduler extends WorldExtensionInstantiator
      */
     def scheduleTick(part:TMultiPart, ticks:Int)
     {
-        getExtension(part.tile.worldObj).asInstanceOf[WorldTickScheduler].scheduleTick(part, ticks, false)
+        getExtension(part.tile.getWorldObj).asInstanceOf[WorldTickScheduler].scheduleTick(part, ticks, false)
     }
     
     /**

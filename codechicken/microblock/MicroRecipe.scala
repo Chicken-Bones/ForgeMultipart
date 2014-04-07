@@ -5,9 +5,12 @@ import net.minecraft.world.World
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.ItemStack
 import codechicken.microblock.handler.MicroblockProxy._
+import net.minecraftforge.oredict.RecipeSorter
 
 object MicroRecipe extends IRecipe
 {
+    RecipeSorter.register("fmp:micro", getClass, RecipeSorter.Category.SHAPED, "after:forge:shapelessore")
+
     def getRecipeOutput = new ItemStack(sawStone)
     
     def getRecipeSize = 9
@@ -178,7 +181,7 @@ object MicroRecipe extends IRecipe
     
     def findMaterial(item:ItemStack):Int =
         MicroMaterialRegistry.getIdMap.find{m => val mitem = m._2.getItem
-                item.itemID == mitem.itemID && 
+                item.getItem == mitem.getItem &&
                 item.getItemDamage == mitem.getItemDamage && 
                 ItemStack.areItemStackTagsEqual(item, mitem)} match {
             case None => -1

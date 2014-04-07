@@ -1,16 +1,16 @@
 package codechicken.multipart
 
-import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler
 import net.minecraft.client.settings.KeyBinding
 import org.lwjgl.input.Keyboard
-import cpw.mods.fml.common.registry.LanguageRegistry
-import java.util.EnumSet
-import cpw.mods.fml.common.TickType
 import net.minecraft.client.Minecraft
 import codechicken.lib.packet.PacketCustom
 import codechicken.multipart.handler.MultipartCPH
 import scala.collection.mutable.HashMap
 import net.minecraft.entity.player.EntityPlayer
+import cpw.mods.fml.common.eventhandler.SubscribeEvent
+import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent
+import cpw.mods.fml.relauncher.{Side, SideOnly}
+import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent
 
 /**
  * A class that maintains a map server<->client of which players are holding the control (or placement modifier key) much like sneaking.
@@ -35,37 +35,24 @@ object ControlKeyModifer
 /**
  * Key Handler implementation
  */
-object ControlKeyHandler extends KeyHandler (
-        Array(new KeyBinding("key.control", Keyboard.KEY_LCONTROL)), 
-        Array(false))
+object ControlKeyHandler extends KeyBinding("key.control", Keyboard.KEY_LCONTROL, "key.categories.gameplay")
 {
     import ControlKeyModifer._
-    
-    LanguageRegistry.instance.addStringLocalization("key.control", "Placement Modifier")
-    
-    def keyDown(types:EnumSet[TickType], kb:KeyBinding, tickEnd:Boolean, isRepeat:Boolean)
-    {
-        if(!tickEnd && Minecraft.getMinecraft.getNetHandler != null)
-        {
-            map.put(Minecraft.getMinecraft.thePlayer, true)
-            val packet = new PacketCustom(MultipartCPH.channel, 1)
-            packet.writeBoolean(true)
-            packet.sendToServer()
-        }
-    }
-    
-    def keyUp(types:EnumSet[TickType], kb:KeyBinding, tickEnd:Boolean)
-    {
-        if(!tickEnd && Minecraft.getMinecraft.getNetHandler != null)
-        {
-            map.put(Minecraft.getMinecraft.thePlayer, false)
-            val packet = new PacketCustom(MultipartCPH.channel, 1)
-            packet.writeBoolean(false)
-            packet.sendToServer()
-        }
-    }
-    
-    def getLabel = "Control Key Modifer"
+    var wasPressed = false
 
-    def ticks = EnumSet.of(TickType.CLIENT)
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    def tick(event:ClientTickEvent) {
+        val pressed = getIsKeyPressed
+        if(pressed != wasPressed) {
+            wasPressed = pressed
+            if(Minecraft.getMinecraft.getNetHandler != null)
+            {
+                map.put(Minecraft.getMinecraft.thePlayer, pressed)
+                val packet = new PacketCustom(MultipartCPH.channel, 1)
+                packet.writeBoolean(pressed)
+                packet.sendToServer()
+            }
+        }
+    }
 }

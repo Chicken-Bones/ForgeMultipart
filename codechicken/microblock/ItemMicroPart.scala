@@ -13,22 +13,22 @@ import java.util.List
 import net.minecraft.creativetab.CreativeTabs
 import codechicken.microblock.MicroblockClassRegistry._
 import codechicken.lib.render.CCRenderState
-import net.minecraft.client.renderer.texture.IconRegister
+import net.minecraft.client.renderer.texture.IIconRegister
 import codechicken.microblock.handler.MicroblockProxy
-import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.{StatCollector, MovingObjectPosition}
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.world.World
 import codechicken.lib.raytracer.RayTracer
-import net.minecraft.util.EnumMovingObjectType
 import codechicken.lib.vec.Vector3
 import codechicken.lib.render.TextureUtils
-import codechicken.lib.lang.LangUtil
+import net.minecraft.util.MovingObjectPosition.MovingObjectType
 
-class ItemMicroPart(id:Int) extends Item(id)
+class ItemMicroPart extends Item
 {
+    setUnlocalizedName("microblock")
     setHasSubtypes(true)
     
-    override def getItemDisplayName(stack:ItemStack):String =
+    override def getItemStackDisplayName(stack:ItemStack):String =
     {
         val material = getMaterial(stack)
         val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
@@ -36,10 +36,10 @@ class ItemMicroPart(id:Int) extends Item(id)
         if(material == null || mcrClass == null)
             return "Unnamed"
         
-        return LangUtil.translateG(mcrClass.getName+"."+size+".name", material.getLocalizedName)
+        return StatCollector.translateToLocalFormatted(mcrClass.getName+"."+size+".name", material.getLocalizedName)
     }
     
-    override def getSubItems(id:Int, tab:CreativeTabs, list$:List[_])
+    override def getSubItems(item:Item, tab:CreativeTabs, list$:List[_])
     {
         val list = list$.asInstanceOf[List[ItemStack]]
         for(classId <- 0 until classes.length)
@@ -51,7 +51,7 @@ class ItemMicroPart(id:Int) extends Item(id)
         }
     }
     
-    override def registerIcons(register:IconRegister){}
+    override def registerIcons(register:IIconRegister){}
     
     override def onItemUse(item:ItemStack, player:EntityPlayer, world:World, x:Int, y:Int, z:Int, s:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
     {
@@ -62,9 +62,9 @@ class ItemMicroPart(id:Int) extends Item(id)
             return false
             
         val hit = RayTracer.retraceBlock(world, player, x, y, z)
-        if(hit != null && hit.typeOfHit == EnumMovingObjectType.TILE)
+        if(hit != null && hit.typeOfHit == MovingObjectType.BLOCK)
         {
-            val placement = MicroblockPlacement(world, player, hit, size, material, !player.capabilities.isCreativeMode, mcrClass.placementProperties)
+            val placement = MicroblockPlacement(player, hit, size, material, !player.capabilities.isCreativeMode, mcrClass.placementProperties)
             if(placement == null)
                 return false
             
@@ -76,7 +76,7 @@ class ItemMicroPart(id:Int) extends Item(id)
                 
                 val sound = MicroMaterialRegistry.getMaterial(material).getSound
                 if(sound != null)
-                    world.playSoundEffect(placement.pos.x + 0.5D, placement.pos.y + 0.5D, placement.pos.z + 0.5D, sound.getPlaceSound, (sound.getVolume + 1.0F) / 2.0F, sound.getPitch * 0.8F)
+                    world.playSoundEffect(placement.pos.x + 0.5D, placement.pos.y + 0.5D, placement.pos.z + 0.5D, sound.func_150496_b, (sound.getVolume + 1.0F) / 2.0F, sound.getPitch * 0.8F)
             }
             
             return true
@@ -91,7 +91,7 @@ object ItemMicroPart
     def checkTagCompound(stack:ItemStack)
     {
         if(!stack.hasTagCompound)
-            stack.setTagCompound(new NBTTagCompound("tag"))
+            stack.setTagCompound(new NBTTagCompound())
     }
     
     def create(damage:Int, material:Int):ItemStack = create(damage, MicroMaterialRegistry.materialName(material))
@@ -144,20 +144,19 @@ object ItemMicroPartRenderer extends IItemRenderer
             GL11.glScaled(0.5, 0.5, 0.5)
         if(t == ItemRenderType.INVENTORY || t == ItemRenderType.ENTITY)
             GL11.glTranslatef(-0.5F, -0.5F, -0.5F)
-        
-        CCRenderState.reset()
+
         TextureUtils.bindAtlas(0)
-        CCRenderState.useNormals(true)
-        CCRenderState.useModelColours(true)
+        CCRenderState.reset()
+        CCRenderState.useNormals = true
         CCRenderState.pullLightmap()
-        CCRenderState.startDrawing(7)
-            val part = mcrClass.create(size, mcrClass.itemSlot, 0, true).asInstanceOf[MicroblockClient]
-            part.render(new Vector3(0.5, 0.5, 0.5).subtract(part.getBounds.center), null, material, part.getBounds, 0)
+        CCRenderState.startDrawing()
+            val part = mcrClass.create(size, mcrClass.itemSlot, getMaterialID(item), true).asInstanceOf[MicroblockClient]
+            part.render(new Vector3(0.5, 0.5, 0.5).subtract(part.getBounds.center), -1)
         CCRenderState.draw()
         GL11.glPopMatrix()
     }
     
-    def renderHighlight(world:World, player:EntityPlayer, stack:ItemStack, hit:MovingObjectPosition):Boolean =
+    def renderHighlight(player:EntityPlayer, stack:ItemStack, hit:MovingObjectPosition):Boolean =
     {
         val material = getMaterialID(stack)
         val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
@@ -165,6 +164,6 @@ object ItemMicroPartRenderer extends IItemRenderer
         if(material < 0 || mcrClass == null)
             return false
         
-        return MicroMaterialRegistry.renderHighlight(world, player, hit, mcrClass, size, material)
+        return MicroMaterialRegistry.renderHighlight(player, hit, mcrClass, size, material)
     }
 }

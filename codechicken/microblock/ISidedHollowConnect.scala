@@ -2,8 +2,6 @@ package codechicken.microblock
 
 /**
  * Implement this on center parts that connect through hollow covers to have the covers render their hollows to fit the connection size
- * 
- * Will replace IHollowConnect as of 1.7
  */
 trait ISidedHollowConnect
 {
