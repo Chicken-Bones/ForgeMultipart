@@ -60,7 +60,7 @@ jar {
 }
 sourceSets {
 	main {
-		java {
+        scala {
 			srcDir project.projectDir
 			include 'codechicken/**/*.*'
 		}
