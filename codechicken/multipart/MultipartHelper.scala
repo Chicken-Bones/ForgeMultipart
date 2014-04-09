@@ -50,6 +50,7 @@ object MultipartHelper
             pkt.sendToChunk(world, c.xPosition, c.zPosition)
     }
     
+    /* Removed for compilation until PlayerInstance access transformer is pulled in forge
     def sendDescPackets(world:World, tiles:Iterable[TileEntity]) {
         val map = LinkedListMultimap.create[Long, TileEntity]()
         tiles.filter(_.isInstanceOf[TileMultipart]).foreach(t => map.put(t.xCoord.toLong<<32|t.zCoord, t))
@@ -63,5 +64,5 @@ object MultipartHelper
             if(!inst.playersWatchingChunk.isEmpty)
                 inst.sendToAllPlayersWatchingChunk(pkt.toPacket)
         }
-    }
+    }*/
 }
