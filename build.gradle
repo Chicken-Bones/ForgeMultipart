@@ -35,15 +35,15 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 dependencies {
-	compile "codechicken:CodeChickenLib:${config.minecraft_version}-${config.ccl_version}:dev"
+	compile "codechicken:CodeChickenLib:${config.mc_version}-${config.ccl_version}:dev"
 }
 
 version =  "${project.config.mod_version}." + System.getenv("BUILD_NUMBER") ?: "1"
 
-println  config.minecraft_version + "-" + config.forge_version
+println  config.mc_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
-    version = config.minecraft_version + "-" + config.forge_version
+    version = config.mc_version + "-" + config.forge_version
 }
 
 // this sets our output jar to have a 'tag' of 'universal' on it
