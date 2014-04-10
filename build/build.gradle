@@ -60,7 +60,7 @@ jar {
 }
 sourceSets {
     main {
-        def root = new File(project.projectDir, "..")
+        def root = project.projectDir.parentDir
         scala {
             srcDir new File(root, "src")
         }
@@ -70,10 +70,15 @@ sourceSets {
     }
 }
 processResources {
+    //redo task if any of these properties change
+    inputs.property "version", project.version
+    inputs.property "mc_version", config.mc_version
+    inputs.property "ccl_version", config.ccl_version
+
     // Replace properties in info files
     from(sourceSets.main.resources.srcDirs) {
         include '*.info'
-        expand 'version':version,'mc_version':config.mc_version,'ccl_version':config.ccl_version
+        expand 'version':project.version,'mc_version':config.mc_version,'ccl_version':config.ccl_version
     }
     // Copy everything else
     from(sourceSets.main.resources.srcDirs) {
