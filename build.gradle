@@ -76,6 +76,7 @@ processResources
     // Replace stuff in text files, not binaries.
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.info'
+        exclude 'build/*'
         // Replace version and MCversion
         expand 'version':version,'mc_version':config.mc_version,'ccl_version':config.ccl_version
     }
