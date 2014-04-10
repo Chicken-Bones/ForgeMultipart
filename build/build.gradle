@@ -60,7 +60,7 @@ jar {
 }
 sourceSets {
     main {
-        def root = project.projectDir.parentDir
+        def root = project.projectDir.parentFile
         scala {
             srcDir new File(root, "src")
         }
