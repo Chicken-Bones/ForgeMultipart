@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=石手锯
+item.microblock:sawIron.name=铁手锯
+item.microblock:sawDiamond.name=钻石手锯
+item.microblock:stoneRod.name=石棍
+
+mcr_face.1.name=%s 盖板
+mcr_face.1.subset=盖板
+mcr_face.2.name=%s 面板
+mcr_face.2.subset=面板
+mcr_face.4.name=%s 厚板
+mcr_face.4.subset=厚板
+
+mcr_hllw.1.name=%s 空心盖板
+mcr_hllw.1.subset=空心盖板
+mcr_hllw.2.name=%s 空心面板
+mcr_hllw.2.subset=空心面板
+mcr_hllw.4.name=%s 空心厚板
+mcr_hllw.4.subset=空心厚板
+
+mcr_edge.1.name=%s Strip
+mcr_edge.1.subset=Strip
+mcr_edge.2.name=%s Post
+mcr_edge.2.subset=Post
+mcr_edge.4.name=%s 柱
+mcr_edge.4.subset=柱
+
+mcr_cnr.1.name=%s Nook
+mcr_cnr.1.subset=Nook
+mcr_cnr.2.name=%s Corner
+mcr_cnr.2.subset=Corner
+mcr_cnr.4.name=%s Notch
+mcr_cnr.4.subset=Notch

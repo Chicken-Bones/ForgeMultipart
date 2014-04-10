@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=Sierra de Piedra
+item.microblock:sawIron.name=Sierra de Hierro
+item.microblock:sawDiamond.name=Sierra de Diamante
+item.microblock:stoneRod.name=Palo de Piedra
+
+mcr_face.1.name=Cubierta de %s
+mcr_face.1.subset=Cubierta
+mcr_face.2.name=Panel de %s
+mcr_face.2.subset=Panel
+mcr_face.4.name=Losa de %s
+mcr_face.4.subset=Losa
+
+mcr_hllw.1.name=Cubierta Hueca de %s
+mcr_hllw.1.subset=Cubierta Hueca
+mcr_hllw.2.name=Panel Hueco de %s
+mcr_hllw.2.subset=Panel Hueco
+mcr_hllw.4.name=Losa Hueca de %s
+mcr_hllw.4.subset=Losa Hueca
+
+mcr_edge.1.name=Listón de %s
+mcr_edge.1.subset=Listón
+mcr_edge.2.name=Poste de %s
+mcr_edge.2.subset=Poste
+mcr_edge.4.name=Pilar de %s
+mcr_edge.4.subset=Pilar
+
+mcr_cnr.1.name=Punta de %s
+mcr_cnr.1.subset=Punta
+mcr_cnr.2.name=Esquina de %s
+mcr_cnr.2.subset=Esquina
+mcr_cnr.4.name=Cuarto de %s
+mcr_cnr.4.subset=Cuarto

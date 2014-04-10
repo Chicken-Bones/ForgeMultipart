@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=Scie en pierre
+item.microblock:sawIron.name=Scie en fer
+item.microblock:sawDiamond.name=Scie en diamant
+item.microblock:stoneRod.name=Bâtons en pierre
+
+mcr_face.1.name=Couvercle de %s
+mcr_face.1.subset=Couvercle
+mcr_face.2.name=Panneau de %s
+mcr_face.2.subset=Panneau
+mcr_face.4.name=Dalle de %s
+mcr_face.4.subset=Dalle
+
+mcr_hllw.1.name=Couvercle creux de %s
+mcr_hllw.1.subset=Couvercle creux
+mcr_hllw.2.name=Panneau creux de %s
+mcr_hllw.2.subset=Panneau creux
+mcr_hllw.4.name=Dalle creuse de %s
+mcr_hllw.4.subset=Dalle creuse
+
+mcr_edge.1.name=Bande de %s
+mcr_edge.1.subset=Bande
+mcr_edge.2.name=Pieu de %s
+mcr_edge.2.subset=Pieu
+mcr_edge.4.name=Pilier de %s
+mcr_edge.4.subset=Pilier
+
+mcr_cnr.1.name=Coin de %s
+mcr_cnr.1.subset=Coin
+mcr_cnr.2.name=Bordure de %s
+mcr_cnr.2.subset=Bordure
+mcr_cnr.4.name=Entaille de %s
+mcr_cnr.4.subset=Entaille

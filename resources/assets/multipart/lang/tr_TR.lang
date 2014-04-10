@@ -1,0 +1,32 @@
+item.microblock:sawStone.name=Taş Testere
+item.microblock:sawIron.name=Demir Testere
+item.microblock:sawDiamond.name=Elmas Testere
+item.microblock:stoneRod.name=Taş Çubuk
+
+mcr_face.1.name=%s Kapak
+mcr_face.1.subset=Kapak
+mcr_face.2.name=%s Panel
+mcr_face.2.subset=Panel
+mcr_face.4.name=Kalın %s 
+mcr_face.4.subset=Kalın
+
+mcr_hllw.1.name=Ortası Boş %s Kapak
+mcr_hllw.1.subset=Ortası Boş Cover
+mcr_hllw.2.name=Ortası Boş %s Panel
+mcr_hllw.2.subset=Ortası Boş Panel
+mcr_hllw.4.name=Ortası Boş Kalın %s
+mcr_hllw.4.subset=Ortası Boş Kalın
+
+mcr_edge.1.name=%s Şerit
+mcr_edge.1.subset=Şerit
+mcr_edge.2.name=Kalın Şerit %s 
+mcr_edge.2.subset=Kalın Şerit
+mcr_edge.4.name=%s Sütun
+mcr_edge.4.subset=Sütun
+
+mcr_cnr.1.name=%s Köşe
+mcr_cnr.1.subset=Köşe
+mcr_cnr.2.name=Orta Köşe %s 
+mcr_cnr.2.subset=Orta Köşe
+mcr_cnr.4.name=Kalın Köşe %s 
+mcr_cnr.4.subset=Kalın Köşe
