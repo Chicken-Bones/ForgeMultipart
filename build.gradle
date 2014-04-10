@@ -71,18 +71,15 @@ sourceSets {
 		}
 	}
 }
-processResources
-{
-    // Replace stuff in text files, not binaries.
+processResources {
+    // Replace properties in info files
     from(sourceSets.main.resources.srcDirs) {
-        include '**/*.info'
-        exclude 'build/*'
-        // Replace version and MCversion
+        include '*.info'
         expand 'version':version,'mc_version':config.mc_version,'ccl_version':config.ccl_version
     }
-    // Copy everything else that's not text
+    // Copy everything else
     from(sourceSets.main.resources.srcDirs) {
-        exclude '**/*.info'
+		include 'assets/**/*.*'
     }
 }
 
