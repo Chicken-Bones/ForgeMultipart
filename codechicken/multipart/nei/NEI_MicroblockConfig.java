@@ -1,5 +1,7 @@
 package codechicken.multipart.nei;
 
+/* Commented until NEI is setup with maven
+
 import codechicken.microblock.MicroblockClass;
 import codechicken.microblock.MicroblockClassRegistry;
 import codechicken.nei.api.IConfigureNEI;
@@ -24,8 +26,8 @@ public class NEI_MicroblockConfig implements IConfigureNEI
 
     private void addSubset(MicroblockClass mcrClass, int i)
     {
-        /*API.addSetRange("Microblocks."+LangUtil.translateG(mcrClass.getName()+"."+(i&0xFF)+".subset"),
-                new MultiItemRange().add(MicroblockProxy.itemMicro(), i, i));*/
+        API.addSetRange("Microblocks."+LangUtil.translateG(mcrClass.getName()+"."+(i&0xFF)+".subset"),
+                new MultiItemRange().add(MicroblockProxy.itemMicro(), i, i));
     }
 
     @Override
@@ -39,4 +41,4 @@ public class NEI_MicroblockConfig implements IConfigureNEI
     {
         return "1.0.0.0";
     }
-}
+}*/
