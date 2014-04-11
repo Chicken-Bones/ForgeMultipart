@@ -331,9 +331,9 @@ class TileMultipart extends TileEntity
         if(!isInvalid)
         {
             val tile = MultipartGenerator.partRemoved(this, part)
-            notifyPartChange(part)
-            markDirty()
-            markRender()
+            tile.notifyPartChange(part)
+            tile.markDirty()
+            tile.markRender()
             return tile
         }
         
