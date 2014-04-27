@@ -36,6 +36,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import cpw.mods.fml.common.versioning.ComparableVersion;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLCallHook;
@@ -47,6 +48,7 @@ import sun.net.util.URLUtil;
  * For autodownloading stuff.
  * This is really unoriginal, mostly ripped off FML, credits to cpw.
  */
+@MCVersion("1.7.2")
 public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
     private static final String owner = "CB's DepLoader";
