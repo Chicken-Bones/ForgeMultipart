@@ -81,7 +81,7 @@ object ASMMixinFactory extends IMultipartFactory
             
             MultipartGenerator.registerTileClass(cmpClass.asInstanceOf[TMClass], types.toSet)
             val c = constructor(cmpClass)
-            DebugPrinter.log("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
+            DebugPrinter.logger.debug("Generation ["+types.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
             return c
         }
     }

@@ -40,12 +40,10 @@ object DebugPrinter
 
     def defined(name: String, bytes: Array[Byte]) {
         if ((permGenUsed + bytes.length) / 16000 != permGenUsed / 16000)
-            log((permGenUsed + bytes.length) + " bytes of permGen has been used by ASMMixinCompiler")
+            logger.debug((permGenUsed + bytes.length) + " bytes of permGen has been used by ASMMixinCompiler")
 
         permGenUsed += bytes.length
     }
-
-    def log(msg: String) = if (debug) println(msg)
 }
 
 object ASMMixinCompiler

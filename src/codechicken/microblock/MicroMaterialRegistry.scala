@@ -130,7 +130,7 @@ object MicroMaterialRegistry
             return
         }
 
-        logger.info("Registered micro material: " + name)
+        logger.debug("Registered micro material: " + name)
 
         typeMap.put(name, material)
     }
@@ -145,7 +145,7 @@ object MicroMaterialRegistry
         if (typeMap.remove(name).isEmpty)
             logger.error("Material with id " + name + " is was not registered.")
 
-        logger.info("Replaced micro material: " + name)
+        logger.debug("Replaced micro material: " + name)
 
         typeMap.put(name, material)
     }
