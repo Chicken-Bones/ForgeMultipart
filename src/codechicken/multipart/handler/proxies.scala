@@ -6,7 +6,6 @@ import cpw.mods.fml.client.registry.ClientRegistry
 import net.minecraft.tileentity.TileEntity
 import codechicken.lib.config.ConfigFile
 import java.io.File
-import codechicken.multipart.handler.MultipartProxy._
 import net.minecraftforge.common.MinecraftForge
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
@@ -17,11 +16,16 @@ import codechicken.lib.world.WorldExtensionManager
 import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.common.registry.GameRegistry
 import net.minecraft.block.Block
+import org.apache.logging.log4j.Logger
 
 class MultipartProxy_serverImpl
 {
-    def preInit(cfgdir:File)
-    {
+    var block:BlockMultipart = _
+    var config:ConfigFile = _
+    var logger:Logger = _
+
+    def preInit(cfgdir: File, logger:Logger) {
+        this.logger = logger
         config = new ConfigFile(new File(cfgdir, "multipart.cfg"))
             .setComment("Multipart API config file")
 
@@ -36,14 +40,13 @@ class MultipartProxy_serverImpl
         MultipartGenerator.registerTrait("codechicken.multipart.IRedstonePart", "codechicken.multipart.scalatraits.TRedstoneTile")
         MultipartGenerator.registerTrait("codechicken.multipart.IRandomDisplayTick", "codechicken.multipart.scalatraits.TRandomDisplayTickTile", null)
         MultipartGenerator.registerTrait("codechicken.multipart.INeighborTileChange", null, "codechicken.multipart.scalatraits.TTileChangeTile")
-        
+
         MultipartSaveLoad.hookLoader()
     }
 
-    def init(){}
+    def init() {}
 
-    def postInit()
-    {
+    def postInit() {
         FMLCommonHandler.instance().bus().register(MultipartEventHandler)
         MinecraftForge.EVENT_BUS.register(MultipartEventHandler)
         PacketCustom.assignHandler(MultipartSPH.channel, MultipartSPH)
@@ -53,18 +56,16 @@ class MultipartProxy_serverImpl
 
         MultipartCompatiblity.load()
     }
-    
-    def onTileClassBuilt(t:Class[_ <: TileEntity])
-    {
-        MultipartSaveLoad.registerTileClass(t)   
+
+    def onTileClassBuilt(t: Class[_ <: TileEntity]) {
+        MultipartSaveLoad.registerTileClass(t)
     }
 }
 
 class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
 {
     @SideOnly(Side.CLIENT)
-    override def postInit()
-    {
+    override def postInit() {
         super.postInit()
         RenderingRegistry.registerBlockHandler(MultipartRenderer)
         PacketCustom.assignHandler(MultipartCPH.channel, MultipartCPH)
@@ -73,10 +74,9 @@ class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
         FMLCommonHandler.instance().bus().register(ControlKeyHandler)
         ClientRegistry.registerKeyBinding(ControlKeyHandler)
     }
-    
+
     @SideOnly(Side.CLIENT)
-    override def onTileClassBuilt(t:Class[_ <: TileEntity])
-    {
+    override def onTileClassBuilt(t: Class[_ <: TileEntity]) {
         super.onTileClassBuilt(t)
         ClientRegistry.bindTileEntitySpecialRenderer(t, MultipartRenderer)
     }
@@ -84,9 +84,6 @@ class MultipartProxy_clientImpl extends MultipartProxy_serverImpl
 
 object MultipartProxy extends MultipartProxy_clientImpl
 {
-    var block:BlockMultipart = _
-    var config:ConfigFile = _
-    
-    def indexInChunk(cc:ChunkCoordIntPair, i:Int) = new BlockCoord(cc.chunkXPos<<4|i&0xF, (i>>8)&0xFF, cc.chunkZPos<<4|(i&0xF0)>>4)
-    def indexInChunk(pos:BlockCoord) = pos.x&0xF|pos.y<<8|(pos.z&0xF)<<4
+    def indexInChunk(cc: ChunkCoordIntPair, i: Int) = new BlockCoord(cc.chunkXPos << 4 | i & 0xF, (i >> 8) & 0xFF, cc.chunkZPos << 4 | (i & 0xF0) >> 4)
+    def indexInChunk(pos: BlockCoord) = pos.x & 0xF | pos.y << 8 | (pos.z & 0xF) << 4
 }

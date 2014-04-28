@@ -12,41 +12,35 @@ import codechicken.microblock.ConfigContent
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent
 import scala.collection.JavaConversions._
 
-@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.7.2]",
-            dependencies="required-after:ForgeMultipart;after:*", modLanguage="scala")
+@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.7.2]", dependencies = "required-after:ForgeMultipart;after:*", modLanguage = "scala")
 object MicroblockMod
 {
     @EventHandler
-    def preInit(event:FMLPreInitializationEvent)
-    {
-        MicroblockProxy.preInit()
+    def preInit(event: FMLPreInitializationEvent) {
+        MicroblockProxy.preInit(event.getModLog)
         DefaultContent.load()
         ConfigContent.parse(event.getModConfigurationDirectory)
     }
-    
+
     @EventHandler
-    def init(event:FMLInitializationEvent)
-    {
+    def init(event: FMLInitializationEvent) {
         MicroblockProxy.init()
         ConfigContent.load()
     }
-    
+
     @EventHandler
-    def postInit(event:FMLPostInitializationEvent)
-    {
+    def postInit(event: FMLPostInitializationEvent) {
         MicroMaterialRegistry.setupIDMap()
         MicroblockProxy.postInit()
     }
-    
+
     @EventHandler
-    def beforeServerStart(event:FMLServerAboutToStartEvent)
-    {
+    def beforeServerStart(event: FMLServerAboutToStartEvent) {
         MicroMaterialRegistry.setupIDMap()
     }
-    
+
     @EventHandler
-    def handleIMC(event:IMCEvent)
-    {
+    def handleIMC(event: IMCEvent) {
         ConfigContent.handleIMC(event.getMessages)
     }
 }

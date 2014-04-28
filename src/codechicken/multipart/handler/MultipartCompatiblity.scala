@@ -24,7 +24,7 @@ object MCPCCompatModule
             }
         } catch {
             case e:Exception =>
-                System.err.println("Failed to integrate MCPC placement hooks")
+                MultipartProxy.logger.error("Failed to integrate MCPC placement hooks")
                 e.printStackTrace()
         }
     }

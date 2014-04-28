@@ -189,7 +189,7 @@ object ASMMixinFactory extends IMultipartFactory
         
         val inode = classNode(s_interface)
         if(inode == null) {
-            System.out.println("Unable to generate pass through trait for: "+s_interface+" class not found.")
+            logger.error("Unable to generate pass through trait for: "+s_interface+" class not found.")
             return null
         }
         if((inode.access&ACC_INTERFACE) == 0) throw new IllegalArgumentException(s_interface+" is not an interface.")

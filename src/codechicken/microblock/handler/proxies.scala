@@ -20,9 +20,12 @@ import cpw.mods.fml.common.registry.GameRegistry
 import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
 import net.minecraft.init.{Blocks, Items}
+import org.apache.logging.log4j.Logger
 
 class MicroblockProxy_serverImpl
 {
+    var logger:Logger = _
+
     private var baseID = 24875-1
     
     def nextItemID = {baseID+=1; baseID}
@@ -33,8 +36,9 @@ class MicroblockProxy_serverImpl
     var sawDiamond:Item = _
     var stoneRod:Item = _
     
-    def preInit()
+    def preInit(logger:Logger)
     {
+        this.logger = logger
         itemMicro = new ItemMicroPart
         GameRegistry.registerItem(itemMicro, "microblock")
         sawStone = createSaw(config, "sawStone", 1)

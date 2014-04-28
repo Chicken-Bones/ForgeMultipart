@@ -21,7 +21,6 @@ import net.minecraft.block.Block.SoundType
 
 object MicroMaterialRegistry
 {
-
     /**
      * Interface for defining a micro material
      */
@@ -127,11 +126,11 @@ object MicroMaterialRegistry
             throw new IllegalStateException("You must register your materials in the init methods.")
 
         if (typeMap.contains(name)) {
-            System.err.println("Material with id " + name + " is already registered.")
+            logger.error("Material with id " + name + " is already registered.")
             return
         }
 
-        System.out.println("Registered micro material: " + name)
+        logger.info("Registered micro material: " + name)
 
         typeMap.put(name, material)
     }
@@ -144,9 +143,9 @@ object MicroMaterialRegistry
             throw new IllegalStateException("You must register your materials in the init methods.")
 
         if (typeMap.remove(name).isEmpty)
-            System.err.println("Material with id " + name + " is was not registered.")
+            logger.error("Material with id " + name + " is was not registered.")
 
-        System.out.println("Replaced micro material: " + name)
+        logger.info("Replaced micro material: " + name)
 
         typeMap.put(name, material)
     }
@@ -215,7 +214,7 @@ object MicroMaterialRegistry
     def materialID(name: String) = nameMap.get(name) match {
         case Some(v) => v
         case None =>
-            System.err.println("Missing mapping for part with ID: " + name)
+            logger.error("Missing mapping for part with ID: " + name)
             0
     }
 

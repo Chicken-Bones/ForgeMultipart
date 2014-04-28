@@ -162,7 +162,7 @@ object MultiPartRegistry
         if (part.isDefined)
             return part.get(client)
         else {
-            System.err.println("Missing mapping for part with ID: " + name)
+            logger.error("Missing mapping for part with ID: " + name)
             return null
         }
     }

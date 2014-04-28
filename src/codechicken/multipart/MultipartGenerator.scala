@@ -159,7 +159,7 @@ object MultipartGenerator
         if(c_trait != null)
         {
             if(interfaceTraitMap_c.contains(s_interface))
-                System.err.println("Trait already registered for "+s_interface)
+                logger.error("Trait already registered for "+s_interface)
             else
             {
                 interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->c_trait)
@@ -169,7 +169,7 @@ object MultipartGenerator
         if(s_trait != null)
         {
             if(interfaceTraitMap_s.contains(s_interface))
-                System.err.println("Trait already registered for "+s_interface)
+                logger.error("Trait already registered for "+s_interface)
             else
             {
                 interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->s_trait)
@@ -198,14 +198,14 @@ object MultipartGenerator
         if(client)
         {
             if(interfaceTraitMap_c.contains(s_interface))
-                System.err.println("Trait already registered for "+s_interface)
+                logger.error("Trait already registered for "+s_interface)
             else
                 interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->tType)
         }
         if(server)
         {
             if(interfaceTraitMap_s.contains(s_interface))
-                System.err.println("Trait already registered for "+s_interface)
+                logger.error("Trait already registered for "+s_interface)
             else
                 interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->tType)
         }

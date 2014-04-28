@@ -109,8 +109,8 @@ object ConfigContent
                 catch
                 {
                     case e:Exception =>
-                        System.err.println("Invalid line in microblocks.cfg: "+s)
-                        System.err.println(e.getMessage)
+                        logger.error("Invalid line in microblocks.cfg: "+s)
+                        logger.error(e.getMessage)
                 }
             }
         }
@@ -126,7 +126,7 @@ object ConfigContent
             if(idMap(i) != null)
             {
                 if(block == Blocks.air)
-                    System.err.println("Warning: Unable to add micro material for block with ID "+i+" as it doesn't exist")
+                    logger.warn("Unable to add micro material for block with ID "+i+" as it doesn't exist")
                 else
                     createAndRegister(block, idMap(i))
             }
@@ -142,10 +142,10 @@ object ConfigContent
 	                    	createAndRegister(block, m)
 	                    }
 	                    catch {
-	                    	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
+	                    	case e:IllegalStateException => logger.error("Unable to register micro material: "+
 	                    	        materialKey(block, m)+"\n\t"+e.getMessage)
 	            	        case e:Exception =>
-	            	            System.err.println("Unable to register micro material: "+materialKey(block, m))
+                                logger.error("Unable to register micro material: "+materialKey(block, m))
 	        	                e.printStackTrace()
 	                    }
                 	}
@@ -153,14 +153,14 @@ object ConfigContent
             }
         }
         
-        nameMap.foreach(e => System.err.println("Warning: Unable to add micro material for block with unlocalised name "+e._1+" as it doesn't exist"))
+        nameMap.foreach(e => logger.warn("Unable to add micro material for block with unlocalised name "+e._1+" as it doesn't exist"))
     }
     
     def handleIMC(messages:Seq[IMCMessage]) {
         messages.filter(_.key == "microMaterial").foreach{msg => 
             
             def error(s:String) {
-                System.err.println("Invalid microblock IMC message from "+msg.getSender+": "+s)
+                logger.error("Invalid microblock IMC message from "+msg.getSender+": "+s)
             }
             
             if(msg.getMessageType != classOf[ItemStack])
@@ -168,15 +168,15 @@ object ConfigContent
             else {
                 val stack = msg.getItemStackValue
                 if(Block.blockRegistry.containsId(Item.getIdFromItem(stack.getItem)))
-                    System.err.println("Invalid Block: "+stack.getItem)
+                    error("Invalid Block: "+stack.getItem)
                 else if(stack.getItemDamage < 0 || stack.getItemDamage >= 16)
-                    System.err.println("Invalid metadata: "+stack.getItemDamage)
+                    error("Invalid metadata: "+stack.getItemDamage)
                 else {
                     try {
 	                    createAndRegister(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)
                     }
                     catch {
-                    	case e:IllegalStateException => System.err.println("Unable to register micro material: "+
+                    	case e:IllegalStateException => error("Unable to register micro material: "+
                     	        materialKey(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)+"\n\t"+e.getMessage)
                     }
                 }
