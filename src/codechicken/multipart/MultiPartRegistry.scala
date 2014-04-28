@@ -79,13 +79,14 @@ object MultiPartRegistry
         if (container == null)
             throw new IllegalStateException("Parts must be registered during the initialization phase of a mod container")
 
-        types.foreach {
-            s =>
-                if (typeMap.contains(s))
-                    throw new IllegalStateException("Part with id " + s + " is already registered.")
+        types.foreach { s =>
+            if (typeMap.contains(s))
+                throw new IllegalStateException("Part with id " + s + " is already registered.")
 
-                typeMap.put(s, (c: Boolean) => partFactory(s, c))
-                containers.put(s, container)
+            logger.debug("Registered multipart: "+s)
+
+            typeMap.put(s, (c: Boolean) => partFactory(s, c))
+            containers.put(s, container)
         }
     }
 
