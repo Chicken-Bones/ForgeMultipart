@@ -1,5 +1,20 @@
 package codechicken.core.launch;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import cpw.mods.fml.common.versioning.ComparableVersion;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
+import cpw.mods.fml.relauncher.IFMLCallHook;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import sun.misc.URLClassPath;
+import sun.net.util.URLUtil;
+
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
@@ -17,31 +32,9 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import javax.swing.Box;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-import javax.swing.WindowConstants;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-
-import cpw.mods.fml.common.versioning.ComparableVersion;
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import sun.misc.URLClassPath;
-import sun.net.util.URLUtil;
 
 /**
  * For autodownloading stuff.
@@ -227,10 +220,36 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
     }
 
-    public static class Dependancy {
+    public static class VersionedFile
+    {
+        public final Pattern pattern;
+        public final String filename;
+        public final ComparableVersion version;
+        public final String name;
+
+        public VersionedFile(String filename, Pattern pattern) {
+            this.pattern = pattern;
+            this.filename = filename;
+            Matcher m = pattern.matcher(filename);
+            if(m.matches()) {
+                name = m.group(1);
+                version = new ComparableVersion(m.group(2));
+            }
+            else {
+                name = null;
+                version = null;
+            }
+        }
+
+        public boolean matches() {
+            return name != null;
+        }
+    }
+
+    public static class Dependency
+    {
         public String url;
-        public String[] filesplit;
-        public ComparableVersion version;
+        public VersionedFile file;
 
         public String existing;
         /**
@@ -238,19 +257,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
          */
         public boolean coreLib;
 
-        public Dependancy(String url, String[] filesplit, boolean coreLib) {
+        public Dependency(String url, VersionedFile file, boolean coreLib) {
             this.url = url;
-            this.filesplit = filesplit;
+            this.file = file;
             this.coreLib = coreLib;
-            version = new ComparableVersion(filesplit[1]);
-        }
-
-        public String getName() {
-            return filesplit[0];
-        }
-
-        public String fileName() {
-            return filesplit[0] + filesplit[1] + filesplit[2];
         }
     }
 
@@ -260,7 +270,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private IDownloadDisplay downloadMonitor;
         private JDialog popupWindow;
 
-        private Map<String, Dependancy> depMap = new HashMap<String, Dependancy>();
+        private Map<String, Dependency> depMap = new HashMap<String, Dependency>();
         private HashSet<String> depSet = new HashSet<String>();
 
         public DepLoadInst() {
@@ -316,11 +326,11 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             }
         }
 
-        private void download(Dependancy dep) {
+        private void download(Dependency dep) {
             popupWindow = (JDialog) downloadMonitor.makeDialog();
-            File libFile = new File(v_modsDir, dep.fileName());
+            File libFile = new File(v_modsDir, dep.file.filename);
             try {
-                URL libDownload = new URL(dep.url + '/' + dep.fileName());
+                URL libDownload = new URL(dep.url + '/' + dep.file.filename);
                 downloadMonitor.updateProgressString("Downloading file %s", libDownload.toString());
                 System.out.format("Downloading file %s\n", libDownload.toString());
                 URLConnection connection = libDownload.openConnection();
@@ -340,7 +350,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                     System.exit(1);
                     return;
                 }
-                downloadMonitor.showErrorDialog(dep.fileName(), dep.url + '/' + dep.fileName());
+                downloadMonitor.showErrorDialog(dep.file.filename, dep.url + '/' + dep.file.filename);
                 throw new RuntimeException("A download error occured", e);
             }
         }
@@ -399,10 +409,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             }
         }
 
-        private String checkExisting(String[] dependency) {
+        private String checkExisting(Dependency dep) {
             for (File f : modsDir.listFiles()) {
-                String[] split = splitFileName(f.getName());
-                if (split == null || !split[0].equals(dependency[0]))
+                VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
+                if (!vfile.matches() || !vfile.name.equals(dep.file.name))
                     continue;
 
                 if (f.renameTo(new File(v_modsDir, f.getName())))
@@ -412,21 +422,18 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             }
 
             for (File f : v_modsDir.listFiles()) {
-                String[] split = splitFileName(f.getName());
-                if (split == null || !split[0].equals(dependency[0]))
+                VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
+                if (!vfile.matches() || !vfile.name.equals(dep.file.name))
                     continue;
 
-                ComparableVersion found = new ComparableVersion(split[1]);
-                ComparableVersion requested = new ComparableVersion(dependency[1]);
-
-                int cmp = found.compareTo(requested);
+                int cmp = vfile.version.compareTo(dep.file.version);
                 if (cmp < 0) {
                     System.out.println("Deleted old version " + f.getName());
                     deleteMod(f);
                     return null;
                 }
                 if (cmp > 0) {
-                    System.err.println("Warning: version of " + dependency[0] + ", " + split[1] + " is newer than request " + dependency[1]);
+                    System.err.println("Warning: version of " + dep.file.name + ", " + vfile.version + " is newer than request " + dep.file.version);
                     return f.getName();
                 }
                 return f.getName();//found dependency
@@ -444,7 +451,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private void activateDeps() {
-            for (Dependancy dep : depMap.values())
+            for (Dependency dep : depMap.values())
                 if (dep.coreLib)
                     addClasspath(dep.existing);
         }
@@ -454,7 +461,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             try {
                 while (!depSet.isEmpty()) {
                     Iterator<String> it = depSet.iterator();
-                    Dependancy dep = depMap.get(it.next());
+                    Dependency dep = depMap.get(it.next());
                     it.remove();
                     load(dep);
                 }
@@ -466,12 +473,12 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             }
         }
 
-        private void load(Dependancy dep) {
-            dep.existing = checkExisting(dep.filesplit);
+        private void load(Dependency dep) {
+            dep.existing = checkExisting(dep);
             if (dep.existing == null)//download dep
             {
                 download(dep);
-                dep.existing = dep.fileName();
+                dep.existing = dep.file.filename;
             }
         }
 
@@ -529,31 +536,42 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                 return;
 
             String repo = node.get("repo").getAsString();
-            String file = node.get("file").getAsString();
+            String filename = node.get("file").getAsString();
             if (!obfuscated && node.has("dev"))
-                file = node.get("dev").getAsString();
+                filename = node.get("dev").getAsString();
 
             boolean coreLib = node.has("coreLib") && node.get("coreLib").getAsBoolean();
 
-            String[] split = splitFileName(file);
-            if (split == null)
-                throw new RuntimeException("Invalid filename format for dependency: " + file);
+            Pattern pattern = null;
+            try {
+                if(node.has("pattern"))
+                    pattern = Pattern.compile(node.get("pattern").getAsString());
+            } catch (PatternSyntaxException e) {
+                System.err.println("Invalid filename pattern: "+node.get("pattern"));
+                e.printStackTrace();
+            }
+            if(pattern == null)
+                pattern = Pattern.compile("(\\w+).*?([\\d\\.]+)[-\\w]*\\.[^\\d]+");
 
-            addDep(new Dependancy(repo, split, coreLib));
+            VersionedFile file = new VersionedFile(filename, pattern);
+            if (!file.matches())
+                throw new RuntimeException("Invalid filename format for dependency: " + filename);
+
+            addDep(new Dependency(repo, file, coreLib));
         }
 
-        private void addDep(Dependancy newDep) {
-            if (mergeNew(depMap.get(newDep.getName()), newDep)) {
-                depMap.put(newDep.getName(), newDep);
-                depSet.add(newDep.getName());
+        private void addDep(Dependency newDep) {
+            if (mergeNew(depMap.get(newDep.file.name), newDep)) {
+                depMap.put(newDep.file.name, newDep);
+                depSet.add(newDep.file.name);
             }
         }
 
-        private boolean mergeNew(Dependancy oldDep, Dependancy newDep) {
+        private boolean mergeNew(Dependency oldDep, Dependency newDep) {
             if (oldDep == null)
                 return true;
 
-            Dependancy newest = newDep.version.compareTo(oldDep.version) > 0 ? newDep : oldDep;
+            Dependency newest = newDep.file.version.compareTo(oldDep.file.version) > 0 ? newDep : oldDep;
             newest.coreLib = newDep.coreLib || oldDep.coreLib;
 
             return newest == newDep;
@@ -565,15 +583,6 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             inst = new DepLoadInst();
             inst.load();
         }
-    }
-
-    private static String[] splitFileName(String filename) {
-        Pattern p = Pattern.compile("(.+?)([\\d\\.\\w]+)(\\.[^\\d]+)");
-        Matcher m = p.matcher(filename);
-        if (!m.matches())
-            return null;
-
-        return new String[]{m.group(1), m.group(2), m.group(3)};
     }
 
     @Override
