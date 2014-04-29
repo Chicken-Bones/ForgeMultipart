@@ -79,7 +79,6 @@ class MicroblockProxy_serverImpl
     
     def postInit()
     {
-        MicroMaterialRegistry.loadIcons()
         MicroMaterialRegistry.calcMaxCuttingStrength()
         PacketCustom.assignHandshakeHandler(MicroblockSPH.registryChannel, MicroblockSPH)
     }
@@ -101,6 +100,7 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     override def postInit()
     {
         super.postInit()
+        MicroMaterialRegistry.loadIcons()
         MinecraftForgeClient.registerItemRenderer(itemMicro, ItemMicroPartRenderer)
         PacketCustom.assignHandler(MicroblockCPH.registryChannel, MicroblockCPH)
     }
