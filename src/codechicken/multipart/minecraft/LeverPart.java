@@ -1,5 +1,6 @@
 package codechicken.multipart.minecraft;
 
+import codechicken.lib.math.MathHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -82,7 +83,7 @@ public class LeverPart extends McSidedMetaPart implements IFaceRedstonePart
             return null;
         
         int meta = sideMetaMap[side^1];
-        if(side < 2 && ((int)(player.rotationYaw / 90 + 0.5) & 1) == 0)
+        if(side < 2 && (MathHelper.floor_double(player.rotationYaw / 90 + 0.5) & 1) == 0)
             meta = metaSwapMap[side^1];
         
         return new LeverPart(meta);
