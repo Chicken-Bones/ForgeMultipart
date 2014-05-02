@@ -174,7 +174,8 @@ object MicroMaterialRegistry
     }
 
     private[microblock] def loadIcons() {
-        MicroMaterialRegistry.getIdMap.foreach(e => e._2.loadIcons())
+        if(idMap != null)
+            idMap.foreach(e => e._2.loadIcons())
     }
 
     def getMaxCuttingStrength = maxCuttingStrength

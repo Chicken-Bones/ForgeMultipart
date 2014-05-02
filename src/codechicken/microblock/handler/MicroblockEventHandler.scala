@@ -19,7 +19,7 @@ object MicroblockEventHandler
     @SideOnly(Side.CLIENT)
     def postTextureStitch(event:TextureStitchEvent.Post)
     {
-        if(event.map.getTextureType == 0 && Loader.instance.hasReachedState(LoaderState.POSTINITIALIZATION))
+        if(event.map.getTextureType == 0)
             MicroMaterialRegistry.loadIcons()
     }
 
