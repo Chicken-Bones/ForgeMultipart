@@ -111,9 +111,9 @@ object MultipartGenerator
     /**
      * Check if tile satisfies all the interfaces required by parts. If not, return a new generated copy of tile
      */
-    private[multipart] def generateCompositeTile(tile:TileEntity, parts:Seq[TMultiPart], client:Boolean):TileMultipart = 
+    private[multipart] def generateCompositeTile(tile:TileEntity, parts:Iterable[TMultiPart], client:Boolean):TileMultipart =
     {
-        val partTraits = parts.flatMap(traitsForPart(_, client)).distinct
+        val partTraits = parts.toSeq.flatMap(traitsForPart(_, client)).distinct
         if(tile != null && tile.isInstanceOf[TileMultipart])
         {
             val tileTraits = tileTraitMap(tile.getClass)

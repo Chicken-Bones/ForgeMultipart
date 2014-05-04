@@ -6,9 +6,11 @@ import net.minecraft.world.World
 import codechicken.multipart.handler.MultipartSaveLoad
 import com.google.common.collect.LinkedListMultimap
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import codechicken.multipart.handler.MultipartSPH
 import net.minecraft.world.WorldServer
 import java.util.Arrays
+import java.lang.Iterable
 
 /**
  * Static helper class for handling the unusual way that multipart tile entities load from nbt and send description packets
@@ -65,4 +67,41 @@ object MultipartHelper
                 inst.sendToAllPlayersWatchingChunk(pkt.toPacket)
         }
     }*/
+
+    /**
+     * Helper class for converting tile entities to multiparts on chunk load
+     */
+    abstract class IPartTileConverter[T <: TileEntity](val clazz:Class[T])
+    {
+        /**
+         * @return true if this tile can be converted by this converter. If canConvert returns true, but convertMulti returns no parts, the tile will be deleted
+         */
+        def canConvert(tile:TileEntity) = clazz.isInstance(tile)
+
+        def convert(tile:TileEntity) = convertMulti(tile.asInstanceOf[T])
+
+        /**
+         * Convert the TileEntity into multiple parts
+         * @return An iterable list of parts or an empty list to delete the tile
+         */
+        def convertMulti(tile:T):Iterable[TMultiPart] = convertOne(tile) match {
+            case null => Seq()
+            case p => Seq(p)
+        }
+        /**
+         * Convert the TileEntity into a part
+         * @return The converted part, or null to delete the tile
+         */
+        def convertOne(tile:T):TMultiPart
+    }
+
+    def registerTileConverter(converter:IPartTileConverter[_]) {
+        MultipartSaveLoad.converters += converter
+    }
+
+    def createTileFromParts(parts:Iterable[TMultiPart]) = {
+        val tile = MultipartGenerator.generateCompositeTile(null, parts, false)
+        tile.loadParts(parts)
+        tile
+    }
 }

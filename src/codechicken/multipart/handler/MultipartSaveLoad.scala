@@ -5,15 +5,19 @@ import net.minecraft.nbt.NBTTagCompound
 import java.util.Map
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.ChunkPosition
-import codechicken.multipart.TileMultipart
+import codechicken.multipart.{MultipartHelper, TileMultipart}
 import codechicken.lib.asm.ObfMapping
 import net.minecraft.world.World
+import scala.collection.mutable
+import codechicken.multipart.MultipartHelper.IPartTileConverter
+import scala.collection.JavaConversions._
 
 /**
  * Hack due to lack of TileEntityLoadEvent in forge
  */
 object MultipartSaveLoad
 {
+    val converters = mutable.MutableList[IPartTileConverter[_]]()
     var loadingWorld: World = _
 
     class TileNBTContainer extends TileEntity
@@ -54,8 +58,24 @@ object MultipartSaveLoad
         val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[ChunkPosition, TileEntity]].entrySet.iterator
         while (iterator.hasNext) {
             val e = iterator.next
-            if (e.getValue.isInstanceOf[TileNBTContainer]) {
-                val t = TileMultipart.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
+            var next = false
+            val t = e.getValue match {
+                case t:TileNBTContainer if t.tag.getString("id") == "savedMultipart" =>
+                    TileMultipart.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
+                case t => converters.find(_.canConvert(t)) match {
+                    case Some(c) =>
+                        val parts = c.convert(t)
+                        if(!parts.isEmpty)
+                            MultipartHelper.createTileFromParts(parts)
+                        else
+                            null
+                    case _ =>
+                        next = true
+                        null
+                }
+            }
+
+            if(!next) {
                 if (t != null) {
                     t.setWorldObj(e.getValue.getWorldObj)
                     t.validate()

@@ -379,7 +379,7 @@ class TileMultipart extends TileEntity
      */
     def partRemoved(part:TMultiPart, p:Int){}
 
-    private[multipart] def loadParts(parts:ListBuffer[TMultiPart])
+    private[multipart] def loadParts(parts:scala.Iterable[TMultiPart])
     {
         clearParts()
         parts.foreach(p => addPart_do(p))
