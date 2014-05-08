@@ -15,7 +15,7 @@ import codechicken.multipart.TileMultipart
 import net.minecraft.entity.player.EntityPlayer
 import scala.collection.mutable.{Map, Set, HashMap, MultiMap}
 import codechicken.lib.vec.BlockCoord
-import codechicken.lib.data.MCOutputStreamWrapper
+import codechicken.lib.data.MCDataOutputWrapper
 import java.io.DataOutputStream
 import java.io.ByteArrayOutputStream
 import net.minecraft.world.ChunkCoordIntPair
@@ -74,7 +74,7 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
 
 object MultipartSPH extends MultipartPH with IServerPacketHandler with IHandshakeHandler
 {
-    class MCByteStream(bout: ByteArrayOutputStream) extends MCOutputStreamWrapper(new DataOutputStream(bout))
+    class MCByteStream(bout: ByteArrayOutputStream) extends MCDataOutputWrapper(new DataOutputStream(bout))
     {
         def getBytes = bout.toByteArray
     }
