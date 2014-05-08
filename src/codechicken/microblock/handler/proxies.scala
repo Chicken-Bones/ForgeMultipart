@@ -14,13 +14,12 @@ import codechicken.lib.config.ConfigFile
 import net.minecraftforge.oredict.OreDictionary
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
-import net.minecraft.block.Block
 import codechicken.lib.packet.PacketCustom
 import cpw.mods.fml.common.registry.GameRegistry
-import cpw.mods.fml.common.network.NetworkRegistry
 import net.minecraft.client.renderer.RenderBlocks
 import net.minecraft.init.{Blocks, Items}
 import org.apache.logging.log4j.Logger
+import scala.collection.mutable
 
 class MicroblockProxy_serverImpl
 {
@@ -52,9 +51,11 @@ class MicroblockProxy_serverImpl
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
     }
 
+    protected var saws = mutable.MutableList[Item]()
     def createSaw(config: ConfigFile, name: String, strength: Int) = {
         val saw = new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:" + name)
         GameRegistry.registerItem(saw, name)
+        saws+=saw
         saw
     }
 
@@ -96,10 +97,8 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
     }
 
     @SideOnly(Side.CLIENT)
-    override def createSaw(config: ConfigFile, name: String, strength: Int) = {
-        val saw = super.createSaw(config, name, strength)
-        MinecraftForgeClient.registerItemRenderer(saw, ItemSawRenderer)
-        saw
+    override def init() {
+        saws.foreach(MinecraftForgeClient.registerItemRenderer(_, ItemSawRenderer))
     }
 }
 

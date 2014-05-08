@@ -6,7 +6,7 @@ package codechicken.multipart
 trait TFacePart extends TSlottedPart
 {
     /**
-     * Passed down from Block.isBlockSolidOnSide. Return true if this part is solid and opaque on the specified side
+     * Passed down from Block.isSideSolid. Return true if this part is solid and opaque on the specified side
      */
     def solid(side:Int):Boolean = true
     /**
