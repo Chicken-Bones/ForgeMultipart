@@ -15,7 +15,7 @@ object DefaultContent
         PostMicroClass.register()
         
         createAndRegister(stone)
-        createAndRegister(dirt)
+        createAndRegister(dirt, 0 to 2)
         createAndRegister(cobblestone)
         createAndRegister(planks, 0 to 3)
         createAndRegister(log, 0 to 3)
@@ -49,7 +49,8 @@ object DefaultContent
         createAndRegister(hardened_clay)
         createAndRegister(coal_block)
         createAndRegister(packed_ice)
-        createAndRegister(stained_glass)
+        createAndRegister(stained_glass, 0 to 15)
+        createAndRegister(leaves2, 0 to 1)
         registerMaterial(new GrassMicroMaterial, grass.getUnlocalizedName)
         registerMaterial(new TopMicroMaterial(mycelium), mycelium.getUnlocalizedName)
     }
