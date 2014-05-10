@@ -98,6 +98,7 @@ class MicroblockProxy_clientImpl extends MicroblockProxy_serverImpl
 
     @SideOnly(Side.CLIENT)
     override def init() {
+        super.init()
         saws.foreach(MinecraftForgeClient.registerItemRenderer(_, ItemSawRenderer))
     }
 }
