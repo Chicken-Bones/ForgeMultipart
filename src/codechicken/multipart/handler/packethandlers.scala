@@ -25,7 +25,7 @@ import java.util.LinkedList
 import scala.collection.JavaConversions._
 import net.minecraft.network.play.{INetHandlerPlayServer, INetHandlerPlayClient}
 import net.minecraft.network.play.server.S40PacketDisconnect
-import net.minecraft.util.ChatComponentTranslation
+import net.minecraft.util.{ChatComponentText, ChatComponentTranslation}
 import net.minecraft.network.NetHandlerPlayServer
 
 class MultipartPH
@@ -37,10 +37,17 @@ class MultipartPH
 object MultipartCPH extends MultipartPH with IClientPacketHandler
 {
     def handlePacket(packet: PacketCustom, mc: Minecraft, netHandler:INetHandlerPlayClient) {
-        packet.getType match {
-            case 1 => handlePartRegistration(packet, netHandler)
-            case 2 => handleCompressedTileDesc(packet, mc.theWorld)
-            case 3 => handleCompressedTileData(packet, mc.theWorld)
+        try {
+            packet.getType match {
+                case 1 => handlePartRegistration(packet, netHandler)
+                case 2 => handleCompressedTileDesc(packet, mc.theWorld)
+                case 3 => handleCompressedTileData(packet, mc.theWorld)
+            }
+        }
+        catch {
+            case e:RuntimeException if e.getMessage.startsWith("DC: ") =>
+                netHandler.handleDisconnect(new S40PacketDisconnect(new ChatComponentText(e.getMessage.substring(4))))
+            case e => throw e
         }
     }
 
@@ -68,7 +75,6 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
             }
             x = packet.readInt
         }
-        TileMultipart.flushClientCache()
     }
 }
 

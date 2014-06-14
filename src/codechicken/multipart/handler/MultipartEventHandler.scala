@@ -1,10 +1,9 @@
 package codechicken.multipart.handler
 
-import codechicken.multipart.TileMultipart
+import codechicken.multipart.{TileCache, TileMultipart, MultiPartRegistry, BlockMultipart}
 import cpw.mods.fml.common.eventhandler.{EventPriority, SubscribeEvent}
 import net.minecraft.server.MinecraftServer
 import codechicken.lib.packet.PacketCustom
-import codechicken.multipart.MultiPartRegistry
 import net.minecraftforge.event.world._
 import java.util.EnumSet
 import scala.collection.JavaConverters._
@@ -13,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayerMP
 import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraftforge.client.event.DrawBlockHighlightEvent
-import codechicken.multipart.BlockMultipart
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.MovingObjectPosition.MovingObjectType
 import cpw.mods.fml.common.gameevent.TickEvent
@@ -30,6 +28,8 @@ object MultipartEventHandler
     def worldUnLoad(event:WorldEvent.Unload)
     {
         MultipartSPH.onWorldUnload(event.world)
+        if(event.world.isRemote)
+            TileCache.clear()
     }
 
     @SubscribeEvent
