@@ -1,6 +1,6 @@
 #!/bin/sh
 
 MCVERSION="1.6.4"
-VERSION="1.0.0.${BUILD_NUMBER}"
+VERSION="1.0.1.${BUILD_NUMBER}"
 ASSETS="assets dependancies.info mcmod.info"
 SOURCE="codechicken"

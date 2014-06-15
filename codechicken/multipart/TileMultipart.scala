@@ -22,8 +22,6 @@ import java.util.Collection
 import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.util.Vec3
 import java.lang.Iterable
-import scala.collection.mutable.{Map => MMap}
-import net.minecraft.util.AxisAlignedBB
 
 class TileMultipart extends TileEntity
 {
@@ -116,9 +114,16 @@ class TileMultipart extends TileEntity
             if(worldObj != null) {
                 partList.foreach(_.onWorldSeparate())
                 if(worldObj.isRemote)
-                    TileMultipart.putClientCache(this)
+                    TileCache.remove(this)
             }
         }
+    }
+
+    override def validate()
+    {
+        super.validate()
+        if(worldObj != null && worldObj.isRemote)
+            TileCache.add(this)
     }
     
     /**
@@ -515,17 +520,10 @@ class TileMultipartClient extends TileMultipart
 object TileMultipart
 {
     var renderID = -1
-    
-    /**
-     * Playerinstance will often remove the tile entity instance and set the block to air on the client before the multipart packet handler fires it's updates.
-     * In order to maintain the packet data, and make sure all written data is read, the tile needs to be kept around internally until 
-     */
-    private val clientFlushMap = MMap[BlockCoord, TileMultipart]()
-    
-    private[multipart] def flushClientCache() = clientFlushMap.clear()
-    
-    private[multipart] def putClientCache(t:TileMultipart) = clientFlushMap.put(new BlockCoord(t), t)
-    
+
+    //legacy
+    def putClientCache(t:TileMultipart) = TileCache.add(t)
+
     /**
      * Gets a multipar ttile instance at pos, converting if necessary.
      */
@@ -644,7 +642,7 @@ object TileMultipart
      */
     def handlePacket(pos:BlockCoord, world:World, i:Int, packet:PacketCustom)
     {
-        lazy val tilemp = Option(BlockMultipart.getTile(world, pos.x, pos.y, pos.z)).getOrElse(clientFlushMap(pos))
+        def tilemp = TileCache.findTile(world, pos)
         
         i match
         {

@@ -1,6 +1,6 @@
 package codechicken.multipart.handler
 
-import codechicken.multipart.TileMultipart
+import codechicken.multipart.{TileCache, TileMultipart, MultiPartRegistry, BlockMultipart}
 import net.minecraftforge.event.ForgeSubscribe
 import cpw.mods.fml.common.network.IConnectionHandler
 import net.minecraft.network.packet.NetHandler
@@ -10,7 +10,6 @@ import cpw.mods.fml.common.network.Player
 import net.minecraft.network.NetLoginHandler
 import net.minecraft.server.MinecraftServer
 import codechicken.lib.packet.PacketCustom
-import codechicken.multipart.MultiPartRegistry
 import net.minecraftforge.event.world._
 import cpw.mods.fml.common.ITickHandler
 import java.util.EnumSet
@@ -23,7 +22,6 @@ import cpw.mods.fml.relauncher.SideOnly
 import cpw.mods.fml.relauncher.Side
 import net.minecraftforge.client.event.DrawBlockHighlightEvent
 import net.minecraft.util.EnumMovingObjectType
-import codechicken.multipart.BlockMultipart
 
 object MultipartEventHandler extends IConnectionHandler with ITickHandler
 {
@@ -37,6 +35,8 @@ object MultipartEventHandler extends IConnectionHandler with ITickHandler
     def worldUnLoad(event:WorldEvent.Unload)
     {
         MultipartSPH.onWorldUnload(event.world)
+        if(event.world.isRemote)
+            TileCache.clear()
     }
 
     @ForgeSubscribe
