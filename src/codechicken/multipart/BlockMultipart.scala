@@ -78,6 +78,9 @@ class BlockMultipart extends Block(Material.rock)
             case null => false
             case tile => tile.isSolid(side)
         }
+        
+    override def isSideSolid(world:IBlockAccess, x:Int, y:Int, z:Int, side:ForgeDirection):Boolean =
+        isBlockSolid(world, x, y, z, side.ordinal())
 
     override def onNeighborBlockChange(world:World, x:Int, y:Int, z:Int, block:Block) {
         val tile = getTile(world, x, y, z)
