@@ -218,9 +218,7 @@ class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicro
         if(thisShrinks(post))
         {
             if(renderBounds2 == null)
-                renderBounds2 = renderBounds1.copy
-            else
-                renderBounds2.set(renderBounds1)
+                renderBounds2 = getBounds.copy
             MicroOcclusion.shrink(renderBounds1, post.getBounds, getShape<<1|1)
             MicroOcclusion.shrink(renderBounds2, post.getBounds, getShape<<1)
         }
