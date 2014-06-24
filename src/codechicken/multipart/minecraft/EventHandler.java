@@ -5,6 +5,7 @@ import codechicken.lib.raytracer.RayTracer;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import codechicken.multipart.TileMultipart;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +24,7 @@ public class EventHandler
 {
     private ThreadLocal<Object> placing = new ThreadLocal<Object>();
     
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void playerInteract(PlayerInteractEvent event)
     {
         if(event.action == Action.RIGHT_CLICK_BLOCK && event.entityPlayer.worldObj.isRemote)
@@ -78,7 +79,7 @@ public class EventHandler
                         hit.blockX, hit.blockY, hit.blockZ, hit.sideHit, 
                         player.inventory.getCurrentItem(), 
                         (float)f.x, (float)f.y, (float)f.z));
-                return false;
+                return true;
             }
         }
         

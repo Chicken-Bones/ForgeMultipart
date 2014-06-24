@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import codechicken.multipart.IRandomDisplayTick;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
 {
@@ -77,7 +78,7 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick
             return null;
         pos = pos.copy().offset(side^1);
         Block block = world.getBlock(pos.x, pos.y, pos.z);
-        if(!block.isBlockSolid(world, pos.x, pos.y, pos.z, side) && (side != 1 || block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z)))
+        if(!block.isSideSolid(world, pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side)) && (side != 1 || block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z)))
             return null;
 
         return new TorchPart(sideMetaMap[side^1]);
