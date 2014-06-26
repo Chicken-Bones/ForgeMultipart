@@ -25,24 +25,16 @@ import scala.collection.JavaConversions._
 
 object BlockMultipart
 {
-    def getTile(world:IBlockAccess, x:Int, y:Int, z:Int):TileMultipart = 
-    {
-        val tile = world.getTileEntity(x, y, z)
-        if(tile.isInstanceOf[TileMultipart]) 
-            tile.asInstanceOf[TileMultipart] 
-        else
-            null
+    def getTile(world:IBlockAccess, x:Int, y:Int, z:Int) = world.getTileEntity(x, y, z) match {
+        case t:TileMultipart if !t.partList.isEmpty => t
+        case _ => null
     }
-    
-    def getClientTile(world:IBlockAccess, x:Int, y:Int, z:Int):TileMultipartClient = 
-    {
-        val tile = world.getTileEntity(x, y, z)
-        if(tile.isInstanceOf[TileMultipartClient]) 
-            tile.asInstanceOf[TileMultipartClient]
-        else
-            null
+
+    def getClientTile(world:IBlockAccess, x:Int, y:Int, z:Int) = world.getTileEntity(x, y, z) match {
+        case t:TileMultipartClient if !t.partList.isEmpty => t
+        case _ => null
     }
-    
+
     def reduceMOP(hit:MovingObjectPosition):(Int, ExtendedMOP) = {
         val ehit = hit.asInstanceOf[ExtendedMOP]
         val data:(Int, _) = ExtendedMOP.getData(hit)
@@ -296,7 +288,7 @@ class BlockMultipart extends Block(Material.rock)
     override def getWeakChanges(world:IBlockAccess, x:Int, y:Int, z:Int) =
         getTile(world, x, y, z) match {
             case null => false
-            case tile => tile.getWeakChanges()
+            case tile => tile.getWeakChanges
         }
 
     override def canProvidePower = true

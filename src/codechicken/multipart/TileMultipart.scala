@@ -173,7 +173,7 @@ class TileMultipart extends TileEntity
     /**
      * Blank implementation, overriden by TTileChangeTile
      */
-    def getWeakChanges() = false
+    def getWeakChanges = false
     
     def getLightValue = partList.view.map(_.getLightValue).max
 
