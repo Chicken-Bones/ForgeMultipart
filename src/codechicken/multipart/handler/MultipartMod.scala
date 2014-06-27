@@ -8,7 +8,7 @@ import cpw.mods.fml.common.Mod.EventHandler
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent
 import codechicken.multipart.MultiPartRegistry
 
-@Mod(modid = "ForgeMultipart", acceptedMinecraftVersions = "[1.7.2]", modLanguage = "scala")
+@Mod(modid = "ForgeMultipart", acceptedMinecraftVersions = "[1.7.10]", modLanguage = "scala")
 object MultipartMod
 {
     @EventHandler

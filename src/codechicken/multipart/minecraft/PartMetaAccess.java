@@ -4,9 +4,7 @@ import codechicken.lib.vec.BlockCoord;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3Pool;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -69,11 +67,6 @@ public class PartMetaAccess implements IBlockAccess {
     @SideOnly(Side.CLIENT)
     public boolean extendedLevelsInChunkCache() {
         return part.getWorld().extendedLevelsInChunkCache();
-    }
-
-    @Override
-    public Vec3Pool getWorldVec3Pool() {
-        return part.getWorld().getWorldVec3Pool();
     }
 
     @Override
