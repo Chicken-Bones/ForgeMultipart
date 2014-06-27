@@ -47,7 +47,6 @@ object MultipartCPH extends MultipartPH with IClientPacketHandler
         catch {
             case e:RuntimeException if e.getMessage.startsWith("DC: ") =>
                 netHandler.handleDisconnect(new S40PacketDisconnect(new ChatComponentText(e.getMessage.substring(4))))
-            case e => throw e
         }
     }
 

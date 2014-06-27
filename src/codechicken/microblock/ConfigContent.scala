@@ -39,7 +39,7 @@ object ConfigContent
         writer.println("#Each line needs to be of the form <name>:<meta>")
         writer.println("#<name> is the unlocalised name or registry key of the block/item enclosed in quotes. NEI can help you find these")
         writer.println("#<meta> may be ommitted, in which case it defaults to 0, otherwise it can be a number, a comma separated list of numbers, or a dash separated range")
-        writer.println("#Ex. dirt minecraft:planks:3 iron_ore:1,2,3,5 ThermalFoundation:Storage:0-15")
+        writer.println("#Ex. \"dirt\" \"minecraft:planks\":3 \"iron_ore\":1,2,3,5 \"ThermalFoundation:Storage\":0-15")
         writer.close()
     }
 
