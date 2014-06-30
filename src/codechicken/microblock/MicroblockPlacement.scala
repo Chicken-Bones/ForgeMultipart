@@ -6,7 +6,7 @@ import net.minecraft.util.MovingObjectPosition
 import codechicken.lib.vec.Vector3
 import codechicken.lib.vec.BlockCoord
 import codechicken.lib.vec.Rotation
-import codechicken.multipart.ControlKeyModifer._
+//import codechicken.multipart.ControlKeyModifer._
 import net.minecraft.item.ItemStack
 import codechicken.multipart.TileMultipart
 import codechicken.lib.raytracer.ExtendedMOP
@@ -79,7 +79,7 @@ class MicroblockPlacement(val player:EntityPlayer, val hit:MovingObjectPosition,
     
     val d = getHitDepth(vhit, hit.sideHit)
     val useOppMod = pp.sneakOpposite(slot, hit.sideHit)
-    val oppMod = player.isControlDown
+    val oppMod = false //player.isControlDown
     val internal = d < 1 && htile != null
     val doExpand = internal && !gtile._2 && !player.isSneaking && !(oppMod && useOppMod) && pp.expand(slot, hit.sideHit)
     val side = hit.sideHit

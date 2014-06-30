@@ -5,7 +5,7 @@ import codechicken.lib.packet.PacketCustom
 import net.minecraft.client.Minecraft
 import codechicken.multipart.MultiPartRegistry
 import net.minecraft.entity.player.EntityPlayerMP
-import codechicken.multipart.ControlKeyModifer
+//import codechicken.multipart.ControlKeyModifer
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import java.util.{Map => JMap}
@@ -89,10 +89,10 @@ object MultipartSPH extends MultipartPH with IServerPacketHandler with IHandshak
     private val newWatchers = Map[EntityPlayer, LinkedList[ChunkCoordIntPair]]()
 
     def handlePacket(packet: PacketCustom, sender: EntityPlayerMP, netHandler:INetHandlerPlayServer) {
-        packet.getType match {
+/*        packet.getType match {
             case 1 => ControlKeyModifer.map.put(sender, packet.readBoolean)
         }
-    }
+*/    }
 
     def handshakeRecieved(netHandler: NetHandlerPlayServer) {
         val packet = new PacketCustom(registryChannel, 1)
