@@ -7,7 +7,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.7.10]")
+@Mod(modid = "McMultipart", acceptedMinecraftVersions="[1.7.2]")
 public class MinecraftMultipartMod
 {
     @Instance("McMultipart")

@@ -12,7 +12,7 @@ import codechicken.microblock.ConfigContent
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent
 import scala.collection.JavaConversions._
 
-@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:ForgeMultipart;after:*", modLanguage = "scala")
+@Mod(modid = "ForgeMicroblock", acceptedMinecraftVersions = "[1.7.2]", dependencies = "required-after:ForgeMultipart;after:*", modLanguage = "scala")
 object MicroblockMod
 {
     @EventHandler
