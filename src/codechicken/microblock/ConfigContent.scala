@@ -29,7 +29,7 @@ object ConfigContent
                 loadLines(cfgFile)
         }
         catch {
-            case e: IOException => e.printStackTrace()
+            case e: IOException => logger.error("Error parsing config", e)
         }
     }
 
@@ -109,8 +109,7 @@ object ConfigContent
                         case e: IllegalStateException => logger.error("Unable to register micro material: " +
                             materialKey(block, m) + "\n\t" + e.getMessage)
                         case e: Exception =>
-                            logger.error("Unable to register micro material: " + materialKey(block, m))
-                            e.printStackTrace()
+                            logger.error("Unable to register micro material: " + materialKey(block, m), e)
                     }
             }
         }

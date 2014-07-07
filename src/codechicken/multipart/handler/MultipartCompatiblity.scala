@@ -23,9 +23,7 @@ object MCPCCompatModule
                 m_canPlacePart.invoke(world, MultipartProxy.block, x:Integer, y:Integer, z:Integer).asInstanceOf[Boolean].booleanValue()
             }
         } catch {
-            case e:Exception =>
-                MultipartProxy.logger.error("Failed to integrate MCPC placement hooks")
-                e.printStackTrace()
+            case e:Exception => MultipartProxy.logger.error("Failed to integrate MCPC placement hooks", e)
         }
     }
 }
