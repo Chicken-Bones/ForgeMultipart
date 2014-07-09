@@ -1,0 +1,35 @@
+microblock.missing=I seguenti microblocks non sono installati su questo client: %s
+multipart.missing=I seguenti multiparts non sono installati su questo client: %s
+
+item.microblock:sawStone.name=Sega di pietra
+item.microblock:sawIron.name=Sega di ferro
+item.microblock:sawDiamond.name=Sega di diamante
+item.microblock:stoneRod.name=Verga di pietra
+
+mcr_face.1.name=Copertura di %s
+mcr_face.1.subset=Copertura
+mcr_face.2.name=Pannello di %s
+mcr_face.2.subset=Pannello
+mcr_face.4.name=Lastra di %s
+mcr_face.4.subset=Lastra
+
+mcr_hllw.1.name=Copertura cava di %s
+mcr_hllw.1.subset=Copertura cava
+mcr_hllw.2.name=Pannello cavo di %s
+mcr_hllw.2.subset=Pannello cavo
+mcr_hllw.4.name=Lastra cava di %s
+mcr_hllw.4.subset=Lastra cava
+
+mcr_edge.1.name=Striscia di %s
+mcr_edge.1.subset=Striscia
+mcr_edge.2.name=Palo di %s
+mcr_edge.2.subset=Palo
+mcr_edge.4.name=Pilastro di %s
+mcr_edge.4.subset=Pilastro
+
+mcr_cnr.1.name=Angolino di %s
+mcr_cnr.1.subset=Angolino
+mcr_cnr.2.name=Angolo di %s
+mcr_cnr.2.subset=Angolo
+mcr_cnr.4.name=Tacca di %s
+mcr_cnr.4.subset=Tacca
