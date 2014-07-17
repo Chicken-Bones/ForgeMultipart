@@ -43,7 +43,8 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item with Saw
         if(maxDamage > 0)
             setMaxDamage(maxDamage)
         setNoRepair()
-        setMaxStackSize(1);
+        setMaxStackSize(1)
+        setCreativeTab(net.minecraft.creativetab.CreativeTabs.tabTools)
     }
     
     override def hasContainerItem = true
