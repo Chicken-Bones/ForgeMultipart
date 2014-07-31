@@ -29,7 +29,7 @@ mcr_edge.4.subset=Pilastro
 
 mcr_cnr.1.name=Angolino di %s
 mcr_cnr.1.subset=Angolino
-mcr_cnr.2.name=Angolo di %s
-mcr_cnr.2.subset=Angolo
-mcr_cnr.4.name=Tacca di %s
-mcr_cnr.4.subset=Tacca
+mcr_cnr.2.name=Angoletto di %s
+mcr_cnr.2.subset=Angoletto
+mcr_cnr.4.name=Angolo di %s
+mcr_cnr.4.subset=Angolo
