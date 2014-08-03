@@ -8,7 +8,6 @@ import codechicken.multipart.handler.MultipartCPH
 import scala.collection.mutable.HashMap
 import net.minecraft.entity.player.EntityPlayer
 import cpw.mods.fml.common.eventhandler.SubscribeEvent
-import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent
 import cpw.mods.fml.relauncher.{Side, SideOnly}
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent
 

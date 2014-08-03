@@ -21,6 +21,7 @@ object DefaultContent
         createAndRegister(log, 0 to 3)
         createAndRegister(log2, 0 to 1, "tile.log2")
         createAndRegister(leaves, 0 to 3)
+        createAndRegister(leaves2, 0 to 1, "tile.leaves2")
         createAndRegister(sponge)
         createAndRegister(glass)
         createAndRegister(lapis_block)
@@ -50,7 +51,6 @@ object DefaultContent
         createAndRegister(coal_block)
         createAndRegister(packed_ice)
         createAndRegister(stained_glass, 0 to 15)
-        createAndRegister(leaves2, 0 to 1)
         registerMaterial(new GrassMicroMaterial, grass.getUnlocalizedName)
         registerMaterial(new TopMicroMaterial(mycelium), mycelium.getUnlocalizedName)
     }
