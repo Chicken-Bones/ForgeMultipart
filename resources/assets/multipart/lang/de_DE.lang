@@ -1,3 +1,6 @@
+microblock.missing=Die folgenden Mikroblöcke sind auf diesem Client nicht installiert: %s
+multipart.missing=Die folgenden Multiparts sind auf diesem Client nicht installiert: %s
+
 item.microblock:sawStone.name=Steinsäge
 item.microblock:sawIron.name=Eisensäge
 item.microblock:sawDiamond.name=Diamantsäge
