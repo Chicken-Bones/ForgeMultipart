@@ -1,0 +1,35 @@
+microblock.missing=마이크로블럭이 %s에 설치 되어있지 않습니다
+multipart.missing=%s에 멀티파트가 설치 되지 않았습니다
+
+item.microblock:sawStone.name=돌 톱
+item.microblock:sawIron.name=철 톱
+item.microblock:sawDiamond.name=다이아몬드 톱
+item.microblock:stoneRod.name=돌 막대
+
+mcr_face.1.name=%s 덮개
+mcr_face.1.subset=덮개
+mcr_face.2.name=%s 판
+mcr_face.2.subset=판
+mcr_face.4.name=%s 반블럭
+mcr_face.4.subset=반블럭
+
+mcr_hllw.1.name=구멍 뚫린 %s 덮개
+mcr_hllw.1.subset=구멍 뚫린 덮개
+mcr_hllw.2.name=구멍 뚫린 %s 판
+mcr_hllw.2.subset=구멍 뚫린 판
+mcr_hllw.4.name=구멍 뚫린 %s 반블럭
+mcr_hllw.4.subset=구멍 뚫린 반블럭
+
+mcr_edge.1.name=%s 조각
+mcr_edge.1.subset=조각
+mcr_edge.2.name=%s 말뚝
+mcr_edge.2.subset=말뚝
+mcr_edge.4.name=%s 기둥
+mcr_edge.4.subset=기둥
+
+mcr_cnr.1.name=%s 녹
+mcr_cnr.1.subset=녹
+mcr_cnr.2.name=%s 코너
+mcr_cnr.2.subset=코너
+mcr_cnr.4.name=%s 노치
+mcr_cnr.4.subset=노치
