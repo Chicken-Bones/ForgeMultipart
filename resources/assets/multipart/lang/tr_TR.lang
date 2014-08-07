@@ -1,3 +1,6 @@
+microblock.missing=Microblock modu kurulmamış: %s
+multipart.missing=Multipart modu kurulmamış: %s
+
 item.microblock:sawStone.name=Taş Testere
 item.microblock:sawIron.name=Demir Testere
 item.microblock:sawDiamond.name=Elmas Testere
