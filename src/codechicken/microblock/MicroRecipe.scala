@@ -11,7 +11,7 @@ object MicroRecipe extends IRecipe
 {
     RecipeSorter.register("fmp:micro", getClass, RecipeSorter.Category.SHAPED, "after:forge:shapelessore")
 
-    def getRecipeOutput = new ItemStack(sawStone)
+    def getRecipeOutput = create(1, 0, 1, 0)
     
     def getRecipeSize = 9
     
@@ -113,7 +113,6 @@ object MicroRecipe extends IRecipe
         
         if(count <= 1) return null
         
-        val matName = MicroMaterialRegistry.materialName(material)
         mcrClass match {
             case 3 => count match {
                 case 2 => create(1, 0, smallest, material)
