@@ -11,7 +11,7 @@ object MicroRecipe extends IRecipe
 {
     RecipeSorter.register("fmp:micro", getClass, RecipeSorter.Category.SHAPED, "after:forge:shapelessore")
 
-    def getRecipeOutput = create(1, 0, 1, 0)
+    def getRecipeOutput = ItemMicroPart.create(1, 1, "tile.stone")
     
     def getRecipeSize = 9
     
