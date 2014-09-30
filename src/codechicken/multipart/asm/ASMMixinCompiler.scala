@@ -439,9 +439,10 @@ object ASMMixinCompiler
                                 replace(superInsn(minsn))
                         case INVOKEVIRTUAL =>
                             if (minsn.owner.equals(cnode.name)) {
-                                if (methodSigs.contains(minsn.name + minsn.desc)) //call the interface method
+                                if (methodSigs.contains(minsn.name + minsn.desc)) {//call the interface method
                                     minsn.setOpcode(INVOKEINTERFACE)
-                                else {
+                                    minsn.itf = true
+                                }else {
                                     //cast to parent class and call
                                     val mType = Type.getMethodType(minsn.desc)
                                     val instanceEntry = stack.peek(width(mType.getArgumentTypes))

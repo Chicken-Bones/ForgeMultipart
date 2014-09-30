@@ -89,7 +89,7 @@ object ASMMixinFactory extends IMultipartFactory
     def constructor(clazz:Class[_]):Constructor =
     {
         val name = uniqueName("TileMultipart_gen")
-        val cw = new CC_ClassWriter(ASM4)
+        val cw = new CC_ClassWriter(0)
         val superName = classOf[Constructor].getName.replace('.', '/')
         val className = clazz.getName.replace('.', '/')
         var mv:MethodVisitor = null
@@ -194,7 +194,7 @@ object ASMMixinFactory extends IMultipartFactory
         }
         if((inode.access&ACC_INTERFACE) == 0) throw new IllegalArgumentException(s_interface+" is not an interface.")
         
-        val cw = new CC_ClassWriter(ASM4)
+        val cw = new CC_ClassWriter(0)
         var mv:MethodVisitor = null
         var fv:FieldVisitor = null
         
