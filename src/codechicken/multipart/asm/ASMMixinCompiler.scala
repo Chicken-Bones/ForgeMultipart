@@ -62,6 +62,11 @@ object ASMMixinCompiler
     private val traitByteMap = MMap[String, Array[Byte]]()
     private val mixinMap = MMap[String, MixinInfo]()
 
+    // used in registerJavaTrait/staticTransform, moved to constructor for performance
+    private val minsnHasITF =
+        try { classOf[MethodInsnNode].getDeclaredField("itf"); true }
+        catch { case _: Throwable => false }
+
     def define(name: String, bytes: Array[Byte]) = {
         internalDefine(name, bytes)
         DebugPrinter.defined(name, bytes)
@@ -441,7 +446,8 @@ object ASMMixinCompiler
                             if (minsn.owner.equals(cnode.name)) {
                                 if (methodSigs.contains(minsn.name + minsn.desc)) {//call the interface method
                                     minsn.setOpcode(INVOKEINTERFACE)
-                                    minsn.itf = true
+                                    if (minsnHasITF)
+                                        minsn.itf = true
                                 }else {
                                     //cast to parent class and call
                                     val mType = Type.getMethodType(minsn.desc)
