@@ -88,9 +88,9 @@ object TickScheduler extends WorldExtensionInstantiator
         {
             try
             {
-                val din = new DataInputStream(new FileInputStream(saveFile))
-                loadTag(CompressedStreamTools.readCompressed(din))
-                din.close()
+                val in = new FileInputStream(saveFile)
+                loadTag(CompressedStreamTools.readCompressed(in))
+                in.close()
             }
             catch
             {

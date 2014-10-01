@@ -106,36 +106,24 @@ class MicroblockPlacement(val player:EntityPlayer, val hit:MovingObjectPosition,
         
         if(internal)
         {
-            if(!useOppMod)
-                return internalPlacement(htile, slot)
-            if((1-d)*8 < size)
-            {
-                if(htile.canAddPart(create(1, oslot, material)))
-                    return externalPlacement(slot)
-            }
-            if(d < 0.5)
+            if(d < 0.5 || !useOppMod)
             {
                 val ret = internalPlacement(htile, slot)
-                if(ret != null && !oppMod)
-                    return ret
-                if(ret != null && oppMod || ret == null && !oppMod)
-                    return internalPlacement(htile, oslot)
-                //sneaking
-                if(internalPlacement(htile, oslot) != null)
-                    return externalPlacement(slot)
-                return null
+                if(ret != null) {
+                    if(!useOppMod || !oppMod) return ret
+                    else return internalPlacement(htile, oslot)
+                }
             }
-            val ret = internalPlacement(htile, oslot)
-            if(!oppMod)
-                return ret
-            if(ret != null)
+            if(useOppMod && !oppMod)
+                return internalPlacement(htile, oslot)
+            else
                 return externalPlacement(slot)
-            return null
         }
-        val ret = externalPlacement(slot)
-        if(ret != null && oppMod && useOppMod)
+
+        if(!useOppMod || !oppMod)
+            return externalPlacement(slot)
+        else
             return externalPlacement(oslot)
-        return ret
     }
     
     def expand(mpart:CommonMicroblock):ExecutablePlacement = expand(mpart, create(mpart.getSize+size, mpart.getSlot, mpart.material))
