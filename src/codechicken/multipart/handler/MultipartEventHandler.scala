@@ -19,11 +19,11 @@ import cpw.mods.fml.common.gameevent.TickEvent
 object MultipartEventHandler
 {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    def tileEntityLoad(event:ChunkDataEvent.Load)
+    def chunkLoad(event:ChunkEvent.Load)
     {
-        MultipartSaveLoad.loadTiles(event.getChunk)
+        MultipartSaveLoad.trackChunk(event.getChunk)
     }
-    
+
     @SubscribeEvent
     def worldUnLoad(event:WorldEvent.Unload)
     {
@@ -43,7 +43,7 @@ object MultipartEventHandler
     {
         MultipartSPH.onChunkUnWatch(event.player, event.chunk)
     }
-    
+
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     def drawBlockHighlight(event:DrawBlockHighlightEvent)

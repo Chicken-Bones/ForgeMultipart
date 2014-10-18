@@ -53,37 +53,39 @@ object MultipartSaveLoad
         field.get(null).asInstanceOf[Map[Class[_ <: TileEntity], String]]
     }
 
-    def loadTiles(chunk: Chunk) {
-        loadingWorld = chunk.worldObj
-        val iterator = chunk.chunkTileEntityMap.asInstanceOf[Map[ChunkPosition, TileEntity]].entrySet.iterator
-        while (iterator.hasNext) {
-            val e = iterator.next
-            var next = false
-            val t = e.getValue match {
-                case t:TileNBTContainer if t.tag.getString("id") == "savedMultipart" =>
-                    TileMultipart.createFromNBT(e.getValue.asInstanceOf[TileNBTContainer].tag)
-                case t => converters.find(_.canConvert(t)) match {
-                    case Some(c) =>
-                        val parts = c.convert(t)
-                        if(!parts.isEmpty)
-                            MultipartHelper.createTileFromParts(parts)
-                        else
-                            null
-                    case _ =>
-                        next = true
-                        null
-                }
-            }
-
-            if(!next) {
-                if (t != null) {
-                    t.setWorldObj(e.getValue.getWorldObj)
-                    t.validate()
-                    e.setValue(t)
-                }
-                else
-                    iterator.remove()
+    def tileSwapHook(tile: TileEntity) = {
+        val swap = tile match {
+            case t:TileNBTContainer if t.tag.getString("id") == "savedMultipart" =>
+                TileMultipart.createFromNBT(t.tag)
+            case t => converters.find(_.canConvert(t)) match {
+                case Some(c) =>
+                    val parts = c.convert(t)
+                    if(!parts.isEmpty)
+                        MultipartHelper.createTileFromParts(parts)
+                    else
+                        t
+                case _ =>
+                    t
             }
         }
+        swap
+    }
+
+    val addedListField = classOf[World].getDeclaredField(
+        new ObfMapping("net/minecraft/world/World", "field_147484_a", "Ljava/util/List;")
+            .toRuntime.s_name)
+    addedListField.setAccessible(true)
+
+    def trackTileList(map: java.util.Map[ChunkPosition, TileEntity], c: Chunk) = {
+        var result = map
+        if (!map.isInstanceOf[TileTrackerMap]) {
+            val newMap = new TileTrackerMap(map, c)
+            result = newMap
+        }
+        result
+    }
+
+    def trackChunk(c: Chunk) {
+        c.chunkTileEntityMap = trackTileList(c.chunkTileEntityMap.asInstanceOf[java.util.Map[ChunkPosition, TileEntity]], c)
     }
 }
