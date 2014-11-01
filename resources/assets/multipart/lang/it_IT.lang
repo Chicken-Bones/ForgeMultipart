@@ -4,7 +4,7 @@ multipart.missing=I seguenti multiparts non sono installati su questo client: %s
 item.microblock:sawStone.name=Seghetto di pietra
 item.microblock:sawIron.name=Seghetto di ferro
 item.microblock:sawDiamond.name=Seghetto di diamante
-item.microblock:stoneRod.name=Bastone di pietra
+item.microblock:stoneRod.name=Stecca di pietra
 
 mcr_face.1.name=Copertura di %s
 mcr_face.1.subset=Copertura
