@@ -1,0 +1,35 @@
+microblock.missing=Os seguintes Microblocos não estão instalados no cliente: %s
+multipart.missing=As seguintes Multipartes não estão instaladas no cliente: %s
+
+item.microblock:sawStone.name=Serra De Pedra
+item.microblock:sawIron.name=Serra De Ferro
+item.microblock:sawDiamond.name=Serra De Diamante
+item.microblock:stoneRod.name=Haste De Pedra
+
+mcr_face.1.name=Encapamento De %s
+mcr_face.1.subset=Encapamentos
+mcr_face.2.name=Painel De %s
+mcr_face.2.subset=Painéis
+mcr_face.4.name=Laje De %s
+mcr_face.4.subset=Lajes
+
+mcr_hllw.1.name=Encapamento Vazado De %s
+mcr_hllw.1.subset=Encapamentos Vazados
+mcr_hllw.2.name=Painél Vazado De %s
+mcr_hllw.2.subset=Painéis Vazados
+mcr_hllw.4.name=Laje Vazada De %s
+mcr_hllw.4.subset=Lajes Vazadas
+
+mcr_edge.1.name=Tira De %s
+mcr_edge.1.subset=Tiras
+mcr_edge.2.name=Poste De %s
+mcr_edge.2.subset=Postes
+mcr_edge.4.name=Pilar De %s
+mcr_edge.4.subset=Pilares
+
+mcr_cnr.1.name=Oitavo De %s
+mcr_cnr.1.subset=Oitavas
+mcr_cnr.2.name=Quarto De %s
+mcr_cnr.2.subset=Quartos
+mcr_cnr.4.name=Quina De %s
+mcr_cnr.4.subset=Quinas
