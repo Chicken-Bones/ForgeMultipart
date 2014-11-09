@@ -64,7 +64,7 @@ class MicroblockProxy_serverImpl
             new ShapedOreRecipe(new ItemStack(saw),
                 "srr",
                 "sbr",
-                's': Character, Items.stick,
+                's': Character, "stickWood",
                 'r': Character, "rodStone",
                 'b': Character, blade))
     }
