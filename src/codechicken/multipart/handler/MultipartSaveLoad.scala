@@ -71,21 +71,16 @@ object MultipartSaveLoad
         swap
     }
 
-    val addedListField = classOf[World].getDeclaredField(
-        new ObfMapping("net/minecraft/world/World", "field_147484_a", "Ljava/util/List;")
-            .toRuntime.s_name)
-    addedListField.setAccessible(true)
-
-    def trackTileList(map: java.util.Map[ChunkPosition, TileEntity], c: Chunk) = {
-        var result = map
-        if (!map.isInstanceOf[TileTrackerMap]) {
-            val newMap = new TileTrackerMap(map, c)
+    def trackTileEntityMap(c: Chunk) = {
+        var result = c.chunkTileEntityMap
+        if (!result.isInstanceOf[TileTrackerMap]) {
+            val newMap = new TileTrackerMap(c)
             result = newMap
         }
         result
     }
 
     def trackChunk(c: Chunk) {
-        c.chunkTileEntityMap = trackTileList(c.chunkTileEntityMap.asInstanceOf[java.util.Map[ChunkPosition, TileEntity]], c)
+        c.chunkTileEntityMap = trackTileEntityMap(c)
     }
 }

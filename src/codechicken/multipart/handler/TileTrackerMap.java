@@ -2,6 +2,7 @@ package codechicken.multipart.handler;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,37 +12,75 @@ import net.minecraft.world.chunk.Chunk;
 
 import com.google.common.collect.Maps;
 
-public class TileTrackerMap implements Map<ChunkPosition, TileEntity>
-{
-    private final Map<ChunkPosition, TileEntity> delegate;
+public class TileTrackerMap
+        extends HashMap<ChunkPosition, TileEntity> implements
+        Map<ChunkPosition, TileEntity> {
+    private static final long serialVersionUID = -6346731905063668635L;
     private final Chunk owner;
+    private final HashMap<ChunkPosition, TileEntity> delegate;
 
-    public TileTrackerMap(Map<ChunkPosition, TileEntity> del, Chunk ownr) {
+    @SuppressWarnings("unchecked")
+    public TileTrackerMap(Chunk ownr) {
         owner = ownr;
-        Map<ChunkPosition, TileEntity> swap = swapMulti(del);
-        del.clear();
-        del.putAll(swap);
-        delegate = del;
+        // NB: required because some mods expect HashMap, so we do too.
+        delegate = (HashMap<ChunkPosition, TileEntity>) ownr.chunkTileEntityMap;
+        swapCurrentTiles();
     }
-    
-    private Map<ChunkPosition, TileEntity> swapMulti(Map<? extends ChunkPosition, ? extends TileEntity> m) {
-        Map<ChunkPosition, TileEntity> swap = Maps.newHashMapWithExpectedSize(m.size());
-        for (Entry<? extends ChunkPosition, ? extends TileEntity> e : m.entrySet()) {
-            swap.put(e.getKey(), swap(e.getValue()));
+
+    /**
+     * Swap all tiles in the chunk. Probably not safe to call after players
+     * join.
+     */
+    private void swapCurrentTiles() {
+        for (Entry<ChunkPosition, TileEntity> entry : delegate.entrySet()) {
+            TileEntity before = entry.getValue();
+            TileEntity after = MultipartSaveLoad.tileSwapHook(before);
+            if (before != after) {
+                after.setWorldObj(before.getWorldObj());
+                after.validate();
+                before.invalidate();
+                entry.setValue(after);
+            }
         }
-        return swap;
     }
-    
+
+    /**
+     * In-place swap of tiles in the given map.
+     * 
+     * @param m
+     *            - map to swap tiles in
+     */
+    private void swapMulti(Map<ChunkPosition, TileEntity> m) {
+        for (Entry<ChunkPosition, TileEntity> e : m.entrySet()) {
+            TileEntity before = e.getValue();
+            TileEntity after = swap(before);
+            if (before != after) {
+                e.setValue(after);
+            }
+        }
+    }
+
+    /**
+     * Do a full swap of a tile, replacing it entirely.
+     * 
+     * @param tile
+     *            - input tile
+     * @return the result of attempting to swap {@code tile}.
+     */
     private TileEntity swap(TileEntity tile) {
         TileEntity newTile = MultipartSaveLoad.tileSwapHook(tile);
         if (newTile != tile) {
             newTile.xCoord = tile.xCoord;
             newTile.yCoord = tile.yCoord;
             newTile.zCoord = tile.zCoord;
-            owner.removeTileEntity(newTile.xCoord, newTile.yCoord, newTile.zCoord);
+            owner.removeTileEntity(newTile.xCoord, newTile.yCoord,
+                                   newTile.zCoord);
             owner.addTileEntity(newTile);
-            MultipartSPH.getDescPacket(owner, Arrays.asList(newTile).iterator())
-                .sendPacketToAllAround(newTile.xCoord, newTile.yCoord, newTile.zCoord, 64, owner.worldObj.provider.dimensionId);
+            MultipartSPH
+                    .getDescPacket(owner, Arrays.asList(newTile).iterator())
+                    .sendPacketToAllAround(newTile.xCoord, newTile.yCoord,
+                                           newTile.zCoord, 64,
+                                           owner.worldObj.provider.dimensionId);
         }
         return newTile;
     }
@@ -57,27 +96,40 @@ public class TileTrackerMap implements Map<ChunkPosition, TileEntity>
     }
 
     @Override
-    public boolean containsKey(Object key) {
-        return delegate.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return delegate.containsValue(value);
-    }
-
-    @Override
     public TileEntity get(Object key) {
         return delegate.get(key);
     }
 
     @Override
+    public boolean equals(Object o) {
+        return delegate.equals(o);
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return delegate.containsKey(key);
+    }
+
+    @Override
     public TileEntity put(ChunkPosition key, TileEntity value) {
-        TileEntity old = get(key);
-        if (swap(value) != value) {
-            return old;
-        }
-        return delegate.put(key, value);
+        return delegate.put(key, swap(value));
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
+    public void putAll(Map<? extends ChunkPosition, ? extends TileEntity> m) {
+        Map<ChunkPosition, TileEntity> copy = Maps.newHashMap(m);
+        swapMulti(copy);
+        delegate.putAll(copy);
     }
 
     @Override
@@ -86,16 +138,18 @@ public class TileTrackerMap implements Map<ChunkPosition, TileEntity>
     }
 
     @Override
-    public void putAll(Map<? extends ChunkPosition, ? extends TileEntity> m) {
-        if (!swapMulti(m).equals(m)) {
-            return;
-        }
-        delegate.putAll(m);
+    public void clear() {
+        delegate.clear();
     }
 
     @Override
-    public void clear() {
-        delegate.clear();
+    public boolean containsValue(Object value) {
+        return delegate.containsValue(value);
+    }
+
+    @Override
+    public Object clone() {
+        return delegate.clone();
     }
 
     @Override
@@ -109,17 +163,7 @@ public class TileTrackerMap implements Map<ChunkPosition, TileEntity>
     }
 
     @Override
-    public Set<java.util.Map.Entry<ChunkPosition, TileEntity>> entrySet() {
+    public Set<Entry<ChunkPosition, TileEntity>> entrySet() {
         return delegate.entrySet();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return delegate.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return delegate.hashCode();
     }
 }
