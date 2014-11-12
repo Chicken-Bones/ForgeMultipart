@@ -18,7 +18,7 @@ import cpw.mods.fml.common.gameevent.TickEvent
 
 object MultipartEventHandler
 {
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     def chunkLoad(event:ChunkEvent.Load)
     {
         MultipartSaveLoad.trackChunk(event.getChunk)
