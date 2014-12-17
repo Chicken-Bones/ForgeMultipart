@@ -12,7 +12,7 @@ import cpw.mods.fml.relauncher.Side
 import codechicken.lib.packet.PacketCustom
 import net.minecraft.world.ChunkCoordIntPair
 import codechicken.lib.vec.BlockCoord
-import codechicken.lib.world.WorldExtensionManager
+import codechicken.lib.world.{TileChunkLoadHook, WorldExtensionManager}
 import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.common.registry.GameRegistry
 import net.minecraft.block.Block
@@ -53,6 +53,7 @@ class MultipartProxy_serverImpl
         PacketCustom.assignHandshakeHandler(MultipartSPH.registryChannel, MultipartSPH)
 
         WorldExtensionManager.registerWorldExtension(TickScheduler)
+        TileChunkLoadHook.init()
 
         MultipartCompatiblity.load()
     }

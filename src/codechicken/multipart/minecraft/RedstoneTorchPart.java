@@ -2,6 +2,7 @@ package codechicken.multipart.minecraft;
 
 import java.util.Random;
 
+import codechicken.multipart.TickScheduler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneTorch;
 import net.minecraft.init.Blocks;
@@ -12,10 +13,10 @@ import net.minecraftforge.common.util.ForgeDirection;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IFaceRedstonePart;
-import codechicken.multipart.IRandomUpdateTick;
+import codechicken.multipart.TRandomUpdateTick;
 import codechicken.multipart.RedstoneInteractions;
 
-public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, IRandomUpdateTick
+public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, TRandomUpdateTick
 {
     public static BlockRedstoneTorch torchActive = (BlockRedstoneTorch) Blocks.redstone_torch;
     public static BlockRedstoneTorch torchIdle = (BlockRedstoneTorch) Blocks.unlit_redstone_torch;
@@ -142,7 +143,12 @@ public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, I
     {
         scheduledTick();
     }
-    
+
+    @Override
+    public void onWorldJoin() {
+        TickScheduler.loadRandomTick(this);
+    }
+
     private boolean burnedOut(boolean add)
     {
         long time = world().getTotalWorldTime();

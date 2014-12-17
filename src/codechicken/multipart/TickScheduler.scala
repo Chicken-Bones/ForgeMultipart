@@ -5,7 +5,7 @@ import codechicken.lib.world.WorldExtension
 import codechicken.lib.world.ChunkExtension
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.World
-import net.minecraft.nbt.{NBTBase, NBTTagCompound, NBTTagList, CompressedStreamTools}
+import net.minecraft.nbt.{NBTTagCompound, NBTTagList, CompressedStreamTools}
 import scala.collection.mutable.ListBuffer
 import codechicken.lib.vec.BlockCoord
 import net.minecraft.world.ChunkCoordIntPair
@@ -15,10 +15,8 @@ import java.io.DataOutputStream
 import net.minecraftforge.common.DimensionManager
 import java.io.File
 import java.io.FileOutputStream
-import java.io.DataInputStream
 import java.io.FileInputStream
 import net.minecraft.world.storage.SaveHandler
-import java.util.ArrayList
 
 /**
  * Used for scheduling delayed callbacks to parts.
@@ -55,7 +53,7 @@ object TickScheduler extends WorldExtensionInstantiator
                     .asInstanceOf[ChunkTickScheduler].scheduleTick(part, time, random)
         }
         
-        def loadRandom(part:TMultiPart) = scheduleTick(part, nextRandomTick, true)
+        def loadRandom(part:TRandomUpdateTick) = scheduleTick(part, nextRandomTick, true)
         
         override def preTick()
         {
@@ -175,12 +173,12 @@ object TickScheduler extends WorldExtensionInstantiator
             {
                 if(e.part.tile != null)
                 {
-                    if(e.random && e.part.isInstanceOf[IRandomUpdateTick])
-                        e.part.asInstanceOf[IRandomUpdateTick].randomUpdate()
+                    if(e.random && e.part.isInstanceOf[TRandomUpdateTick])
+                        e.part.asInstanceOf[TRandomUpdateTick].randomUpdate()
                     else
                         e.part.scheduledTick()
                     
-                    if(e.part.isInstanceOf[IRandomUpdateTick])
+                    if(e.part.isInstanceOf[TRandomUpdateTick])
                     {
                         e.time = schedTime+nextRandomTick
                         e.random = true
@@ -228,26 +226,6 @@ object TickScheduler extends WorldExtensionInstantiator
             }
         }
         
-        override def load()
-        {
-            val it = new ArrayList(chunk.chunkTileEntityMap.values).iterator
-            while(it.hasNext)
-            {
-                val t = it.next
-                if(t.isInstanceOf[TileMultipart])
-                {
-                    val tmp = t.asInstanceOf[TileMultipart]
-                    tmp.onChunkLoad()
-                    tmp.partList.foreach(p =>
-                        if(p.isInstanceOf[IRandomUpdateTick])
-                            world.scheduleTick(p, nextRandomTick, true))
-                }
-            }
-            
-            if(!tickList.isEmpty)
-                world.tickChunks+=this
-        }
-        
         override def unload()
         {
             if(!tickList.isEmpty)
@@ -256,8 +234,11 @@ object TickScheduler extends WorldExtensionInstantiator
     }
     
     def createChunkExtension(chunk:Chunk, world:WorldExtension):ChunkExtension = new ChunkTickScheduler(chunk, world.asInstanceOf[WorldTickScheduler])
-    
-    private[multipart] def loadRandomTick(part:TMultiPart)
+
+    /**
+     * Start random ticking for a part. Should be called from TMultiPart.onWorldJoin
+     */
+    def loadRandomTick(part:TRandomUpdateTick)
     {
         getExtension(part.tile.getWorldObj).asInstanceOf[WorldTickScheduler].loadRandom(part)
     }

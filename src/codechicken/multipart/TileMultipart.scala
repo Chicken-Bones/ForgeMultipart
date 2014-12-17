@@ -20,8 +20,9 @@ import java.util.Collection
 import codechicken.lib.raytracer.ExtendedMOP
 import net.minecraft.util.Vec3
 import java.lang.Iterable
+import codechicken.lib.world.IChunkLoadTile
 
-class TileMultipart extends TileEntity
+class TileMultipart extends TileEntity with IChunkLoadTile
 {
     /**
      * List of parts in this tile space
@@ -86,7 +87,7 @@ class TileMultipart extends TileEntity
         operate(_.onChunkUnload())
     }
     
-    def onChunkLoad()
+    override def onChunkLoad()
     {
         operate(_.onChunkLoad())
     }
@@ -312,11 +313,7 @@ class TileMultipart extends TileEntity
      * Called when a part is added (placement)
      * Provided for trait overrides, do not call externally.
      */
-    def partAdded(part:TMultiPart)
-    {
-        if(part.isInstanceOf[IRandomUpdateTick])
-            TickScheduler.loadRandomTick(part)
-    }
+    def partAdded(part:TMultiPart){}
     
     /**
      * Removes part from this tile. Note that due to the operation sync, the part may not be removed until the call stack has been passed to all other parts in the space.

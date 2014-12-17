@@ -235,11 +235,11 @@ abstract class TMultiPart
      */
     def onChunkUnload() = onWorldSeparate()
     /**
-     * Called when this part separates from the world (due to removal, chunk unload or other). Use this to sync with external data structures.
+     * Called when this part separates from the world (due to removal, chunk unload or other). Use this to sync with external data structures. Called on both client and server
      */
     def onWorldSeparate(){}
     /**
-     * Called when this part separates from the world (due to removal, chunk unload or other). Use this to sync with external data structures.
+     * Called when this part joins the world (due to placement, chunkload or frame move etc). Use this to sync with external data structures. Called on both client and server
      */
     def onWorldJoin(){}
     /**
