@@ -16,6 +16,14 @@ buildscript {
     }
 }
 
+//add dependency repositories
+repositories {
+    maven {
+        name = "chickenbones"
+        url = "http://chickenbones.net/maven"
+    }
+}
+
 // Apply the forge plugin - this adds all the magic for automatically obfuscating, deobfuscating etc
 apply plugin: 'scala'
 apply plugin: 'forge'
@@ -36,6 +44,7 @@ configFile.withReader {
 }
 dependencies {
     compile "codechicken:CodeChickenLib:${config.mc_version}-${config.ccl_version}:dev"
+    compile "codechicken:NotEnoughItems:${config.mc_version}-${config.nei_version}:dev"
 }
 
 version =  "${project.config.mod_version}." + System.getenv("BUILD_NUMBER") ?: "1"
