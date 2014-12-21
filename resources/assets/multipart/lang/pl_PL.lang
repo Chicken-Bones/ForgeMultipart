@@ -1,0 +1,35 @@
+microblock.missing=Następujące mikrobloki nie są zainstalowane na tym kliencie klienta: %s
+multipart.missing=Następujące wieloczęści nie są zainstalowane na tym kliencie klienta: %s
+
+item.microblock:sawStone.name=Kamienna piła
+item.microblock:sawIron.name=Żelazna piła
+item.microblock:sawDiamond.name=Diamentowa piła
+item.microblock:stoneRod.name=Kamienna Rod
+
+mcr_face.1.name=Pokrywka z %s
+mcr_face.1.subset=Pokrywka
+mcr_face.2.name=Panel z %s
+mcr_face.2.subset=Panel
+mcr_face.4.name=Płyta z %s
+mcr_face.4.subset=Płyta
+
+mcr_hllw.1.name=Pusta pokrywka z %s
+mcr_hllw.1.subset=Pusta pokrywka
+mcr_hllw.2.name=Pusty panel z %s
+mcr_hllw.2.subset=Pusty panel
+mcr_hllw.4.name=Pusta płyta z %s
+mcr_hllw.4.subset=Pusta płyta
+
+mcr_edge.1.name=Pasek z %s
+mcr_edge.1.subset=Pasek
+mcr_edge.2.name=Słup z %s
+mcr_edge.2.subset=Słup
+mcr_edge.4.name=Filar z %s
+mcr_edge.4.subset=Filar
+
+mcr_cnr.1.name=Kąt z %s
+mcr_cnr.1.subset=Kąt
+mcr_cnr.2.name=Róg z %s
+mcr_cnr.2.subset=Róg
+mcr_cnr.4.name=Karb z %s
+mcr_cnr.4.subset=Karb
