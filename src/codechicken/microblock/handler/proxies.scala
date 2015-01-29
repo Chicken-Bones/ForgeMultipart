@@ -25,17 +25,13 @@ class MicroblockProxy_serverImpl
 {
     var logger: Logger = _
 
-    private var baseID = 24875 - 1
-
-    def nextItemID = {
-        baseID += 1; baseID
-    }
-
     var itemMicro: ItemMicroPart = _
     var sawStone: Item = _
     var sawIron: Item = _
     var sawDiamond: Item = _
     var stoneRod: Item = _
+
+    var useSawIcons: Boolean = _
 
     def preInit(logger: Logger) {
         this.logger = logger
@@ -49,11 +45,14 @@ class MicroblockProxy_serverImpl
 
         OreDictionary.registerOre("rodStone", stoneRod)
         MinecraftForge.EVENT_BUS.register(MicroblockEventHandler)
+
+        useSawIcons = config.getTag("useSawIcons").setComment("Set to true to use mc style icons for the saw instead of the 3D model").getBooleanValue(false)
     }
 
     protected var saws = mutable.MutableList[Item]()
     def createSaw(config: ConfigFile, name: String, strength: Int) = {
-        val saw = new ItemSaw(config.getTag(name).useBraces(), strength).setUnlocalizedName("microblock:" + name)
+        val saw = new ItemSaw(config.getTag(name).useBraces(), strength)
+            .setUnlocalizedName("microblock:" + name).setTextureName("microblock:" + name)
         GameRegistry.registerItem(saw, name)
         saws+=saw
         saw

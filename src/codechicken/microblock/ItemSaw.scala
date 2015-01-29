@@ -5,11 +5,10 @@ import codechicken.lib.config.ConfigTag
 import codechicken.microblock.handler.MicroblockProxy._
 import net.minecraft.item.ItemStack
 import net.minecraftforge.client.IItemRenderer
-import codechicken.lib.render.CCModel
+import codechicken.lib.render.{TextureUtils, CCModel, CCRenderState}
 import net.minecraftforge.client.IItemRenderer.ItemRenderType
 import net.minecraftforge.client.IItemRenderer.ItemRendererHelper
 import codechicken.lib.vec.SwapYZ
-import codechicken.lib.render.CCRenderState
 import codechicken.lib.vec.TransformationList
 import codechicken.lib.vec.Translation
 import codechicken.lib.vec.Scale
@@ -18,8 +17,9 @@ import org.lwjgl.opengl.GL11
 import ItemRenderType._
 import codechicken.lib.math.MathHelper._
 import net.minecraft.util.ResourceLocation
-import net.minecraft.client.renderer.texture.IIconRegister
+import net.minecraft.client.renderer.texture.{TextureMap, IIconRegister}
 import codechicken.lib.render.uv.UVTranslation
+import codechicken.microblock.handler.MicroblockProxy
 
 /**
  * Interface for items that are 'saws'
@@ -58,8 +58,6 @@ class ItemSaw(sawTag:ConfigTag, val harvestLevel:Int) extends Item with Saw
     override def doesContainerItemLeaveCraftingGrid(stack:ItemStack) = false
     
     def getCuttingStrength(item:ItemStack) = harvestLevel
-    
-    override def registerIcons(register:IIconRegister){}
 }
 
 object ItemSawRenderer extends IItemRenderer
@@ -69,10 +67,11 @@ object ItemSawRenderer extends IItemRenderer
     val holder = models.get("BladeSupport")
     val blade = models.get("Blade")
     
-    def handleRenderType(item:ItemStack, renderType:ItemRenderType) = true
+    def handleRenderType(item:ItemStack, renderType:ItemRenderType) =
+        !MicroblockProxy.useSawIcons || TextureUtils.isMissing(item.getIconIndex, TextureMap.locationItemsTexture)
     
     def shouldUseRenderHelper(renderType:ItemRenderType, item:ItemStack, helper:ItemRendererHelper) = true
-    
+
     def renderItem(renderType:ItemRenderType, item:ItemStack, data:Object*)
     {
         val t = renderType match {
