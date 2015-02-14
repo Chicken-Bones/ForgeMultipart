@@ -1,0 +1,35 @@
+microblock.missing=Les microblocs suivants ne sont pas installés sur ce client : %s
+multipart.missing=Les multipièces suivantes ne sont pas installées sur ce client : %s
+
+item.microblock:sawStone.name=Scie en pierre
+item.microblock:sawIron.name=Scie en fer
+item.microblock:sawDiamond.name=Scie en diamant
+item.microblock:stoneRod.name=Bâton de pierre
+
+mcr_face.1.name=Couvercle de/d' %s
+mcr_face.1.subset=Couvercle
+mcr_face.2.name=Panneau de/d' %s
+mcr_face.2.subset=Panneau
+mcr_face.4.name=Dalle de/d' %s
+mcr_face.4.subset=Dalle
+
+mcr_hllw.1.name=Couvercle creux de/d' %s
+mcr_hllw.1.subset=Couvercle creux
+mcr_hllw.2.name=Panneau creux de/d' %s
+mcr_hllw.2.subset=Panneau creux
+mcr_hllw.4.name=Dalle creuse de/d' %s
+mcr_hllw.4.subset=Dalle creuse
+
+mcr_edge.1.name=Bande de/d' %s
+mcr_edge.1.subset=Bande
+mcr_edge.2.name=Poteau de/d' %s
+mcr_edge.2.subset=Poteau
+mcr_edge.4.name=Pilier de/d' %s
+mcr_edge.4.subset=Pilier
+
+mcr_cnr.1.name=Recoin de/d' %s
+mcr_cnr.1.subset=Recoin
+mcr_cnr.2.name=Coin de/d' %s
+mcr_cnr.2.subset=Coin
+mcr_cnr.4.name=Encoche de/d' %s
+mcr_cnr.4.subset=Encoche
