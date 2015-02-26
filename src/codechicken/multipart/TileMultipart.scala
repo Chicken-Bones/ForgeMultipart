@@ -127,12 +127,13 @@ class TileMultipart extends TileEntity with IChunkLoadTile
     
     /**
      * Called by parts when they have changed in some form that affects the world.
-     * Notifies neighbor blocks, parts that share this host and recalculates lighting
+     * Notifies neighbor blocks, the world and parts that share this host and recalculates lighting
      */
     def notifyPartChange(part:TMultiPart)
     {
         internalPartChange(part)
-        
+
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord)
         worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, MultipartProxy.block)
         worldObj.func_147451_t(xCoord, yCoord, zCoord)
     }
