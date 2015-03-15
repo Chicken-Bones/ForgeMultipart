@@ -33,3 +33,5 @@ mcr_cnr.2.name=Coin de/d' %s
 mcr_cnr.2.subset=Coin
 mcr_cnr.4.name=Encoche de/d' %s
 mcr_cnr.4.subset=Encoche
+
+key.control=[Forge Multipart] Disposition du bloc
