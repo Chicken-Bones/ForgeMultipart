@@ -206,15 +206,13 @@ class TileMultipart extends TileEntity with IChunkLoadTile
         worldObj.notifyBlocksOfNeighborChange(pos.x, pos.y, pos.z, MultipartProxy.block)
     }
     
-    def isSolid(side:Int):Boolean = 
-    {
-        val part = partMap(side)
-        if(part != null) 
-            return part.asInstanceOf[TFacePart].solid(side)
-        
-        return false
+    def isSolid(side:Int) = partMap(side) match {
+        case face:TFacePart => face.solid(side)
+        case _ => false
     }
-    
+
+    def canPlaceTorchOnTop = partList.exists(_.canPlaceTorchOnTop) || isSolid(1)
+
     private def setTicking(tick:Boolean)
     {
         if(doesTick == tick)

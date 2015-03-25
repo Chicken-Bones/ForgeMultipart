@@ -259,4 +259,6 @@ class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shap
     }
 
     def getResistanceFactor = PostMicroClass.getResistanceFactor
+
+    override def canPlaceTorchOnTop = getShape == 0
 }

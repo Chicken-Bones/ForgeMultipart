@@ -115,6 +115,11 @@ abstract class TMultiPart
     def getLightValue = 0
 
     /**
+     * If any part returns true for this, torches can be placed. Vanilla hacks...
+     */
+    def canPlaceTorchOnTop = false
+
+    /**
      * Explosion resistance of the host tile is the maximum explosion resistance of the contained parts
      * @param entity The entity responsible for this explosion
      * @return The resistance of this part the the explosion
