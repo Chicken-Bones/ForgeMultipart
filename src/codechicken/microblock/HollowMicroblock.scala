@@ -56,13 +56,13 @@ object HollowMicroClass extends MicroblockClass
 
     def create(client: Boolean) =
         if (client)
-            new HollowMicroblockClient
+            new HollowMicroblock with HollowMicroblockClient
         else
             new HollowMicroblock
 
     def create(size: Int, slot: Int, material: Int, client: Boolean) =
         if (client)
-            new HollowMicroblockClient(size, slot, material)
+            new HollowMicroblock(size, slot, material) with HollowMicroblockClient
         else
             new HollowMicroblock(size, slot, material)
 
@@ -71,11 +71,9 @@ object HollowMicroClass extends MicroblockClass
     def getResistanceFactor = 1
 }
 
-class HollowMicroblockClient(shape$: Byte = 0, material$: Int = 0) extends HollowMicroblock(shape$, material$) with CommonMicroblockClient
+trait HollowMicroblockClient extends HollowMicroblock with CommonMicroblockClient
 {
     renderMask |= 8 << 8
-
-    def this(size: Int, shape: Int, material: Int) = this((size << 4 | shape).toByte, material)
 
     override def recalcBounds() {
         super.recalcBounds()

@@ -38,24 +38,19 @@ object CornerMicroClass extends MicroblockClass
     
     def create(client:Boolean) = 
         if(client)
-            new CornerMicroblockClient
+            new CornerMicroblock with CommonMicroblockClient
         else
             new CornerMicroblock
     
     def create(size:Int, slot:Int, material:Int, client:Boolean) = 
         if(client)
-            new CornerMicroblockClient(size, slot, material)
+            new CornerMicroblock(size, slot, material)with CommonMicroblockClient
         else
             new CornerMicroblock(size, slot, material)
     
     def placementProperties = CornerPlacement
 
     def getResistanceFactor = 1
-}
-
-class CornerMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends CornerMicroblock(shape$, material$) with CommonMicroblockClient
-{
-    def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-7)).toByte, material)
 }
 
 class CornerMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$)

@@ -40,13 +40,13 @@ object FaceMicroClass extends MicroblockClass
     
     def create(client:Boolean) = 
         if(client)
-            new FaceMicroblockClient
+            new FaceMicroblock with FaceMicroblockClient
         else
             new FaceMicroblock
     
     def create(size:Int, slot:Int, material:Int, client:Boolean) = 
         if(client)
-            new FaceMicroblockClient(size, slot, material)
+            new FaceMicroblock(size, slot, material) with FaceMicroblockClient
         else
             new FaceMicroblock(size, slot, material)
     
@@ -55,10 +55,8 @@ object FaceMicroClass extends MicroblockClass
     def getResistanceFactor = 1
 }
 
-class FaceMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends FaceMicroblock(shape$, material$) with CommonMicroblockClient
+trait FaceMicroblockClient extends CommonMicroblockClient
 {
-    def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
-
     override def render(pos:Vector3, pass:Int) {
         if(pass < 0)
             MicroblockRender.renderCuboid(pos, getIMaterial, pass, getBounds, 0)

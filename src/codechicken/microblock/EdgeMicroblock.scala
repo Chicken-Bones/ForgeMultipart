@@ -88,13 +88,13 @@ object EdgeMicroClass extends MicroblockClass
     
     def create(client:Boolean) = 
         if(client)
-            new EdgeMicroblockClient
+            new EdgeMicroblock with CommonMicroblockClient
         else
             new EdgeMicroblock
     
     def create(size:Int, slot:Int, material:Int, client:Boolean) = 
         if(client)
-            new EdgeMicroblockClient(size, slot, material)
+            new EdgeMicroblock(size, slot, material) with CommonMicroblockClient
         else
             new EdgeMicroblock(size, slot, material)
     
@@ -112,11 +112,6 @@ class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicrobloc
     def getBounds = EdgeMicroClass.aBounds(shape)
     
     override def getSlot = getShape+15
-}
-
-class EdgeMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends EdgeMicroblock(shape$, material$) with CommonMicroblockClient
-{
-    def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
 }
 
 object PostMicroClass
@@ -138,13 +133,13 @@ object PostMicroClass
     
     def create(client:Boolean) = 
         if(client)
-            new PostMicroblockClient
+            new PostMicroblock with PostMicroblockClient
         else
             new PostMicroblock
     
     def create(size:Int, slot:Int, material:Int, client:Boolean) = 
         if(client)
-            new PostMicroblockClient(size, slot, material)
+            new PostMicroblock(size, slot, material) with PostMicroblockClient
         else
             new PostMicroblock(size, slot, material)
     
@@ -153,12 +148,10 @@ object PostMicroClass
     def getResistanceFactor = 0.5F
 }
 
-class PostMicroblockClient(shape$:Byte = 0, material$:Int = 0) extends PostMicroblock(shape$, material$) with MicroblockClient
+trait PostMicroblockClient extends PostMicroblock with MicroblockClient
 {
     var renderBounds1:Cuboid6 = _
     var renderBounds2:Cuboid6 = _
-    
-    def this(size:Int, orient:Int, material:Int) = this((size<<4|orient).toByte, material)
     
     override def render(pos:Vector3, pass:Int)
     {
