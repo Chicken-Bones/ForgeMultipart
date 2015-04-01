@@ -54,17 +54,11 @@ object HollowMicroClass extends MicroblockClass
 
     def getName = "mcr_hllw"
 
-    def create(client: Boolean) =
-        if (client)
-            new HollowMicroblock with HollowMicroblockClient
+    def create(client:Boolean, material:Int) =
+        if(client)
+            new HollowMicroblock(material) with HollowMicroblockClient
         else
-            new HollowMicroblock
-
-    def create(size: Int, slot: Int, material: Int, client: Boolean) =
-        if (client)
-            new HollowMicroblock(size, slot, material) with HollowMicroblockClient
-        else
-            new HollowMicroblock(size, slot, material)
+            new HollowMicroblock(material)
 
     def placementProperties = HollowPlacement
 
@@ -178,10 +172,8 @@ trait HollowMicroblockClient extends HollowMicroblock with CommonMicroblockClien
     }
 }
 
-class HollowMicroblock(shape$: Byte = 0, material$: Int = 0) extends CommonMicroblock(shape$, material$) with TFacePart with TNormalOcclusion
+class HollowMicroblock(material$: Int = 0) extends CommonMicroblock(material$) with TFacePart with TNormalOcclusion
 {
-    def this(size: Int, shape: Int, material: Int) = this((size << 4 | shape).toByte, material)
-
     def microClass = HollowMicroClass
 
     def getBounds: Cuboid6 = FaceMicroClass.aBounds(shape)

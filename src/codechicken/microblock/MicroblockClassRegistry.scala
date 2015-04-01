@@ -15,6 +15,6 @@ object MicroblockClassRegistry
         
         classes(id) = mcrClass
         mcrClass.classID = id
-        MultiPartRegistry.registerParts((_, c:Boolean) => mcrClass.create(c), mcrClass.getName)
+        MultiPartRegistry.registerParts((_, c:Boolean) => mcrClass.create(c, 0), mcrClass.getName)
     }
 }

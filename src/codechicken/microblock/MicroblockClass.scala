@@ -8,9 +8,7 @@ trait MicroblockClass
     
     def getName:String
     
-    def create(client:Boolean):CommonMicroblock
-    
-    def create(size:Int, slot:Int, material:Int, client:Boolean):CommonMicroblock
+    def create(client:Boolean, material:Int):CommonMicroblock
     
     def placementProperties:PlacementProperties
     

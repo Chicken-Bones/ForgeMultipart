@@ -150,7 +150,8 @@ object ItemMicroPartRenderer extends IItemRenderer
         CCRenderState.useNormals = true
         CCRenderState.pullLightmap()
         CCRenderState.startDrawing()
-            val part = mcrClass.create(size, mcrClass.itemSlot, getMaterialID(item), true).asInstanceOf[MicroblockClient]
+            val part = mcrClass.create(true, getMaterialID(item)).asInstanceOf[MicroblockClient]
+            part.setShape(size, mcrClass.itemSlot)
             part.render(new Vector3(0.5, 0.5, 0.5).subtract(part.getBounds.center), -1)
         CCRenderState.draw()
         GL11.glPopMatrix()

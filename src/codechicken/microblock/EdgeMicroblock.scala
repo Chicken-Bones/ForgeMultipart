@@ -40,7 +40,8 @@ object EdgePlacement extends PlacementProperties
     {
         if(pmt.size%2 == 1) return null
         
-        val part = PostMicroClass.create(pmt.size, pmt.hit.sideHit>>1, pmt.material, pmt.world.isRemote)
+        val part = PostMicroClass.create(pmt.world.isRemote, pmt.material)
+        part.setShape(pmt.size, pmt.hit.sideHit>>1)
         if(pmt.doExpand)
         {
             val hpart = pmt.htile.partList(ExtendedMOP.getData[(Int, _)](pmt.hit)._1)
@@ -86,27 +87,21 @@ object EdgeMicroClass extends MicroblockClass
     
     def getName = "mcr_edge"
     
-    def create(client:Boolean) = 
+    def create(client:Boolean, material:Int) =
         if(client)
-            new EdgeMicroblock with CommonMicroblockClient
+            new EdgeMicroblock(material) with CommonMicroblockClient
         else
-            new EdgeMicroblock
-    
-    def create(size:Int, slot:Int, material:Int, client:Boolean) = 
-        if(client)
-            new EdgeMicroblock(size, slot, material) with CommonMicroblockClient
-        else
-            new EdgeMicroblock(size, slot, material)
+            new EdgeMicroblock(material)
     
     def placementProperties = EdgePlacement
 
     def getResistanceFactor = 0.5F
 }
 
-class EdgeMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$) with TEdgePart
+class EdgeMicroblock(material$:Int = 0) extends CommonMicroblock(material$) with TEdgePart
 {
-    def this(size:Int, slot:Int, material:Int) = this((size<<4|(slot-15)).toByte, material)
-    
+    override def setShape(size: Int, slot: Int) = shape = (size<<4|(slot-15)).toByte
+
     def microClass = EdgeMicroClass
     
     def getBounds = EdgeMicroClass.aBounds(shape)
@@ -131,19 +126,13 @@ object PostMicroClass
     
     def getName = "mcr_post"
     
-    def create(client:Boolean) = 
+    def create(client:Boolean, material:Int) =
         if(client)
-            new PostMicroblock with PostMicroblockClient
+            new PostMicroblock(material) with PostMicroblockClient
         else
-            new PostMicroblock
+            new PostMicroblock(material)
     
-    def create(size:Int, slot:Int, material:Int, client:Boolean) = 
-        if(client)
-            new PostMicroblock(size, slot, material) with PostMicroblockClient
-        else
-            new PostMicroblock(size, slot, material)
-    
-    def register() = MultiPartRegistry.registerParts((_, c:Boolean) => create(c), getName)
+    def register() = MultiPartRegistry.registerParts((_, c:Boolean) => create(c, 0), getName)
 
     def getResistanceFactor = 0.5F
 }
@@ -225,12 +214,10 @@ trait PostMicroblockClient extends PostMicroblock with MicroblockClient
     }
 }
 
-class PostMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TNormalOcclusion
+class PostMicroblock(material$:Int = 0) extends Microblock(material$) with JPartialOcclusion with TNormalOcclusion
 {
-    def this(size:Int, orient:Int, material:Int) = this((size<<4|orient).toByte, material)
-    
     override def getType = PostMicroClass.getName
-    
+
     def getBounds = PostMicroClass.aBounds(shape)
     
     def getOcclusionBoxes = Seq(getBounds)

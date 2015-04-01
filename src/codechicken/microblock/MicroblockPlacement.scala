@@ -159,5 +159,9 @@ class MicroblockPlacement(val player:EntityPlayer, val hit:MovingObjectPosition,
     def getHitDepth(vhit:Vector3, side:Int):Double = 
         vhit.copy.scalarProject(Rotation.axes(side)) + (side%2^1)
     
-    def create(size:Int, slot:Int, material:Int) = mcrClass.create(size, slot, material, world.isRemote)
+    def create(size:Int, slot:Int, material:Int) = {
+        val part = mcrClass.create(world.isRemote, material)
+        part.setShape(size, slot)
+        part
+    }
 }

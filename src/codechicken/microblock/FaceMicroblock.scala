@@ -38,17 +38,11 @@ object FaceMicroClass extends MicroblockClass
     
     def getName = "mcr_face"
     
-    def create(client:Boolean) = 
+    def create(client:Boolean, material:Int) =
         if(client)
-            new FaceMicroblock with FaceMicroblockClient
+            new FaceMicroblock(material) with FaceMicroblockClient
         else
-            new FaceMicroblock
-    
-    def create(size:Int, slot:Int, material:Int, client:Boolean) = 
-        if(client)
-            new FaceMicroblock(size, slot, material) with FaceMicroblockClient
-        else
-            new FaceMicroblock(size, slot, material)
+            new FaceMicroblock(material)
     
     def placementProperties = FacePlacement
 
@@ -70,10 +64,8 @@ trait FaceMicroblockClient extends CommonMicroblockClient
     }
 }
 
-class FaceMicroblock(shape$:Byte = 0, material$:Int = 0) extends CommonMicroblock(shape$, material$) with TFacePart
+class FaceMicroblock(material$:Int = 0) extends CommonMicroblock(material$) with TFacePart
 {
-    def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
-    
     def microClass = FaceMicroClass
     
     def getBounds = FaceMicroClass.aBounds(shape)

@@ -96,10 +96,10 @@ trait MicroblockClient extends Microblock with TIconHitEffects with IMicroMateri
     override def getRenderBounds = getBounds
 }
 
-abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCuboidPart
+abstract class Microblock(var material:Int = 0) extends TCuboidPart
 {
-    def this(size:Int, shape:Int, material:Int) = this((size<<4|shape).toByte, material)
-    
+    var shape:Byte = 0
+
     override def getStrength(hit:MovingObjectPosition, player:EntityPlayer) = getIMaterial match {
         case null => super.getStrength(hit, player)
         case mat => mat.getStrength(player)
@@ -110,6 +110,8 @@ abstract class Microblock(var shape:Byte = 0, var material:Int = 0) extends TCub
     def getSize = shape>>4
     
     def getShape = shape&0xF
+
+    def setShape(size:Int, slot:Int) = shape = (size<<4|shape).toByte
 
     def getMaterial = material
     
@@ -190,12 +192,12 @@ trait CommonMicroblockClient extends CommonMicroblock with MicroblockClient with
     }
 }
 
-abstract class CommonMicroblock(shape$:Byte = 0, material$:Int = 0) extends Microblock(shape$, material$) with JPartialOcclusion with TMicroOcclusion with TSlottedPart
+abstract class CommonMicroblock(material$:Int) extends Microblock(material$) with JPartialOcclusion with TMicroOcclusion with TSlottedPart
 {
     def microClass:MicroblockClass
     
     def getType = microClass.getName
-    
+
     def getSlot = getShape
     
     def getSlotMask = 1<<getSlot
