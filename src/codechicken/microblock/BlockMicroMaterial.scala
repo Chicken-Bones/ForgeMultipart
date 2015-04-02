@@ -12,6 +12,7 @@ import codechicken.lib.render.{CCRenderPipeline, ColourMultiplier, CCRenderState
 import codechicken.microblock.handler.MicroblockProxy
 import net.minecraft.entity.Entity
 import codechicken.lib.render.uv.{UVTransformation, MultiIconTransformation}
+import cpw.mods.fml.common.registry.{GameRegistry, GameData}
 
 object MaterialRenderHelper
 {
@@ -115,31 +116,23 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
  */
 object BlockMicroMaterial
 {
-    def materialKey(block:Block, meta:Int):String = materialKey(block.getUnlocalizedName, meta)
+    def oldKey(block:Block) = block.getUnlocalizedName
+    def materialKey(block:Block) = Block.blockRegistry.getNameForObject(block)
     def materialKey(name:String, meta:Int) = name+(if(meta > 0) "_"+meta else "")
+    def materialKey(block:Block, meta:Int):String = materialKey(materialKey(block), meta)
 
-    def createAndRegister(block:Block, name:String)
-    {
-        createAndRegister(block, 0, name)
-    }
-
-    def createAndRegister(block:Block, meta:Int = 0)
-    {
-        MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), materialKey(block, meta))
-    }
-
-    def createAndRegister(block:Block, meta:Seq[Int])
-    {
-        meta.foreach(m => createAndRegister(block, m))
-    }
-
-    def createAndRegister(block:Block, meta:Int, name:String)
-    {
+    def createAndRegister(block:Block, meta:Int, name:String) =
         MicroMaterialRegistry.registerMaterial(new BlockMicroMaterial(block, meta), materialKey(name, meta))
+
+    def createAndRegister(block:Block, meta:Int, name:String, oldName:String) {
+        MicroMaterialRegistry.remapName(materialKey(oldName, meta), materialKey(name, meta))
+        createAndRegister(block, meta, name)
     }
 
-    def createAndRegister(block:Block, meta:Seq[Int], name:String)
-    {
-        meta.foreach(m => createAndRegister(block, m, name))
-    }
+    def createAndRegister(block:Block, meta:Int = 0):Unit = createAndRegister(block, Seq(meta))
+    def createAndRegister(block:Block, meta:Seq[Int]):Unit = createAndRegister(block, meta, materialKey(block), oldKey(block))
+    def createAndRegister(block:Block, meta:Seq[Int], oldName:String):Unit = createAndRegister(block, 0, materialKey(block), oldName)
+
+    def createAndRegister(block:Block, meta:Seq[Int], name:String, oldName:String):Unit =
+        meta.foreach(m => createAndRegister(block, m, name, oldName))
 }

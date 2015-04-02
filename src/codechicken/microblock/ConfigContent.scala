@@ -102,15 +102,16 @@ object ConfigContent
         for(block <- Block.blockRegistry.asInstanceOf[JIterable[Block]]) {
             val metas = Seq(block.getUnlocalizedName, Block.blockRegistry.getNameForObject(block)).flatMap(nameMap.remove).flatten
             metas.foreach{m =>
-                    try {
-                        createAndRegister(block, m)
-                    }
-                    catch {
-                        case e: IllegalStateException => logger.error("Unable to register micro material: " +
-                            materialKey(block, m) + "\n\t" + e.getMessage)
-                        case e: Exception =>
-                            logger.error("Unable to register micro material: " + materialKey(block, m), e)
-                    }
+
+                try {
+                    createAndRegister(block, m)
+                }
+                catch {
+                    case e: IllegalStateException => logger.error("Unable to register micro material: " +
+                        materialKey(block, m) + "\n\t" + e.getMessage)
+                    case e: Exception =>
+                        logger.error("Unable to register micro material: " + materialKey(block, m), e)
+                }
             }
         }
 
@@ -118,31 +119,30 @@ object ConfigContent
     }
 
     def handleIMC(messages: Seq[IMCMessage]) {
-        messages.filter(_.key == "microMaterial").foreach {
-            msg =>
+        messages.filter(_.key == "microMaterial").foreach{msg =>
 
-                def error(s: String) {
-                    logger.error("Invalid microblock IMC message from " + msg.getSender + ": " + s)
-                }
+            def error(s: String) {
+                logger.error("Invalid microblock IMC message from " + msg.getSender + ": " + s)
+            }
 
-                if (msg.getMessageType != classOf[ItemStack])
-                    error("value is not an instanceof ItemStack")
+            if (msg.getMessageType != classOf[ItemStack])
+                error("value is not an instanceof ItemStack")
+            else {
+                val stack = msg.getItemStackValue
+                if (!Block.blockRegistry.containsId(Item.getIdFromItem(stack.getItem)))
+                    error("Invalid Block: " + stack.getItem)
+                else if (stack.getItemDamage < 0 || stack.getItemDamage >= 16)
+                    error("Invalid metadata: " + stack.getItemDamage)
                 else {
-                    val stack = msg.getItemStackValue
-                    if (!Block.blockRegistry.containsId(Item.getIdFromItem(stack.getItem)))
-                        error("Invalid Block: " + stack.getItem)
-                    else if (stack.getItemDamage < 0 || stack.getItemDamage >= 16)
-                        error("Invalid metadata: " + stack.getItemDamage)
-                    else {
-                        try {
-                            createAndRegister(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)
-                        }
-                        catch {
-                            case e: IllegalStateException => error("Unable to register micro material: " +
-                                materialKey(Block.getBlockFromItem(stack.getItem), stack.getItemDamage) + "\n\t" + e.getMessage)
-                        }
+                    try {
+                        createAndRegister(Block.getBlockFromItem(stack.getItem), stack.getItemDamage)
+                    }
+                    catch {
+                        case e: IllegalStateException => error("Unable to register micro material: " +
+                            materialKey(Block.getBlockFromItem(stack.getItem), stack.getItemDamage) + "\n\t" + e.getMessage)
                     }
                 }
+            }
         }
     }
 }

@@ -118,6 +118,8 @@ object MicroMaterialRegistry
     private val highlightRenderers = ListBuffer[IMicroHighlightRenderer]()
     private var maxCuttingStrength: Int = _
 
+    private val remap = HashMap[String, String]()
+
     /**
      * Register a micro material with unique identifier name
      */
@@ -156,6 +158,8 @@ object MicroMaterialRegistry
     def registerHighlightRenderer(handler: IMicroHighlightRenderer) {
         highlightRenderers += handler
     }
+
+    def remapName(oldName:String, newName:String):Unit = remap.put(oldName, newName)
 
     private[microblock] def setupIDMap() {
         idMap = typeMap.toList.sortBy(_._1).toArray
@@ -212,14 +216,14 @@ object MicroMaterialRegistry
 
     def materialName(id: Int) = idMap(id)._1
 
-    def materialID(name: String) = nameMap.get(name) match {
+    def materialID(name: String) = nameMap.get(remap.getOrElse(name, name)) match {
         case Some(v) => v
         case None =>
             logger.error("Missing mapping for part with ID: " + name)
             0
     }
 
-    def getMaterial(name: String) = typeMap.getOrElse(name, null)
+    def getMaterial(name: String) = typeMap.getOrElse(remap.getOrElse(name, name), null)
 
     def getMaterial(id: Int) = idMap(id)._2
 

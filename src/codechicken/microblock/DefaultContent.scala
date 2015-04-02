@@ -51,7 +51,10 @@ object DefaultContent
         createAndRegister(coal_block)
         createAndRegister(packed_ice)
         createAndRegister(stained_glass, 0 to 15)
-        registerMaterial(new GrassMicroMaterial, grass.getUnlocalizedName)
-        registerMaterial(new TopMicroMaterial(mycelium), mycelium.getUnlocalizedName)
+
+        MicroMaterialRegistry.remapName(oldKey(grass), materialKey(grass))
+        registerMaterial(new GrassMicroMaterial, materialKey(grass))
+        MicroMaterialRegistry.remapName(oldKey(mycelium), materialKey(mycelium))
+        registerMaterial(new TopMicroMaterial(mycelium), materialKey(mycelium))
     }
 }
