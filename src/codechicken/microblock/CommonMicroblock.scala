@@ -111,7 +111,7 @@ abstract class Microblock(var material:Int = 0) extends TCuboidPart
     
     def getShape = shape&0xF
 
-    def setShape(size:Int, slot:Int) = shape = (size<<4|shape).toByte
+    def setShape(size:Int, slot:Int) = shape = (size<<4|slot).toByte
 
     def getMaterial = material
     
