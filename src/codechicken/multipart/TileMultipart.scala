@@ -610,7 +610,7 @@ object TileMultipart
         val parts = new ListBuffer[TMultiPart]()
         for(i <- 0 until nparts)
         {
-            val part:TMultiPart = MultiPartRegistry.readPart(packet)
+            val part = MultiPartRegistry.readPart(packet)
             part.readDesc(packet)
             parts+=part
         }
@@ -660,7 +660,7 @@ object TileMultipart
         {
             val partTag = partList.getCompoundTagAt(i)
             val partID = partTag.getString("id")
-            val part = MultiPartRegistry.createPart(partID, false)
+            val part = MultiPartRegistry.loadPart(partID, partTag)
             if(part != null)
             {
                 part.load(partTag)

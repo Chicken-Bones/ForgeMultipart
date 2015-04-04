@@ -13,6 +13,7 @@ import net.minecraft.block.Block
 import java.lang.Iterable
 import com.google.common.collect.ArrayListMultimap
 import scala.collection.JavaConversions._
+import net.minecraft.nbt.NBTTagCompound
 
 /**
  * This class handles the registration and internal ID mapping of all multipart classes.
@@ -23,6 +24,7 @@ object MultiPartRegistry
      * Interface to be registered for constructing parts.
      * Every instance of every multipart is constructed from an implementor of this.
      */
+    @Deprecated
     trait IPartFactory
     {
         /**
@@ -30,6 +32,24 @@ object MultiPartRegistry
          * @param client If the part instance is for the client or the server
          */
         def createPart(name: String, client: Boolean): TMultiPart
+    }
+
+    /**
+     * Will replace IPartFactory in 1.8
+     */
+    trait IPartFactory2
+    {
+        /**
+         * Create a new server instance of the part with the specified type name identifier
+         * @param nbt The tag compound that will be passed to part.load, can be used to change the class of part returned
+         */
+        def createPart(name: String, nbt: NBTTagCompound): TMultiPart
+
+        /**
+         * Create a new client instance of the part with the specified type name identifier
+         * @param packet The packet that will be passed to part.readDesc, can be used to change the class of part returned
+         */
+        def createPart(name: String, packet: MCDataInput): TMultiPart
     }
 
     /**
@@ -48,9 +68,9 @@ object MultiPartRegistry
         def convert(world: World, pos: BlockCoord): TMultiPart
     }
 
-    private val typeMap = MMap[String, (Boolean) => TMultiPart]()
+    private val typeMap = MMap[String, IPartFactory2]()
     private val nameMap = MMap[String, Int]()
-    private var idMap: Array[(String, (Boolean) => TMultiPart)] = _
+    private var idMap: Array[(String, IPartFactory2)] = _
     private val idWriter = new IDWriter
     private val converters = ArrayListMultimap.create[Block, IPartConverter]()
     private val containers = MMap[String, ModContainer]()
@@ -62,15 +82,36 @@ object MultiPartRegistry
 
     /**
      * Register a part factory with an array of types it is capable of instantiating. Must be called before postInit
+     * @deprecated Use IPartFactory2
      */
+    @Deprecated
     def registerParts(partFactory: IPartFactory, types: Array[String]) {
         registerParts(partFactory.createPart _, types: _*)
     }
 
     /**
      * Scala function version of registerParts
+     * @deprecated Use IPartFactory2
      */
+    @Deprecated
     def registerParts(partFactory: (String, Boolean) => TMultiPart, types: String*) {
+        registerParts(new IPartFactory2 {
+            override def createPart(name: String, packet: MCDataInput) = partFactory(name, true)
+            override def createPart(name: String, nbt: NBTTagCompound) = partFactory(name, false)
+        }, types:_*)
+    }
+
+    /**
+     * Register a part factory with an array of types it is capable of instantiating. Must be called before postInit
+     */
+    def registerParts(partFactory: IPartFactory2, types: Array[String]) {
+        registerParts(partFactory, types:_*)
+    }
+
+    /**
+     * Scala va-args version of registerParts
+     */
+    def registerParts(partFactory: IPartFactory2, types: String*) {
         if (loaded)
             throw new IllegalStateException("Parts must be registered in the init methods.")
         state = 1
@@ -85,7 +126,7 @@ object MultiPartRegistry
 
             logger.debug("Registered multipart: "+s)
 
-            typeMap.put(s, (c: Boolean) => partFactory(s, c))
+            typeMap.put(s, partFactory)
             containers.put(s, container)
         }
     }
@@ -153,19 +194,33 @@ object MultiPartRegistry
     /**
      * Uses instantiators to creat a new part from the id read from data
      */
-    def readPart(data: MCDataInput) = idMap(idWriter.read(data))._2(true)
+    def readPart(data: MCDataInput) = {
+        val e = idMap(idWriter.read(data))
+        e._2.createPart(e._1, data)
+    }
+
+    /**
+     * Uses instantiators to creat a new part from the a tag compound
+     */
+    def loadPart(name: String, nbt:NBTTagCompound) = typeMap.get(name) match {
+        case Some(factory) => factory.createPart(name, nbt)
+        case None =>
+            logger.error("Missing mapping for part with ID: " + name)
+            null
+    }
 
     /**
      * Uses instantiators to create a new part with specified identifier on side
+     * @deprecated currently calls the nbt/packet version with a null parameter, use readPart or loadPart instead
      */
-    def createPart(name: String, client: Boolean): TMultiPart = {
-        val part = typeMap.get(name)
-        if (part.isDefined)
-            return part.get(client)
-        else {
+    @Deprecated
+    def createPart(name: String, client: Boolean) = typeMap.get(name) match {
+        case Some(factory) =>
+            if(client) factory.createPart(name, null: MCDataInput)
+            else factory.createPart(name, null: NBTTagCompound)
+        case None =>
             logger.error("Missing mapping for part with ID: " + name)
-            return null
-        }
+            null
     }
 
     /**
