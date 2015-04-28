@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import java.lang.Iterable
 import codechicken.lib.vec.Translation
 import codechicken.lib.render.uv.IconTransformation
+import cpw.mods.fml.relauncher.{Side, SideOnly}
 
 /**
  * Java class implementation
@@ -27,7 +28,8 @@ trait TCuboidPart extends TMultiPart
     override def getSubParts:Iterable[IndexedCuboid6] = Seq(new IndexedCuboid6(0, getBounds))
     
     override def getCollisionBoxes:Iterable[Cuboid6] = Seq(getBounds)
-    
+
+    @SideOnly(Side.CLIENT)
     override def drawBreaking(renderBlocks:RenderBlocks)
     {
         CCRenderState.reset()
