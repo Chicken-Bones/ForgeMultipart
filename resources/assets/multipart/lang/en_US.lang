@@ -33,3 +33,5 @@ mcr_cnr.2.name=%s Corner
 mcr_cnr.2.subset=Corner
 mcr_cnr.4.name=%s Notch
 mcr_cnr.4.subset=Notch
+
+nei.subsets.Microblocks=Microblocks
