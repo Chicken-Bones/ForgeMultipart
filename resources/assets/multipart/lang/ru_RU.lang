@@ -33,3 +33,5 @@ mcr_cnr.2.name=Угол из %s
 mcr_cnr.2.subset=Угол
 mcr_cnr.4.name=Большой угол из %s
 mcr_cnr.4.subset=Большой угол
+
+nei.subsets.Microblocks=Микроблоки
