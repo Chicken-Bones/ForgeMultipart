@@ -1,5 +1,5 @@
-microblock.missing=I seguenti microblocks non sono installati su questo client: %s
-multipart.missing=I seguenti multiparts non sono installati su questo client: %s
+microblock.missing=I seguenti microblock non sono installati su questo client: %s
+multipart.missing=I seguenti multipart non sono installati su questo client: %s
 
 item.microblock:sawStone.name=Seghetto di pietra
 item.microblock:sawIron.name=Seghetto di ferro
@@ -35,3 +35,5 @@ mcr_cnr.4.name=Angolo di %s
 mcr_cnr.4.subset=Angolo
 
 key.control=[Forge Multipart] Disposizione del blocco
+
+nei.subsets.Microblocks=Microblocchi
