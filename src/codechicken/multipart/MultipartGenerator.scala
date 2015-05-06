@@ -1,14 +1,15 @@
 package codechicken.multipart
 
 import net.minecraft.tileentity.TileEntity
-import scala.collection.immutable.Map
 import net.minecraft.world.World
 import codechicken.lib.vec.BlockCoord
 import codechicken.multipart.handler.MultipartProxy
 import codechicken.lib.packet.PacketCustom
-import codechicken.multipart.asm.IMultipartFactory
-import codechicken.multipart.asm.ASMMixinFactory
 import net.minecraft.network.play.server.S23PacketBlockChange
+import java.util.BitSet
+import scala.collection.mutable.Map
+import codechicken.multipart.asm.MultipartMixinFactory
+import codechicken.multipart.asm.ASMImplicits._
 
 /**
  * This class manages the dynamic construction and allocation of container TileMultipart instances.
@@ -22,23 +23,21 @@ import net.minecraft.network.play.server.S23PacketBlockChange
  */
 object MultipartGenerator
 {
-    private var tileTraitMap:Map[Class[_], Set[String]] = Map()
-    private var interfaceTraitMap_c:Map[String, String] = Map()
-    private var interfaceTraitMap_s:Map[String, String] = Map()
-    private var partTraitMap_c:Map[Class[_], Seq[String]] = Map()
-    private var partTraitMap_s:Map[Class[_], Seq[String]] = Map()
+    private val tileTraitMap = Map[Class[_], BitSet]()
+    private val interfaceTraitMap_c = Map[String, String]()
+    private val interfaceTraitMap_s = Map[String, String]()
+    private val partTraitMap_c = Map[Class[_], BitSet]()
+    private val partTraitMap_s = Map[Class[_], BitSet]()
+    private val clientTraitId = MultipartMixinFactory.registerTrait(classOf[TileMultipartClient])
     
-    var factory:IMultipartFactory = ASMMixinFactory
-    
-    def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
-    
-    def interfaceTraitMap(client:Boolean) = if(client) partTraitMap_c else interfaceTraitMap_s
-    
-    def traitsForPart(part:TMultiPart, client:Boolean):Seq[String] = 
-    {
-        var ret = partTraitMap(client).getOrElse(part.getClass, null)
-        if(ret == null)
-        {
+    //scratch bitset
+    private val bitset = new BitSet()
+
+    private def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
+    private def interfaceTraitMap(client:Boolean) = if(client) interfaceTraitMap_c else interfaceTraitMap_s
+
+    private def traitsForPart(part:TMultiPart, client:Boolean) =
+        partTraitMap(client).getOrElseUpdate(part.getClass, {
             def heirachy(clazz:Class[_]):Seq[Class[_]] =
             {
                 var superClasses:Seq[Class[_]] = clazz.getInterfaces.flatMap(c => heirachy(c)):+clazz
@@ -46,17 +45,23 @@ object MultipartGenerator
                     superClasses = superClasses++heirachy(clazz.getSuperclass)
                 return superClasses
             }
-            
-            val interfaceTraitMap = if(client) interfaceTraitMap_c else interfaceTraitMap_s
-            ret = heirachy(part.getClass).flatMap(c => interfaceTraitMap.get(c.getName)).distinct
-            if(client)
-                partTraitMap_c = partTraitMap_c+(part.getClass -> ret)
-            else
-                partTraitMap_s = partTraitMap_s+(part.getClass -> ret)
-        }
-        return ret
+
+            val map = interfaceTraitMap(client)
+            val traits = heirachy(part.getClass).flatMap(c => map.get(c.nodeName)).distinct
+
+            val bitset = new BitSet
+            traits.map(MultipartMixinFactory.getId).foreach(bitset.set)
+            bitset
+        })
+
+    private def setTraits(part:TMultiPart, client:Boolean):Unit = setTraits(Seq(part), client)
+
+    private def setTraits(parts:Iterable[TMultiPart], client:Boolean) {
+        bitset.clear()
+        parts.foreach(p => bitset.or(traitsForPart(p, client)))
+        if(client) bitset.set(clientTraitId)
     }
-    
+
     /**
      * Check if part adds any new interfaces to tile, if so, replace tile with a new copy and call tile.addPart(part)
      * returns true if tile was replaced
@@ -64,12 +69,11 @@ object MultipartGenerator
     private[multipart] def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
         val (tile, converted) = TileMultipart.getOrConvertTile2(world, pos)
-        var partTraits = traitsForPart(part, world.isRemote)
+        setTraits(part, world.isRemote)
+
         var ntile = tile
-        if(ntile != null)
-        {
-            if(converted)//perform client conversion
-            {
+        if(ntile != null) {
+            if(converted) {//perform client conversion
                 ntile.partList(0).invalidateConvertedTile()
                 world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block, 0, 0)
                 silentAddTile(world, pos, ntile)
@@ -77,21 +81,20 @@ object MultipartGenerator
                 ntile.partList(0).onConverted()
                 ntile.writeAddPart(ntile.partList(0))
             }
-            
+
             val tileTraits = tileTraitMap(tile.getClass)
-            partTraits = partTraits.filter(!tileTraits(_))
-            if(!partTraits.isEmpty)
-            {
-                ntile = factory.generateTile(partTraits++tileTraits, world.isRemote)
+            bitset.andNot(tileTraits)
+            if(!bitset.isEmpty) {
+                bitset.or(tileTraits)
+                ntile = MultipartMixinFactory.construct(bitset)
                 tile.setValid(false)
                 silentAddTile(world, pos, ntile)
                 ntile.from(tile)
             }
         }
-        else
-        {
+        else {
             world.setBlock(pos.x, pos.y, pos.z, MultipartProxy.block, 0, 0)
-            ntile = factory.generateTile(partTraits, world.isRemote)
+            ntile = MultipartMixinFactory.construct(bitset)
             silentAddTile(world, pos, ntile)
         }
         ntile.addPart_impl(part)
@@ -101,8 +104,7 @@ object MultipartGenerator
     /**
      * Adds a tile entity to the world without notifying neighbor blocks or adding it to the tick list
      */
-    def silentAddTile(world:World, pos:BlockCoord, tile:TileEntity)
-    {
+    def silentAddTile(world:World, pos:BlockCoord, tile:TileEntity) {
     	val chunk = world.getChunkFromBlockCoords(pos.x, pos.z)
     	if(chunk != null)
     		chunk.func_150812_a(pos.x & 15, pos.y, pos.z & 15, tile)
@@ -111,37 +113,26 @@ object MultipartGenerator
     /**
      * Check if tile satisfies all the interfaces required by parts. If not, return a new generated copy of tile
      */
-    private[multipart] def generateCompositeTile(tile:TileEntity, parts:Iterable[TMultiPart], client:Boolean):TileMultipart =
-    {
-        val partTraits = parts.toSeq.flatMap(traitsForPart(_, client)).distinct
-        if(tile != null && tile.isInstanceOf[TileMultipart])
-        {
-            val tileTraits = tileTraitMap(tile.getClass)
-            if(partTraits.forall(tileTraits(_)) && partTraits.size == tileTraits.size)//equal contents
-                return tile.asInstanceOf[TileMultipart]
-            
-        }
-        return factory.generateTile(partTraits, client)
+    private[multipart] def generateCompositeTile(tile:TileEntity, parts:Iterable[TMultiPart], client:Boolean) = {
+        setTraits(parts, client)
+        if(tile != null && tile.isInstanceOf[TileMultipart] && bitset == tileTraitMap(tile.getClass))
+            tile.asInstanceOf[TileMultipart]
+        else
+            MultipartMixinFactory.construct(bitset)
     }
     
     /**
      * Check if there are any redundant interfaces on tile, if so, replace tile with new copy
      */
-    private[multipart] def partRemoved(tile:TileMultipart, part:TMultiPart):TileMultipart = 
-    {
-        val client = tile.getWorldObj.isRemote
-        val partTraits = tile.partList.flatMap(traitsForPart(_, client))
-        val testSet = partTraits.toSet
-        if(!traitsForPart(part, client).forall(testSet(_)))
-        {
-            val ntile = factory.generateTile(testSet.toSeq, client)
+    private[multipart] def partRemoved(tile:TileMultipart) = {
+        val ntile = generateCompositeTile(tile, tile.partList, tile.getWorldObj.isRemote)
+        if(ntile != tile) {
             tile.setValid(false)
             silentAddTile(tile.getWorldObj, new BlockCoord(tile), ntile)
             ntile.from(tile)
             ntile.notifyTileChange()
-            return ntile
         }
-        return tile
+        ntile
     }
     
     /**
@@ -151,31 +142,24 @@ object MultipartGenerator
     
     /**
      * register traits to be applied to tiles containing parts implementing s_interface
-     * s_trait for server worlds (may be null)
      * c_trait for client worlds (may be null)
+     * s_trait for server worlds (may be null)
      */
-    def registerTrait(s_interface:String, c_trait:String, s_trait:String)
-    {
-        if(c_trait != null)
-        {
-            if(interfaceTraitMap_c.contains(s_interface))
+    def registerTrait(s_interface$:String, c_trait$:String, s_trait$:String) {
+        val s_interface = nodeName(s_interface$)
+        val c_trait = nodeName(c_trait$)
+        val s_trait = nodeName(s_trait$)
+
+        def registerSide(map:Map[String, String], traitName:String) = if(traitName != null) {
+            if(map.contains(s_interface))
                 logger.error("Trait already registered for "+s_interface)
-            else
-            {
-                interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->c_trait)
-                factory.registerTrait(s_interface, c_trait, true)
+            else {
+                map.put(s_interface, traitName)
+                MultipartMixinFactory.registerTrait(traitName)
             }
         }
-        if(s_trait != null)
-        {
-            if(interfaceTraitMap_s.contains(s_interface))
-                logger.error("Trait already registered for "+s_interface)
-            else
-            {
-                interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->s_trait)
-                factory.registerTrait(s_interface, s_trait, false)
-            }
-        }
+        registerSide(interfaceTraitMap_c, c_trait)
+        registerSide(interfaceTraitMap_s, s_trait)
     }
     
     def registerPassThroughInterface(s_interface:String):Unit = registerPassThroughInterface(s_interface, true, true)
@@ -189,31 +173,16 @@ object MultipartGenerator
      *  
      *  This allows compatibility with APIs that expect interfaces on the tile entity.
      */
-    def registerPassThroughInterface(s_interface:String, client:Boolean, server:Boolean)
-    {
-        val tType = factory.generatePassThroughTrait(s_interface)
+    def registerPassThroughInterface(s_interface:String, client:Boolean, server:Boolean) {
+        val tType = MultipartMixinFactory.generatePassThroughTrait(s_interface)
         if(tType == null)
             return
-        
-        if(client)
-        {
-            if(interfaceTraitMap_c.contains(s_interface))
-                logger.error("Trait already registered for "+s_interface)
-            else
-                interfaceTraitMap_c = interfaceTraitMap_c+(s_interface->tType)
-        }
-        if(server)
-        {
-            if(interfaceTraitMap_s.contains(s_interface))
-                logger.error("Trait already registered for "+s_interface)
-            else
-                interfaceTraitMap_s = interfaceTraitMap_s+(s_interface->tType)
-        }
+
+        registerTrait(s_interface, if(client) tType else null, if(server) tType else null)
     }
     
-    private[multipart] def registerTileClass(clazz:Class[_ <: TileEntity], traits:Set[String])
-    {
-        tileTraitMap=tileTraitMap+(clazz->traits)
+    private[multipart] def registerTileClass(clazz:Class[_ <: TileMultipart], traits:BitSet) {
+        tileTraitMap.put(clazz, traits.copy)
         MultipartProxy.onTileClassBuilt(clazz)
     }
 }

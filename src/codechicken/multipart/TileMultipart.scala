@@ -329,7 +329,7 @@ class TileMultipart extends TileEntity with IChunkLoadTile
         
         if(!isInvalid)
         {
-            val tile = MultipartGenerator.partRemoved(this, part)
+            val tile = MultipartGenerator.partRemoved(this)
             tile.notifyPartChange(part)
             tile.markDirty()
             tile.markRender()
@@ -486,24 +486,22 @@ class TileMultipart extends TileEntity with IChunkLoadTile
     def canConnectRedstone(side:Int) = false
 }
 
-class TileMultipartClient extends TileMultipart
+trait TileMultipartClient extends TileMultipart
 {
-    def renderStatic(pos:Vector3, pass:Int) =
+    def renderStatic(pos: Vector3, pass: Int) =
         partList.foldLeft(false)((r, part) => part.renderStatic(pos, pass) || r)
 
-    def renderDynamic(pos:Vector3, frame:Float, pass:Int)
-    {
-        partList.foreach(part => part.renderDynamic(pos, frame, pass:Int))
+    def renderDynamic(pos: Vector3, frame: Float, pass: Int) {
+        partList.foreach(part => part.renderDynamic(pos, frame, pass: Int))
     }
-    
-    def randomDisplayTick(random:Random){}
-    
-    override def shouldRenderInPass(pass:Int) = 
-    {
+
+    def randomDisplayTick(random: Random) {}
+
+    override def shouldRenderInPass(pass: Int) = {
         MultipartRenderer.pass = pass
         true
     }
-    
+
     override def getRenderBoundingBox = {
         val c = Cuboid6.full.copy
         partList.foreach(part => c.enclose(part.getRenderBounds))

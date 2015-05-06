@@ -145,7 +145,7 @@ object MicroMaterialRegistry
             throw new IllegalStateException("You must register your materials in the init methods.")
 
         if (typeMap.remove(name).isEmpty)
-            logger.error("Material with id " + name + " is was not registered.")
+            logger.error("Material with id " + name + " was not registered.")
 
         logger.debug("Replaced micro material: " + name)
 
