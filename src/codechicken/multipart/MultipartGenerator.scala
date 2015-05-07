@@ -8,7 +8,7 @@ import codechicken.lib.packet.PacketCustom
 import net.minecraft.network.play.server.S23PacketBlockChange
 import java.util.BitSet
 import scala.collection.mutable.Map
-import codechicken.multipart.asm.MultipartMixinFactory
+import codechicken.multipart.asm.{ScratchBitSet, MultipartMixinFactory}
 import codechicken.multipart.asm.ASMImplicits._
 
 /**
@@ -21,7 +21,7 @@ import codechicken.multipart.asm.ASMImplicits._
  * 
  * There are several mixin traits that come with the API included in the scalatraits package. TPartialOcclusionTile is defined as class instead of trait to give an example for Java programmers.
  */
-object MultipartGenerator
+object MultipartGenerator extends ScratchBitSet
 {
     private val tileTraitMap = Map[Class[_], BitSet]()
     private val interfaceTraitMap_c = Map[String, String]()
@@ -30,9 +30,6 @@ object MultipartGenerator
     private val partTraitMap_s = Map[Class[_], BitSet]()
     private val clientTraitId = MultipartMixinFactory.registerTrait(classOf[TileMultipartClient])
     
-    //scratch bitset
-    private val bitset = new BitSet
-
     private def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
     private def interfaceTraitMap(client:Boolean) = if(client) interfaceTraitMap_c else interfaceTraitMap_s
 
@@ -54,12 +51,13 @@ object MultipartGenerator
             bitset
         })
 
-    private def setTraits(part:TMultiPart, client:Boolean):Unit = setTraits(Seq(part), client)
+    private def setTraits(part:TMultiPart, client:Boolean):BitSet = setTraits(Seq(part), client)
 
-    private def setTraits(parts:Iterable[TMultiPart], client:Boolean) {
-        bitset.clear()
+    private def setTraits(parts:Iterable[TMultiPart], client:Boolean) = {
+        val bitset = freshBitSet
         parts.foreach(p => bitset.or(traitsForPart(p, client)))
         if(client) bitset.set(clientTraitId)
+        bitset
     }
 
     /**
@@ -69,7 +67,7 @@ object MultipartGenerator
     private[multipart] def addPart(world:World, pos:BlockCoord, part:TMultiPart):TileMultipart =
     {
         val (tile, converted) = TileMultipart.getOrConvertTile2(world, pos)
-        setTraits(part, world.isRemote)
+        val bitset = setTraits(part, world.isRemote)
 
         var ntile = tile
         if(ntile != null) {
@@ -114,7 +112,7 @@ object MultipartGenerator
      * Check if tile satisfies all the interfaces required by parts. If not, return a new generated copy of tile
      */
     private[multipart] def generateCompositeTile(tile:TileEntity, parts:Iterable[TMultiPart], client:Boolean) = {
-        setTraits(parts, client)
+        val bitset = setTraits(parts, client)
         if(tile != null && tile.isInstanceOf[TileMultipart] && bitset == tileTraitMap(tile.getClass))
             tile.asInstanceOf[TileMultipart]
         else

@@ -37,13 +37,15 @@ class ASMMixinFactory[T](val baseType:Class[T], private val paramTypes:Class[_]*
     protected def onCompiled(clazz:Class[_ <: T], traitSet:BitSet){}
     protected def autoCompleteJavaTrait(cnode:ClassNode){}
 
-    def construct(traitSet:BitSet, args:Object*) = (classMap.get(traitSet) match {
-        case Some(c) => c
-        case None =>
-            val c = compile(traitSet)
-            classMap.put(traitSet.copy, c)
-            c
-    }).newInstance(args:_*)
+    def construct(traitSet:BitSet, args:Object*) = synchronized {
+        (classMap.get(traitSet) match {
+            case Some(c) => c
+            case None =>
+                val c = compile(traitSet)
+                classMap.put(traitSet.copy, c)
+                c
+        }).newInstance(args: _*)
+    }
 
     def getId(s_trait:String) = traitMap(s_trait)
 
