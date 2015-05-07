@@ -49,9 +49,6 @@ object DebugPrinter
 
 object ASMMixinCompiler
 {
-
-    import StackAnalyser.width
-
     val cl = getClass.getClassLoader.asInstanceOf[LaunchClassLoader]
     val m_defineClass = classOf[ClassLoader].getDeclaredMethod("defineClass", classOf[Array[Byte]], Integer.TYPE, Integer.TYPE)
     val m_runTransformers = classOf[LaunchClassLoader].getDeclaredMethod("runTransformers", classOf[String], classOf[String], classOf[Array[Byte]])
@@ -79,7 +76,7 @@ object ASMMixinCompiler
 
     def getBytes(name: String): Array[Byte] = {
         val jName = name.replace('/', '.')
-        if (jName.equals("java.lang.Object"))
+        if (jName == "java.lang.Object")
             return null
 
         def useTransformers = f_transformerExceptions.get(cl).asInstanceOf[JSet[String]]
@@ -108,13 +105,6 @@ object ASMMixinCompiler
         }
     }
 
-    def isScala(cnode: ClassNode) = ScalaSigReader.ann(cnode).isDefined
-
-    def isTrait(cnode: ClassNode) = {
-        val csym: ClassSymbol = ScalaSigReader.read(ScalaSigReader.ann(cnode).get).evalT(0)
-        csym.isTrait && !csym.isInterface
-    }
-
     def getMixinInfo(name: String) = mixinMap.get(name)
 
     case class FieldMixin(name: String, desc: String, access: Int)
@@ -137,6 +127,7 @@ object ASMMixinCompiler
         def owner: ClassInfo
         def name: String
         def desc: String
+        def exceptions: Array[String]
         def isPrivate: Boolean
         def isAbstract: Boolean
 
@@ -147,15 +138,19 @@ object ASMMixinCompiler
     {
         def name: String
         def superClass: Option[ClassInfo]
-        def interfaces: Seq[ClassInfo]
-        def methods: Seq[MethodInfo]
+        def interfaces: Iterable[ClassInfo]
+        def methods: Iterable[MethodInfo]
 
-        override def toString = getClass.getSimpleName+"("+name+")"
+        override def toString = getClass.getName.replaceAll(".+[\\$\\.]", "")+"("+name+")"
 
-        def getMethod(name:String, desc:String) = methods.find(m => m.name == name && m.desc == desc)
-        def findMethod(name:String, desc:String, f:(MethodInfo)=>Boolean):Option[MethodInfo] =
-            getMethod(name, desc).filter(f) orElse (superClass ++ interfaces).view.flatMap(_.findMethod(name, desc, f)).headOption
-        def findPublicImpl(name:String, desc:String) = findMethod(name, desc, m => !m.isAbstract && !m.isPrivate)
+        def parentMethods = (superClass ++ interfaces).view.flatMap(_.allMethods)
+        def allMethods:Iterable[MethodInfo] = methods ++ parentMethods
+        def findPublicImpl(name:String, desc:String) = allMethods.find(m => m.name == name && m.desc == desc && !m.isAbstract && !m.isPrivate)
+
+        def isScala = false
+        def isTrait = false
+        def isObject = false
+        def moduleName = name
     }
 
     private val infoCache = MMap[String, ClassInfo]()
@@ -174,6 +169,7 @@ object ASMMixinCompiler
                 def owner = ReflectionClassInfo.this
                 def name = method.getName
                 def desc = getType(method).getDescriptor
+                def exceptions = method.getExceptionTypes.map(_.nodeName)
                 def isPrivate = Modifier.isPrivate(method.getModifiers)
                 def isAbstract = Modifier.isAbstract(method.getModifiers)
             }
@@ -184,13 +180,14 @@ object ASMMixinCompiler
             def methods = clazz.getMethods.map(ReflectionMethodInfo(_))
         }
 
-        class ClassNodeInfo(cnode: ClassNode) extends ClassInfo
+        class ClassNodeInfo(val cnode: ClassNode) extends ClassInfo
         {
             case class MethodNodeInfoSource(mnode: MethodNode) extends MethodInfo
             {
                 def owner = ClassNodeInfo.this
                 def name = mnode.name
                 def desc = mnode.desc
+                def exceptions = Array(mnode.exceptions:_*)
                 def isPrivate = (mnode.access & ACC_PRIVATE) != 0
                 def isAbstract = (mnode.access & ACC_ABSTRACT) != 0
             }
@@ -201,13 +198,16 @@ object ASMMixinCompiler
             def methods = cnode.methods.map(MethodNodeInfoSource)
         }
 
-        class ScalaClassInfo(cnode: ClassNode) extends ClassNodeInfo(cnode)
+        class ScalaClassInfo(cnode$: ClassNode) extends ClassNodeInfo(cnode$)
         {
             val sig = ScalaSigReader.read(ScalaSigReader.ann(cnode).get)
             val csym = sig.evalT(0): ClassSymbol
 
             override def superClass = Some(csym.jParent(sig))
             override def interfaces = csym.jInterfaces(sig).map(getClassInfo)
+            override def isScala = true
+
+            override def isTrait = csym.isTrait
         }
 
         private[ASMMixinCompiler] def obtainInfo(name: String): ClassInfo = name match {
@@ -217,11 +217,13 @@ object ASMMixinCompiler
                     case null => null
                     case c => new ReflectionClassInfo(c)
                 }
-                case v if isScala(v) => new ScalaClassInfo(v)
+                case v if ScalaSigReader.ann(v).isDefined => new ScalaClassInfo(v)
                 case v => new ClassNodeInfo(v)
             }
         }
     }
+
+    import StackAnalyser.width
 
     def finishBridgeCall(mv: MethodVisitor, mvdesc: String, opcode: Int, owner: String, name: String, desc: String) {
         val args = getArgumentTypes(mvdesc)
@@ -249,20 +251,22 @@ object ASMMixinCompiler
         val startTime = System.currentTimeMillis
 
         val baseTraits = traits.map(mixinMap)
-        val traitInfos = baseTraits.flatMap(_.linearise).distinct
-        val parentInfo = getClassInfo(superClass)
+        val mixinInfos = baseTraits.flatMap(_.linearise).distinct
+        val baseInfo = getClassInfo(superClass)
+        val traitInfos = mixinInfos.map(i => getClassInfo(i.name))
 
         val cnode = new ClassNode()
         //implements list
         cnode.visit(V1_6, ACC_PUBLIC, name, null, superClass, baseTraits.map(_.name).toArray[String])
 
-        val minit = cnode.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null)
-        minit.visitVarInsn(ALOAD, 0)
-        minit.visitMethodInsn(INVOKESPECIAL, cnode.superName, "<init>", "()V", false)
+        val cinit = baseInfo.methods.find(_.name == "<init>").get
+        val minit = cnode.visitMethod(ACC_PUBLIC, "<init>", cinit.desc, null, null).asInstanceOf[MethodNode]
+        writeBridge(minit, cinit.desc, INVOKESPECIAL, superClass, "<init>", cinit.desc)
+        minit.instructions.remove(minit.instructions.getLast)//remove the RETURN from writeBridge
 
         val prevInfos = MList[MixinInfo]()
 
-        traitInfos.foreach { t =>
+        mixinInfos.foreach { t =>
             minit.visitVarInsn(ALOAD, 0)
             minit.visitMethodInsn(INVOKESTATIC, t.tname, "$init$", "(L" + t.name + ";)V", false)
 
@@ -288,10 +292,10 @@ object ASMMixinCompiler
                 val (name, desc) = seperateDesc(s)
                 val mv = cnode.visitMethod(ACC_PUBLIC, t.name.replace('/', '$') + "$$super$" + name, desc, null, null).asInstanceOf[MethodNode]
 
-                prevInfos.reverse.find(t => t.supers.contains(s)) match {
+                prevInfos.reverse.find(_.methods.exists(m => m.name == name && m.desc == desc)) match {
                     //each super goes to the one before
                     case Some(st) => writeStaticBridge(mv, name, st)
-                    case None => writeBridge(mv, desc, INVOKESPECIAL, parentInfo.findPublicImpl(name, desc).get.owner.name, name, desc)
+                    case None => writeBridge(mv, desc, INVOKESPECIAL, baseInfo.findPublicImpl(name, desc).get.owner.name, name, desc)
                 }
             }
 
@@ -299,10 +303,10 @@ object ASMMixinCompiler
         }
 
         val methodSigs = MSet[String]()
-        traitInfos.reverse.foreach { t => //last trait gets first pick on methods
+        mixinInfos.reverse.foreach { t => //last trait gets first pick on methods
             t.methods.foreach { m =>
                 if (!methodSigs(m.name + m.desc)) {
-                    val mv = cnode.visitMethod(ACC_PUBLIC, m.name, m.desc, null, Array(m.exceptions: _*)).asInstanceOf[MethodNode]
+                    val mv = cnode.visitMethod(ACC_PUBLIC, m.name, m.desc, null, Array(m.exceptions:_*)).asInstanceOf[MethodNode]
                     writeStaticBridge(mv, m.name, t)
                     methodSigs += m.name + m.desc
                 }
@@ -310,11 +314,27 @@ object ASMMixinCompiler
         }
 
         minit.visitInsn(RETURN)
-        minit.visitMaxs(1, 1)
 
-        val c = define(cnode.name, createBytes(cnode, 0))
+        //generate synthetic bridge methods for covariant return types
+        def allParents(info:ClassInfo):Iterable[ClassInfo] = info +: (info.superClass ++ info.interfaces).toSeq.flatMap(allParents)
+        val allParentInfos = (baseInfo +: traitInfos).flatMap(allParents).distinct
+        val allParentMethods = allParentInfos.flatMap(_.methods)
+        methodSigs.seq.foreach { nameDesc =>
+            val (name, desc) = seperateDesc(nameDesc)
+            val pDesc = desc.substring(0, desc.lastIndexOf(')')+1)
 
-        DebugPrinter.logger.debug("Generation ["+superClass+" with "+traits.mkString(", ")+"] took: "+(System.currentTimeMillis-startTime))
+            allParentMethods.filter(m => m.name == name && m.desc.startsWith(pDesc)).foreach { m =>
+                if(!methodSigs(m.name+m.desc)) {
+                    val mv = cnode.visitMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, m.name, m.desc, null, m.exceptions).asInstanceOf[MethodNode]
+                    writeBridge(mv, mv.desc, INVOKEVIRTUAL, cnode.name, name, desc)
+                    methodSigs += m.name + m.desc
+                }
+            }
+        }
+
+        val c = define(name, createBytes(cnode, 0))
+
+        DebugPrinter.logger.debug("Generation ["+superClass+" with "+traits.mkString(", ")+"] took "+(System.currentTimeMillis-startTime)+"ms")
         c
     }
 
@@ -347,7 +367,10 @@ object ASMMixinCompiler
         getClassInfo(stack.owner.getInternalName).superClass.flatMap(_.findPublicImpl(methodName, minsn.desc))
     }
 
-    def getAndRegisterParentTraits(cnode: ClassNode) = cnode.interfaces.map(classNode).filter(i => isScala(i) && isTrait(i)).map(registerScalaTrait)
+    def getAndRegisterParentTraits(cnode: ClassNode) = cnode.interfaces.map(getClassInfo).collect{
+        case i: ClassInfo.ScalaClassInfo if i.isTrait && !i.csym.isInterface =>
+            registerScalaTrait(i.cnode)
+    }
 
     def registerJavaTrait(cnode: ClassNode) {
         if ((cnode.access & ACC_INTERFACE) != 0)
@@ -427,7 +450,7 @@ object ASMMixinCompiler
                             if (getSuper(minsn, stack).isDefined)
                                 replace(superInsn(minsn))
                         case INVOKEVIRTUAL =>
-                            if (minsn.owner.equals(cnode.name)) {
+                            if (minsn.owner == cnode.name) {
                                 if (methodSigs.contains(minsn.name + minsn.desc)) {//call the interface method
                                     replace(new MethodInsnNode(INVOKEINTERFACE, minsn.owner, minsn.name, minsn.desc, true))
                                 } else {
@@ -448,11 +471,11 @@ object ASMMixinCompiler
         }
 
         def convertMethod(mnode: MethodNode) {
-            if (mnode.name.equals("<clinit>"))
+            if (mnode.name == "<clinit>")
                 throw new IllegalArgumentException("Static initialisers are not permitted " + cnode.name + " as a mixin trait")
 
-            if (mnode.name.equals("<init>")) {
-                if (!mnode.desc.equals("()V"))
+            if (mnode.name == "<init>") {
+                if (mnode.desc != "()V")
                     throw new IllegalArgumentException("Constructor arguments are not permitted " + cnode.name + " as a mixin trait")
 
                 val mv = staticClone(mnode, "$init$", ACC_PUBLIC)
@@ -504,30 +527,29 @@ object ASMMixinCompiler
         val methods = MList[MethodNode]()
         val supers = MList[String]()
 
-        val sig = ScalaSigReader.read(ScalaSigReader.ann(cnode).get)
-        val csym: ClassSymbol = sig.evalT(0)
+        val info = getClassInfo(cnode).asInstanceOf[ClassInfo.ScalaClassInfo]
+        val sig = info.sig
+        val csym = info.csym
         for (i <- 0 until sig.table.length) {
             import ScalaSignature._
 
             val e = sig.table(i)
             if (e.id == 8) {//method
                 val sym: MethodSymbol = sig.evalT(i)
-                if (sym.isParam || !sym.owner.equals(csym)) {}
+                if (sym.isParam || sym.owner != csym) {}
                 else if (sym.isAccessor) {
                     fieldAccessors.put(sym.name, sym)
                 }
                 else if (sym.isMethod) {
                     val desc = sym.jDesc(sig)
-                    if (sym.name.contains("super$")) {
+                    if (sym.name.startsWith("super$"))
                         supers += sym.name.substring(6) + desc
-                    }
-                    else if (!sym.name.equals("$init$") && !sym.isPrivate) {
-                        val map = new ObfMapping(cnode.name, sym.name, desc)
-                        val method = findMethod(map, cnode)
-                        if (method == null)
-                            throw new RuntimeException("Unable to add mixin trait: " + map + " found in scala signature but not in class file. Most likely an obfuscation issue.")
-                        methods += method
-                    }
+                    else if (!sym.isPrivate && !sym.isDeferred && sym.name != "$init$")
+                        methods += (cnode.methods.find(m => m.name == sym.name && m.desc == desc) match {
+                            case Some(m) => m
+                            case None => throw new IllegalArgumentException("Unable to add mixin trait "+cnode.name+": " +
+                                sym.name + desc + " found in scala signature but not in class file. Most likely an obfuscation issue.")
+                        })
                 }
                 else {
                     fields += FieldMixin(sym.name.trim, getReturnType(sym.jDesc(sig)).getDescriptor,
@@ -536,8 +558,8 @@ object ASMMixinCompiler
             }
         }
 
-        val info = MixinInfo(cnode.name, csym.jParent(sig), parentTraits, fields, methods, supers)
-        mixinMap.put(cnode.name, info)
-        info
+        val mixin = MixinInfo(cnode.name, csym.jParent(sig), parentTraits, fields, methods, supers)
+        mixinMap.put(cnode.name, mixin)
+        mixin
     }
 }

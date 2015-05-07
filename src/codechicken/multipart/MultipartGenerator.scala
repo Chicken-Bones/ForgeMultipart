@@ -31,7 +31,7 @@ object MultipartGenerator
     private val clientTraitId = MultipartMixinFactory.registerTrait(classOf[TileMultipartClient])
     
     //scratch bitset
-    private val bitset = new BitSet()
+    private val bitset = new BitSet
 
     private def partTraitMap(client:Boolean) = if(client) partTraitMap_c else partTraitMap_s
     private def interfaceTraitMap(client:Boolean) = if(client) interfaceTraitMap_c else interfaceTraitMap_s

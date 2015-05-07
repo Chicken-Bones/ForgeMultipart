@@ -1,18 +1,57 @@
 package codechicken.microblock
 
-trait MicroblockClass
-{
-    var classID:Int = _
-    
-    def itemSlot = 3
-    
-    def getName:String
-    
-    def create(client:Boolean, material:Int):CommonMicroblock
-    
-    def placementProperties:PlacementProperties
-    
-    def register(id:Int) = MicroblockClassRegistry.registerMicroClass(this, id)
+import codechicken.multipart.{TMultiPart, MultiPartRegistry}
+import codechicken.multipart.MultiPartRegistry.IPartFactory2
+import net.minecraft.nbt.NBTTagCompound
+import codechicken.lib.data.MCDataInput
 
+abstract class MicroblockClass extends IPartFactory2
+{
+    def getName:String
+    def baseTrait:Class[_ <: Microblock]
+    def clientTrait:Class[_ <: MicroblockClient]
     def getResistanceFactor:Float
+
+    val baseTraitId = MicroblockGenerator.registerTrait(baseTrait)
+    val clientTraitId = MicroblockGenerator.registerTrait(clientTrait)
+
+    def register() {
+        MultiPartRegistry.registerParts(this, getName)
+    }
+
+    def create(client:Boolean, material:Int) = MicroblockGenerator.create(this, material, client)
+    override def createPart(name: String, packet: MCDataInput) = create(true, MicroMaterialRegistry.readMaterialID(packet))
+    override def createPart(name: String, nbt: NBTTagCompound) = create(false, MicroMaterialRegistry.materialID(nbt.getString("material")))
+}
+
+/**
+ * Microblocks with corresponding items
+ */
+abstract class CommonMicroClass extends MicroblockClass
+{
+    private var classId:Int = _
+
+    def getClassId = classId
+    def itemSlot:Int
+    def placementProperties:PlacementProperties
+
+    def register(id:Int) {
+        register()
+        classId = id
+        CommonMicroClass.registerMicroClass(this, id)
+    }
+}
+
+object CommonMicroClass
+{
+    val classes = new Array[CommonMicroClass](256)
+
+    def getMicroClass(modelId:Int) = classes(modelId>>8)
+
+    def registerMicroClass(mcrClass:CommonMicroClass, id:Int) {
+        if(classes(id) != null)
+            throw new IllegalArgumentException("Microblock class id "+id+" is already taken by "+classes(id).getName+" when adding "+mcrClass.getName)
+
+        classes(id) = mcrClass
+    }
 }

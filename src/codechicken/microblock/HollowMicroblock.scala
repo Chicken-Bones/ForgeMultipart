@@ -18,7 +18,6 @@ import codechicken.lib.lighting.LightMatrix
 
 object HollowPlacement extends PlacementProperties
 {
-
     object HollowPlacementGrid extends FaceEdgeGrid(3 / 8D)
 
     def microClass = HollowMicroClass
@@ -32,7 +31,7 @@ object HollowPlacement extends PlacementProperties
     override def sneakOpposite(slot: Int, side: Int) = slot == (side ^ 1)
 }
 
-object HollowMicroClass extends MicroblockClass
+object HollowMicroClass extends CommonMicroClass
 {
     var pBoxes: Array[Seq[Cuboid6]] = new Array(256)
     var occBounds: Array[Cuboid6] = new Array(256)
@@ -54,11 +53,10 @@ object HollowMicroClass extends MicroblockClass
 
     def getName = "mcr_hllw"
 
-    def create(client:Boolean, material:Int) =
-        if(client)
-            new HollowMicroblock(material) with HollowMicroblockClient
-        else
-            new HollowMicroblock(material)
+    def baseTrait = classOf[HollowMicroblock]
+    def clientTrait = classOf[HollowMicroblockClient]
+
+    def itemSlot = 3
 
     def placementProperties = HollowPlacement
 
@@ -172,7 +170,7 @@ trait HollowMicroblockClient extends HollowMicroblock with CommonMicroblockClien
     }
 }
 
-class HollowMicroblock(material$: Int = 0) extends CommonMicroblock(material$) with TFacePart with TNormalOcclusion
+trait HollowMicroblock extends CommonMicroblock with TFacePart with TNormalOcclusion
 {
     def microClass = HollowMicroClass
 

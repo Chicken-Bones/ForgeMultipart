@@ -14,7 +14,7 @@ object CornerPlacement extends PlacementProperties
     def opposite(slot:Int, side:Int) = ((slot-7)^(1<<(side>>1)))+7
 }
 
-object CornerMicroClass extends MicroblockClass
+object CornerMicroClass extends CommonMicroClass
 {
     var aBounds:Array[Cuboid6] = new Array(256)
     
@@ -32,22 +32,19 @@ object CornerMicroClass extends MicroblockClass
         }
     }
     
-    override def itemSlot = 7
-    
     def getName = "mcr_cnr"
+
+    def baseTrait = classOf[CornerMicroblock]
+    def clientTrait = classOf[CommonMicroblockClient]
     
-    def create(client:Boolean, material:Int) =
-        if(client)
-            new CornerMicroblock(material)with CommonMicroblockClient
-        else
-            new CornerMicroblock(material)
+    override def itemSlot = 7
     
     def placementProperties = CornerPlacement
 
     def getResistanceFactor = 1
 }
 
-class CornerMicroblock(material$:Int = 0) extends CommonMicroblock(material$)
+trait CornerMicroblock extends CommonMicroblock
 {
     override def setShape(size: Int, slot: Int) = shape = (size<<4|(slot-7)).toByte
     

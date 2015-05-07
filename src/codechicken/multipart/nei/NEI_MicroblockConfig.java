@@ -2,7 +2,7 @@ package codechicken.multipart.nei;
 
 import codechicken.lib.inventory.InventoryUtils;
 import codechicken.microblock.MicroblockClass;
-import codechicken.microblock.MicroblockClassRegistry;
+import codechicken.microblock.CommonMicroClass;
 import codechicken.microblock.handler.MicroblockProxy;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.api.API;
@@ -15,7 +15,7 @@ public class NEI_MicroblockConfig implements IConfigureNEI
 {
     @Override
     public void loadConfig() {
-        MicroblockClass[] microClasses = MicroblockClassRegistry.classes();
+        MicroblockClass[] microClasses = CommonMicroClass.classes();
         for (int c = 0; c < microClasses.length; c++) {
             MicroblockClass mcrClass = microClasses[c];
             if (mcrClass == null)

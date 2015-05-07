@@ -66,7 +66,7 @@ object EdgePlacement extends PlacementProperties
     }
 }
 
-object EdgeMicroClass extends MicroblockClass
+object EdgeMicroClass extends CommonMicroClass
 {
     var aBounds:Array[Cuboid6] = new Array(256)
     
@@ -86,19 +86,16 @@ object EdgeMicroClass extends MicroblockClass
     override def itemSlot = 15
     
     def getName = "mcr_edge"
-    
-    def create(client:Boolean, material:Int) =
-        if(client)
-            new EdgeMicroblock(material) with CommonMicroblockClient
-        else
-            new EdgeMicroblock(material)
-    
+
+    def baseTrait = classOf[EdgeMicroblock]
+    def clientTrait = classOf[CommonMicroblockClient]
+
     def placementProperties = EdgePlacement
 
     def getResistanceFactor = 0.5F
 }
 
-class EdgeMicroblock(material$:Int = 0) extends CommonMicroblock(material$) with TEdgePart
+trait EdgeMicroblock extends CommonMicroblock with TEdgePart
 {
     override def setShape(size: Int, slot: Int) = shape = (size<<4|(slot-15)).toByte
 
@@ -109,7 +106,7 @@ class EdgeMicroblock(material$:Int = 0) extends CommonMicroblock(material$) with
     override def getSlot = getShape+15
 }
 
-object PostMicroClass
+object PostMicroClass extends MicroblockClass
 {
     var aBounds:Array[Cuboid6] = new Array(256)
     
@@ -125,14 +122,9 @@ object PostMicroClass
     }
     
     def getName = "mcr_post"
-    
-    def create(client:Boolean, material:Int) =
-        if(client)
-            new PostMicroblock(material) with PostMicroblockClient
-        else
-            new PostMicroblock(material)
-    
-    def register() = MultiPartRegistry.registerParts((_, c:Boolean) => create(c, 0), getName)
+
+    def baseTrait = classOf[PostMicroblock]
+    def clientTrait = classOf[PostMicroblockClient]
 
     def getResistanceFactor = 0.5F
 }
@@ -214,9 +206,9 @@ trait PostMicroblockClient extends PostMicroblock with MicroblockClient
     }
 }
 
-class PostMicroblock(material$:Int = 0) extends Microblock(material$) with JPartialOcclusion with TNormalOcclusion
+trait PostMicroblock extends Microblock with JPartialOcclusion with TNormalOcclusion
 {
-    override def getType = PostMicroClass.getName
+    def microClass = PostMicroClass
 
     def getBounds = PostMicroClass.aBounds(shape)
     
@@ -224,7 +216,7 @@ class PostMicroblock(material$:Int = 0) extends Microblock(material$) with JPart
     
     def getPartialOcclusionBoxes = getOcclusionBoxes
     
-    override def itemClassID = EdgeMicroClass.classID
+    override def itemClassID = EdgeMicroClass.getClassId
     
     override def occlusionTest(npart:TMultiPart): Boolean = 
     {

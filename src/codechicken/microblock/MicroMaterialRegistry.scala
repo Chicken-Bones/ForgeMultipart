@@ -107,7 +107,7 @@ object MicroMaterialRegistry
         /**
          * Return true if a custom highlight was rendered and the default should be skipped
          */
-        def renderHighlight(player: EntityPlayer, hit: MovingObjectPosition, mcrClass: MicroblockClass, size: Int, material: Int): Boolean
+        def renderHighlight(player: EntityPlayer, hit: MovingObjectPosition, mcrClass: CommonMicroClass, size: Int, material: Int): Boolean
     }
 
     private val typeMap = HashMap[String, IMicroMaterial]()
@@ -229,7 +229,7 @@ object MicroMaterialRegistry
 
     def getIdMap = idMap
 
-    def renderHighlight(player: EntityPlayer, hit: MovingObjectPosition, mcrClass: MicroblockClass, size: Int, material: Int): Boolean = {
+    def renderHighlight(player: EntityPlayer, hit: MovingObjectPosition, mcrClass: CommonMicroClass, size: Int, material: Int): Boolean = {
         val overridden = highlightRenderers.find(_.renderHighlight(player, hit, mcrClass, size, material))
         if (overridden.isDefined)
             return true

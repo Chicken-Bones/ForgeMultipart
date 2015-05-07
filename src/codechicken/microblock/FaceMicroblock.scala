@@ -22,7 +22,9 @@ object FacePlacement extends PlacementProperties
     override def sneakOpposite(slot:Int, side:Int) = slot == (side^1)
 }
 
-object FaceMicroClass extends MicroblockClass
+class FaceMicroClass
+
+object FaceMicroClass extends CommonMicroClass
 {
     var aBounds:Array[Cuboid6] = new Array(256)
     
@@ -37,12 +39,11 @@ object FaceMicroClass extends MicroblockClass
     }
     
     def getName = "mcr_face"
-    
-    def create(client:Boolean, material:Int) =
-        if(client)
-            new FaceMicroblock(material) with FaceMicroblockClient
-        else
-            new FaceMicroblock(material)
+
+    def itemSlot = 3
+
+    def baseTrait = classOf[FaceMicroblock]
+    def clientTrait = classOf[FaceMicroblockClient]
     
     def placementProperties = FacePlacement
 
@@ -64,7 +65,7 @@ trait FaceMicroblockClient extends CommonMicroblockClient
     }
 }
 
-class FaceMicroblock(material$:Int = 0) extends CommonMicroblock(material$) with TFacePart
+trait FaceMicroblock extends CommonMicroblock with TFacePart
 {
     def microClass = FaceMicroClass
     

@@ -36,7 +36,7 @@ class ExpandingPlacement($pos:BlockCoord, $part:Microblock, opart:Microblock) ex
     {
         opart.shape = part.shape
         opart.tile.notifyPartChange(opart)
-        opart.sendDescUpdate()
+        opart.sendShapeUpdate()
     }
     
     def consume(world:World, player:EntityPlayer, item:ItemStack)

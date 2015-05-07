@@ -59,11 +59,12 @@ class ASMMixinFactory[T](val baseType:Class[T], private val paramTypes:Class[_]*
             case None =>
         }
 
-        def getParents(info:ClassInfo):Seq[ClassInfo] = info.superClass.toSeq.flatMap(i => i +: getParents(i))
-        if(!getParents(cnode).map(_.name).contains(baseType.nodeName))
+        val info = getClassInfo(cnode)
+        def checkParent(info:ClassInfo):Boolean = info.superClass.exists(i => i.name == baseType.nodeName || checkParent(i))
+        if(!checkParent(info))
             throw new IllegalArgumentException("Mixin trait "+s_trait+" must extend "+baseType.nodeName)
 
-        if(isScala(cnode) && isTrait(cnode)) {
+        if(info.isTrait) {
             registerScalaTrait(cnode)
         }
         else {

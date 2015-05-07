@@ -33,8 +33,9 @@ object ScalaSignature
         def isPrivate = hasFlag(0x00000004)
         def isProtected = hasFlag(0x00000008)
         def isAbstract = hasFlag(0x00000080)
-        def isInterface = hasFlag(0x00000800)
+        def isDeferred = hasFlag(0x00000100)//abstract for methods
         def isMethod = hasFlag(0x00000200)
+        def isInterface = hasFlag(0x00000800)
         def isParam = hasFlag(0x00002000)
         def isStatic = hasFlag(0x00800000)
         def isTrait = hasFlag(0x02000000)
@@ -47,17 +48,25 @@ object ScalaSignature
         def flags:Int
         def hasFlag(flag:Int) = (flags&flag) != 0
     }
-    
-    case class ClassSymbol(name:String, owner:SymbolRef, flags:Int, info:Int) extends SymbolRef
+
+    trait ClassSymbolRef extends SymbolRef
     {
-        override def toString = "ClassSymbol("+name+","+owner+","+flags.toHexString+","+info+")"
+        def name:String
+        def owner:SymbolRef
+        def flags:Int
+        def info:Int
+
         def full = owner.full+"."+name
-        
+        override def toString = getClass.getName+"("+name+","+owner+","+flags.toHexString+","+info+")"
+
         def info(sig:ScalaSignature):ClassType = sig.evalT(info)
         def jParent(sig:ScalaSignature) = info(sig).parent.jName
         def jInterfaces(sig:ScalaSignature) = info(sig).interfaces.map(_.jName)
     }
     
+    case class ClassSymbol(name:String, owner:SymbolRef, flags:Int, info:Int) extends ClassSymbolRef
+    case class ObjectSymbol(name:String, owner:SymbolRef, flags:Int, info:Int) extends ClassSymbolRef
+
     case class MethodSymbol(name:String, owner:SymbolRef, flags:Int, info:Int) extends SymbolRef
     {
         override def toString = "MethodSymbol("+name+","+owner+","+flags.toHexString+","+info+")"
@@ -102,13 +111,15 @@ object ScalaSignature
     
     trait TypeRef
     {
-        def name:String
+        def sym:SymbolRef
+        def name = sym.full
+
         def jName = name.replace('.', '/') match {
-            case "scala/AnyRef" => "java/lang/Object"
+            case "scala/AnyRef" | "scala/Any" => "java/lang/Object"
             case s => s
         }
-        def jDesc:String = name match
-        {
+
+        def jDesc = name match {
             case "scala.Array" => null
             case "scala.Long" => "J"
             case "scala.Int" => "I"
@@ -128,36 +139,30 @@ object ScalaSignature
         
         def returnType = this
         
-        def name = sym.full
-        
-        override def jDesc = name match
-        {
+        override def jDesc = name match {
             case "scala.Array" => "["+typArgs(0).jDesc
             case _ => super.jDesc
         }
     }
     
     case class ThisType(sym:SymbolRef) extends TypeRef
-    {
-        def name = sym.full
-    }
-    
+
     case class SingleType(owner:TypeRef, sym:SymbolRef) extends TypeRef
     {
-        def name = sym.full
+        override def jName = super.jName+"$"
     }
-    
+
     case object NoType extends TypeRef
     {
-        def name = "<no type>"
+        def sym = null
+        override def name = "<no type>"
     }
     
     class SigEntry(val start:Int, val bytes:Bytes)
     {
         def id = bytes.bytes(start)
         
-        def delete()
-        {
+        def delete() {
             bytes.bytes(start) = 3
         }
     }
@@ -168,8 +173,7 @@ case class ScalaSignature(major:Int, minor:Int, table:Array[SigEntry], bytes:Byt
         val e = table(i)
         val bc = e.bytes
         val bcr = bc:ByteCodeReader
-        return e.id match
-        {
+        e.id match {
             case 1|2 => bcr.readString(bc.len)
             case 3 => NoSymbol.full
             case 9|10 =>
@@ -182,22 +186,21 @@ case class ScalaSignature(major:Int, minor:Int, table:Array[SigEntry], bytes:Byt
     
     def evalT[T](i:Int):T = eval(i).asInstanceOf[T]
     
-    def evalList[T](bcr:ByteCodeReader) =
-    {
+    def evalList[T](bcr:ByteCodeReader) = {
         var l = MList[T]()
         while(bcr.more)
             l+=evalT(bcr.readNat)
         l.toList
     }
     
-    def eval(i:Int):Any = {//we only parse the ones we actually care about
+    def eval(i:Int):Any = {//only parse the ones that matter for this project
         val e = table(i)
         val bc = e.bytes
         val bcr = bc:ByteCodeReader
-        return e.id match
-        {
+        e.id match {
             case 1|2 => evalS(i)
             case 6 => ClassSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
+            case 7 => ObjectSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
             case 8 => MethodSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
             case 9|10 => ExternalSymbol(evalS(i))
             case 11|12 => NoType //12 is actually NoPrefixType (no lower bound)
@@ -206,7 +209,7 @@ case class ScalaSignature(major:Int, minor:Int, table:Array[SigEntry], bytes:Byt
             case 16 => TypeRefType(evalT(bcr.readNat), evalT(bcr.readNat), evalList(bcr))
             case 19 => ClassType(evalT(bcr.readNat), evalList(bcr))
             case 20 => MethodType(evalT(bcr.readNat), evalList(bcr))
-            case 21|48 => ParameterlessType(evalT(bcr.readNat))//48 is actually a bounded super type, but it should work fine for our purposes
+            case 21|48 => ParameterlessType(evalT(bcr.readNat))//48 is actually a bounded super type, but it should work fine for this project
             case _ => NoSymbol
         }
     }
@@ -222,37 +225,32 @@ class ByteCodeReader(val bc:Bytes)
     
     def readByte = advance(1)(bc.bytes(pos))
     
-    def readNat:Int =
-    {
+    def readNat = {
         var r = 0
         var b = 0
-        do
-        {
+        do {
             b = readByte
             r = r<<7|b&0x7F
         }
         while((b&0x80) != 0)
-        return r
+        r
     }
     
-    def advance[A](len:Int)(r:A):A =
-    {
+    def advance[A](len:Int)(r:A) = {
         if(pos+len > bc.pos+bc.len)
             throw new IllegalArgumentException("Ran off the end of bytecode")
         pos+=len
-        return r
+        r
     }
     
-    def readEntry =
-    {
+    def readEntry = {
         val p = pos
-        val tpe:Int = readByte
+        val tpe = readByte
         val len = readNat
         advance(len)(new SigEntry(p, new Bytes(bc.bytes, pos, len)))
     }
     
-    def readSig =
-    {
+    def readSig = {
         val major = readByte
         val minor = readByte
         val table = new Array[SigEntry](readNat)
@@ -264,22 +262,19 @@ class ByteCodeReader(val bc:Bytes)
 
 object ScalaSigReader
 {
-    def decode(s:String):Array[Byte] =
-    {
+    def decode(s:String) = {
         val bytes = s.getBytes
-        return bytes take ByteCodecs.decode(bytes)
+        bytes take ByteCodecs.decode(bytes)
     }
     
-    def encode(b:Array[Byte]):String = 
-    {
+    def encode(b:Array[Byte]) = {
         val bytes = ByteCodecs.encode8to7(b)
         var i = 0
-        while(i < bytes.length)
-        {
+        while(i < bytes.length) {
             bytes(i) = ((bytes(i)+1)&0x7F).toByte
             i+=1
         }
-        return new String(bytes.take(bytes.length-1), "UTF-8")
+        new String(bytes.take(bytes.length-1), "UTF-8")
     }
     
     def read(ann:AnnotationNode):ScalaSignature = Bytes(decode(ann.values.get(1).asInstanceOf[String])).readSig
@@ -294,8 +289,7 @@ object ScalaSigReader
 
 class ScalaSigSideTransformer
 {
-    def transform(ann:AnnotationNode, cnode:ClassNode, removedFields:JList[FieldNode], removedMethods:JList[MethodNode])
-    {
+    def transform(ann:AnnotationNode, cnode:ClassNode, removedFields:JList[FieldNode], removedMethods:JList[MethodNode]) {
         if(removedFields.isEmpty && removedMethods.isEmpty)
             return
         
@@ -303,35 +297,28 @@ class ScalaSigSideTransformer
         val remMethods = removedMethods.asScala.map(f => (f.name, f.desc.replace('$', '/')))
         
         val sig = ScalaSigReader.read(ann)
-        for(i <- 0 until sig.table.length)
-        {
+        for(i <- 0 until sig.table.length) {
             val e = sig.table(i)
-            if(e.id == 8)//check and remove
-            {
-                val sym:MethodSymbol = sig.evalT(i)
-                if(sym.isAccessor)
-                {
-                    val fName = if(sym.name.endsWith("_$eq")) sym.name.substring(0, sym.name.length-4) else sym.name
-                    if(remFields.find(t => t._1 == sym.name.trim).nonEmpty)
-                    {
+            if (e.id == 8) {//check and remove
+                val sym: MethodSymbol = sig.evalT(i)
+                if (sym.isAccessor) {
+                    val fName = if (sym.name.endsWith("_$eq")) sym.name.substring(0, sym.name.length - 4) else sym.name
+                    if (remFields.find(t => t._1 == sym.name.trim).nonEmpty) {
                         e.delete()
                         val it = cnode.methods.iterator
-                        while(it.hasNext)
-                        {
+                        while (it.hasNext) {
                             val m = it.next
-                            if(m.name == sym.name && m.desc == sym.jDesc(sig))
+                            if (m.name == sym.name && m.desc == sym.jDesc(sig))
                                 it.remove()
                         }
                     }
                 }
-                else if(sym.isMethod)
-                {
-                    if(remMethods.find(t => t._1 == sym.name && t._2 == sym.jDesc(sig)).nonEmpty)
+                else if (sym.isMethod) {
+                    if (remMethods.find(t => t._1 == sym.name && t._2 == sym.jDesc(sig)).nonEmpty)
                         e.delete()
                 }
-                else//field
-                {
-                    if(remFields.find(t => t._1 == sym.name.trim).nonEmpty)
+                else {//field
+                    if (remFields.find(t => t._1 == sym.name.trim).nonEmpty)
                         e.delete()
                 }
             }

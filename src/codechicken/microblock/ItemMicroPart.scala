@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL11
 import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import java.util.List
 import net.minecraft.creativetab.CreativeTabs
-import codechicken.microblock.MicroblockClassRegistry._
 import codechicken.lib.render.CCRenderState
 import net.minecraft.client.renderer.texture.IIconRegister
 import codechicken.microblock.handler.MicroblockProxy
@@ -22,6 +21,7 @@ import codechicken.lib.raytracer.RayTracer
 import codechicken.lib.vec.Vector3
 import codechicken.lib.render.TextureUtils
 import net.minecraft.util.MovingObjectPosition.MovingObjectType
+import CommonMicroClass._
 
 class ItemMicroPart extends Item
 {
@@ -31,7 +31,7 @@ class ItemMicroPart extends Item
     override def getItemStackDisplayName(stack:ItemStack):String =
     {
         val material = getMaterial(stack)
-        val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
+        val mcrClass = getMicroClass(stack.getItemDamage)
         val size = stack.getItemDamage&0xFF
         if(material == null || mcrClass == null)
             return "Unnamed"
@@ -56,7 +56,7 @@ class ItemMicroPart extends Item
     override def onItemUse(item:ItemStack, player:EntityPlayer, world:World, x:Int, y:Int, z:Int, s:Int, hitX:Float, hitY:Float, hitZ:Float):Boolean =
     {
         val material = getMaterialID(item)
-        val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
+        val mcrClass = getMicroClass(item.getItemDamage)
         val size = item.getItemDamage&0xFF
         if(material < 0 || mcrClass == null)
             return false
@@ -134,7 +134,7 @@ object ItemMicroPartRenderer extends IItemRenderer
     def renderItem(t:ItemRenderType, item:ItemStack, data:Object*)
     {
         val material = getMaterial(item)
-        val mcrClass = MicroblockClassRegistry.getMicroClass(item.getItemDamage)
+        val mcrClass = getMicroClass(item.getItemDamage)
         val size = item.getItemDamage&0xFF
         if(material == null || mcrClass == null)
             return
@@ -160,7 +160,7 @@ object ItemMicroPartRenderer extends IItemRenderer
     def renderHighlight(player:EntityPlayer, stack:ItemStack, hit:MovingObjectPosition):Boolean =
     {
         val material = getMaterialID(stack)
-        val mcrClass = MicroblockClassRegistry.getMicroClass(stack.getItemDamage)
+        val mcrClass = getMicroClass(stack.getItemDamage)
         val size = stack.getItemDamage&0xFF
         if(material < 0 || mcrClass == null)
             return false
