@@ -198,27 +198,42 @@ object ASMMixinCompiler
             def methods = cnode.methods.map(MethodNodeInfoSource)
         }
 
-        class ScalaClassInfo(cnode$: ClassNode) extends ClassNodeInfo(cnode$)
+        class ScalaClassInfo(cnode$: ClassNode, val sig:ScalaSignature, val csym:ClassSymbolRef) extends ClassNodeInfo(cnode$)
         {
-            val sig = ScalaSigReader.read(ScalaSigReader.ann(cnode).get)
-            val csym = sig.evalT(0): ClassSymbol
-
             override def superClass = Some(csym.jParent(sig))
             override def interfaces = csym.jInterfaces(sig).map(getClassInfo)
             override def isScala = true
 
             override def isTrait = csym.isTrait
+            override def isObject = csym.isInstanceOf[ObjectSymbol]
         }
 
-        private[ASMMixinCompiler] def obtainInfo(name: String): ClassInfo = name match {
-            case null => null
-            case s => classNode(s) match {
-                case null => cl.findClass(s.replace('/', '.')) match {
+        private[ASMMixinCompiler] def obtainInfo(name: String): ClassInfo = {
+            if(name == null) return null
+
+            def scalaInfo(cnode:ClassNode, obj:Boolean) =
+                ScalaSigReader.ann(cnode).flatMap { ann =>
+                    val sig = ScalaSigReader.read(ann)
+                    val name = cnode.name.replace('/', '.')
+                    (if (obj) sig.findObject(name) else sig.findClass(name))
+                        .map(csym => new ScalaClassInfo(cnode, sig, csym))
+                }
+
+            if(name.endsWith("$")) {//find scala object
+                val baseName = name.substring(0, name.length-1)
+                val baseNode = classNode(baseName)
+                if(baseNode != null) scalaInfo(baseNode, true) match {
+                    case Some(info) => return info
+                    case None =>
+                }
+            }
+
+            classNode(name) match {
+                case null => cl.findClass(name.replace('/', '.')) match {
                     case null => null
                     case c => new ReflectionClassInfo(c)
                 }
-                case v if ScalaSigReader.ann(v).isDefined => new ScalaClassInfo(v)
-                case v => new ClassNodeInfo(v)
+                case cnode => scalaInfo(cnode, false).getOrElse(new ClassNodeInfo(cnode))
             }
         }
     }
@@ -319,7 +334,7 @@ object ASMMixinCompiler
         def allParents(info:ClassInfo):Iterable[ClassInfo] = info +: (info.superClass ++ info.interfaces).toSeq.flatMap(allParents)
         val allParentInfos = (baseInfo +: traitInfos).flatMap(allParents).distinct
         val allParentMethods = allParentInfos.flatMap(_.methods)
-        methodSigs.seq.foreach { nameDesc =>
+        methodSigs.toSeq.foreach { nameDesc =>
             val (name, desc) = seperateDesc(nameDesc)
             val pDesc = desc.substring(0, desc.lastIndexOf(')')+1)
 

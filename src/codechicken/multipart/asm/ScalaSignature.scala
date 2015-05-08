@@ -35,6 +35,7 @@ object ScalaSignature
         def isAbstract = hasFlag(0x00000080)
         def isDeferred = hasFlag(0x00000100)//abstract for methods
         def isMethod = hasFlag(0x00000200)
+        def isModule = hasFlag(0x00000400)//object module class
         def isInterface = hasFlag(0x00000800)
         def isParam = hasFlag(0x00002000)
         def isStatic = hasFlag(0x00800000)
@@ -213,6 +214,13 @@ case class ScalaSignature(major:Int, minor:Int, table:Array[SigEntry], bytes:Byt
             case _ => NoSymbol
         }
     }
+
+    def collect[T](id:Int) = (0 until table.length).collect {
+        case i if table(i).id == id => evalT(i):T
+    }
+
+    def findObject(name:String) = collect[ObjectSymbol](7).find(_.full == name)
+    def findClass(name:String) = collect[ClassSymbol](6).find(c => !c.isModule && c.full == name)
 }
 
 class ByteCodeReader(val bc:Bytes)
@@ -221,7 +229,7 @@ class ByteCodeReader(val bc:Bytes)
     
     def more = pos < bc.pos+bc.len
     
-    def readString(len:Int) = advance(len)(new String(bc.bytes drop pos take len))
+    def readString(len:Int) = advance(len)(new String(bc.bytes.drop(pos).take(len)))
     
     def readByte = advance(1)(bc.bytes(pos))
     

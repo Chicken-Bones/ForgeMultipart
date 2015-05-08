@@ -10,7 +10,7 @@ trait TFacePart extends TSlottedPart
      */
     def solid(side:Int):Boolean = true
     /**
-     * Return the redstone conduction map for which signal can pass through this part on the face. Eg, hollow covers return 0xF as signal can pass through the center hole.
+     * Return the redstone conduction map for which signal can pass through this part on the face. Eg, hollow covers return 0x10 as signal can pass through the center hole.
      */
     def redstoneConductionMap = 0
 }

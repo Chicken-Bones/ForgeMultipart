@@ -62,9 +62,15 @@ class ASMMixinFactory[T](val baseType:Class[T], private val paramTypes:Class[_]*
         }
 
         val info = getClassInfo(cnode)
-        def checkParent(info:ClassInfo):Boolean = info.superClass.exists(i => i.name == baseType.nodeName || checkParent(i))
-        if(!checkParent(info))
-            throw new IllegalArgumentException("Mixin trait "+s_trait+" must extend "+baseType.nodeName)
+        def concreteParent(info:ClassInfo):ClassInfo = info.superClass.map {
+            case i if i.isTrait => concreteParent(i)
+            case i => i
+        }.get
+
+        val parentName = concreteParent(info).name
+        def checkParent(info:ClassInfo):Boolean = info.name == parentName || info.superClass.exists(checkParent)
+        if(!checkParent(getClassInfo(baseType)))
+            throw new IllegalArgumentException(baseType.nodeName+" does not extend parent "+parentName+" of mixin trait "+s_trait)
 
         if(info.isTrait) {
             registerScalaTrait(cnode)
