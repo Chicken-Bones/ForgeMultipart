@@ -377,21 +377,24 @@ object ASMMixinCompiler
             throw new IllegalArgumentException("Cannot register java interface " + cnode.name + " as a mixin trait. Try register passThroughInterface")
         if (!cnode.innerClasses.isEmpty)
             throw new IllegalArgumentException("Inner classes are not permitted for " + cnode.name + " as a java mixin trait. Use scala")
+        if ((cnode.access & ACC_ABSTRACT) != 0)
+            throw new IllegalArgumentException("Cannot register abstract class " + cnode.name + " as a java mixin trait. Use scala")
 
-        val parentTraits = getAndRegisterParentTraits(cnode)
+
+        //val parentTraits = getAndRegisterParentTraits(cnode)
         val fields = cnode.fields.map(f => (f.name, FieldMixin(f.name, f.desc, f.access))).toMap
         val supers = MList[String]() //nameDesc to super owner
         val methods = MList[MethodNode]()
         val methodSigs = cnode.methods.map(m => m.name + m.desc).toSet
 
-        if ((cnode.access & ACC_ABSTRACT) != 0) {//verify all methods are implemented
+        /*if ((cnode.access & ACC_ABSTRACT) != 0) {//verify all methods are implemented
             def getInterfaces(cnode:ClassNode):Seq[ClassNode] = cnode.interfaces.map(classNode).flatMap(i => getInterfaces(i) :+ i)
             val interfaces = getInterfaces(cnode).distinct
             val implementedSigs = (cnode.methods.filter(m => (m.access & ACC_ABSTRACT) == 0)++parentTraits.flatMap(_.methods)).map(m => m.name + m.desc).toSet
             val missing = interfaces.flatMap(_.methods).map(m => m.name + m.desc).filterNot(implementedSigs)
             if(!missing.isEmpty)
                 throw new IllegalArgumentException("Abstract java trait "+cnode.name+" needs to implement "+missing.mkString(", "))
-        }
+        }*/
 
         val inode = new ClassNode() //impl node
         inode.visit(V1_6, ACC_ABSTRACT | ACC_PUBLIC, cnode.name + "$class", null, "java/lang/Object", null)
@@ -511,7 +514,7 @@ object ASMMixinCompiler
         define(inode.name, createBytes(inode, 0))
         define(tnode.name, createBytes(tnode, 0))
 
-        mixinMap.put(tnode.name, MixinInfo(tnode.name, cnode.superName, parentTraits,
+        mixinMap.put(tnode.name, MixinInfo(tnode.name, cnode.superName, Seq(),
             fields.values.toSeq, methods, supers))
     }
 
