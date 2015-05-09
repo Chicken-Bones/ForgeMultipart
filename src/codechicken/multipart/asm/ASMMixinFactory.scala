@@ -13,7 +13,6 @@ class ASMMixinFactory[T](val baseType:Class[T], private val paramTypes:Class[_]*
     private val traitMap = mutable.Map[String, Int]()
     private val traits = ArrayBuffer[String]()
     private val classMap = mutable.Map[BitSet, Constructor[_ <: T]]()
-    classMap.put(new BitSet, baseType.getDeclaredConstructor(paramTypes:_*))
 
     private var ugenid = 0
 

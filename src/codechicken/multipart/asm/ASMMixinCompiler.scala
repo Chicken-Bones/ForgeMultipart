@@ -262,7 +262,10 @@ object ASMMixinCompiler
     def writeStaticBridge(mv: MethodNode, mname: String, t: MixinInfo) =
         writeBridge(mv, mv.desc, INVOKESTATIC, t.tname, mname, staticDesc(t.name, mv.desc))
 
-    def mixinClasses(name: String, superClass: String, traits: Seq[String]) = {
+    def mixinClasses(name: String, superClass: String, traits: Seq[String]):Class[_] = {
+        if(traits.isEmpty)
+            return cl.findClass(superClass.name.replace('/', '.'))
+
         val startTime = System.currentTimeMillis
 
         val baseTraits = traits.map(mixinMap)
