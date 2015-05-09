@@ -12,7 +12,6 @@ import Type._
 import codechicken.lib.asm.ASMHelper._
 import codechicken.lib.asm.{InsnListSection, InsnComparator, ASMHelper, ObfMapping}
 import java.io.File
-import ScalaSignature._
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import net.minecraft.launchwrapper.LaunchClassLoader
@@ -198,14 +197,14 @@ object ASMMixinCompiler
             def methods = cnode.methods.map(MethodNodeInfoSource)
         }
 
-        class ScalaClassInfo(cnode$: ClassNode, val sig:ScalaSignature, val csym:ClassSymbolRef) extends ClassNodeInfo(cnode$)
+        class ScalaClassInfo(cnode$: ClassNode, val sig:ScalaSignature, val csym:ScalaSignature#ClassSymbolRef) extends ClassNodeInfo(cnode$)
         {
-            override def superClass = Some(csym.jParent(sig))
-            override def interfaces = csym.jInterfaces(sig).map(getClassInfo)
+            override def superClass = Some(csym.jParent)
+            override def interfaces = csym.jInterfaces.map(getClassInfo)
             override def isScala = true
 
             override def isTrait = csym.isTrait
-            override def isObject = csym.isInstanceOf[ObjectSymbol]
+            override def isObject = csym.isObject
         }
 
         private[ASMMixinCompiler] def obtainInfo(name: String): ClassInfo = {
@@ -542,44 +541,39 @@ object ASMMixinCompiler
             case None =>
         }
 
+        val info = getClassInfo(cnode).asInstanceOf[ClassInfo.ScalaClassInfo]
+        val sig = info.sig
+
         val parentTraits = getAndRegisterParentTraits(cnode)
-        val fieldAccessors = MMap[String, MethodSymbol]()
+        val fieldAccessors = MMap[String, sig.MethodSymbol]()
         val fields = MList[FieldMixin]()
         val methods = MList[MethodNode]()
         val supers = MList[String]()
 
-        val info = getClassInfo(cnode).asInstanceOf[ClassInfo.ScalaClassInfo]
-        val sig = info.sig
         val csym = info.csym
-        for (i <- 0 until sig.table.length) {
-            import ScalaSignature._
-
-            val e = sig.table(i)
-            if (e.id == 8) {//method
-                val sym: MethodSymbol = sig.evalT(i)
-                if (sym.isParam || sym.owner != csym) {}
-                else if (sym.isAccessor) {
-                    fieldAccessors.put(sym.name, sym)
-                }
-                else if (sym.isMethod) {
-                    val desc = sym.jDesc(sig)
-                    if (sym.name.startsWith("super$"))
-                        supers += sym.name.substring(6) + desc
-                    else if (!sym.isPrivate && !sym.isDeferred && sym.name != "$init$")
-                        methods += (cnode.methods.find(m => m.name == sym.name && m.desc == desc) match {
-                            case Some(m) => m
-                            case None => throw new IllegalArgumentException("Unable to add mixin trait "+cnode.name+": " +
-                                sym.name + desc + " found in scala signature but not in class file. Most likely an obfuscation issue.")
-                        })
-                }
-                else {
-                    fields += FieldMixin(sym.name.trim, getReturnType(sym.jDesc(sig)).getDescriptor,
-                        if (fieldAccessors(sym.name.trim).isPrivate) ACC_PRIVATE else ACC_PUBLIC)
-                }
+        for (sym <- sig.collect[sig.MethodSymbol](8)) {
+            if (sym.isParam || sym.owner != csym) {}
+            else if (sym.isAccessor) {
+                fieldAccessors.put(sym.name, sym)
+            }
+            else if (sym.isMethod) {
+                val desc = sym.jDesc
+                if (sym.name.startsWith("super$"))
+                    supers += sym.name.substring(6) + desc
+                else if (!sym.isPrivate && !sym.isDeferred && sym.name != "$init$")
+                    methods += (cnode.methods.find(m => m.name == sym.name && m.desc == desc) match {
+                        case Some(m) => m
+                        case None => throw new IllegalArgumentException("Unable to add mixin trait "+cnode.name+": " +
+                            sym.name + desc + " found in scala signature but not in class file. Most likely an obfuscation issue.")
+                    })
+            }
+            else {
+                fields += FieldMixin(sym.name.trim, getReturnType(sym.jDesc).getDescriptor,
+                    if (fieldAccessors(sym.name.trim).isPrivate) ACC_PRIVATE else ACC_PUBLIC)
             }
         }
 
-        val mixin = MixinInfo(cnode.name, csym.jParent(sig), parentTraits, fields, methods, supers)
+        val mixin = MixinInfo(cnode.name, csym.jParent, parentTraits, fields, methods, supers)
         mixinMap.put(cnode.name, mixin)
         mixin
     }
