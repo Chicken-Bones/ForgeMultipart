@@ -5,7 +5,6 @@ import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 import java.util.{List => JList}
-import scala.collection.mutable.{ListBuffer => MList}
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 
@@ -18,10 +17,10 @@ object ScalaSignature
         def apply(arr: Array[Byte]):Bytes = Bytes(arr, 0, arr.length)
     }
 
-    case class Bytes(val arr: Array[Byte], val pos: Int, val len: Int)
+    case class Bytes(arr: Array[Byte], pos: Int, len: Int)
     {
         def reader = new ByteCodeReader(this)
-        def section = arr.take(pos).drop(len)
+        def section = arr.drop(pos).take(len)
     }
 
     trait Flags
@@ -185,6 +184,33 @@ class ScalaSignature(val bytes: Bytes)
     {
         def id = bytes.arr(start)
         def delete() = bytes.arr(start) = 3
+        override def toString = "SigEntry("+index+","+id+","+bytes.len+" bytes)"
+    }
+
+    trait Literal
+    {
+        def value:Any
+    }
+    case class BooleanLiteral(value:Boolean) extends Literal
+    case class ByteLiteral(value:Byte) extends Literal
+    case class ShortLiteral(value:Short) extends Literal
+    case class CharLiteral(value:Char) extends Literal
+    case class IntLiteral(value:Int) extends Literal
+    case class LongLiteral(value:Long) extends Literal
+    case class FloatLiteral(value:Float) extends Literal
+    case class DoubleLiteral(value:Double) extends Literal
+    case object NullLiteral extends Literal
+    {
+        override def value = null
+    }
+    case class StringLiteral(value:String) extends Literal
+    case class TypeLiteral(value:TypeRef) extends Literal
+    case class EnumLiteral(value:ExternalSymbol) extends Literal
+    case class ArrayLiteral(value:List[_]) extends Literal
+
+    case class AnnotationInfo(owner:SymbolRef, annType:TypeRef, values:Map[String, Literal])
+    {
+        def getValue[T](name:String) = values(name).asInstanceOf[T]
     }
 
     def evalS(i: Int): String = {
@@ -202,33 +228,54 @@ class ScalaSignature(val bytes: Bytes)
         }
     }
 
-    def evalT[T](i: Int): T = eval(i).asInstanceOf[T]
+    def evalT[T](i: Int) = eval(i).asInstanceOf[T]
 
     def evalList[T](bcr: ByteCodeReader) = {
-        var l = MList[T]()
+        val l = List.newBuilder
         while (bcr.more)
             l += evalT(bcr.readNat)
-        l.toList
+        l.result()
     }
 
     def eval(i: Int): Any = {
         //only parse the ones that matter for this project
         val e = table(i)
         val bcr = e.bytes.reader
+
+        def nat = bcr.readNat
+        def evalS = this.evalS(nat)
+        def evalT[T] = this.evalT[T](nat)
+        def evalList[T] = this.evalList[T](bcr)
+
         e.id match {
-            case 1 | 2 => evalS(i)
-            case 6 => ClassSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
-            case 7 => ObjectSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
-            case 8 => MethodSymbol(evalS(bcr.readNat), evalT(bcr.readNat), bcr.readNat, bcr.readNat)
-            case 9 | 10 => ExternalSymbol(evalS(i))
+            case 1 | 2 => this.evalS(i)
+            case 3 => NoSymbol
+            case 6 => ClassSymbol(evalS, evalT, nat, nat)
+            case 7 => ObjectSymbol(evalS, evalT, nat, nat)
+            case 8 => MethodSymbol(evalS, evalT, nat, nat)
+            case 9 | 10 => ExternalSymbol(this.evalS(i))
             case 11 | 12 => NoType //12 is actually NoPrefixType (no lower bound)
-            case 13 => ThisType(evalT(bcr.readNat))
-            case 14 => SingleType(evalT(bcr.readNat), evalT(bcr.readNat))
-            case 16 => TypeRefType(evalT(bcr.readNat), evalT(bcr.readNat), evalList(bcr))
-            case 19 => ClassType(evalT(bcr.readNat), evalList(bcr))
-            case 20 => MethodType(evalT(bcr.readNat), evalList(bcr))
-            case 21 | 48 => ParameterlessType(evalT(bcr.readNat)) //48 is actually a bounded super type, but it should work fine for this project
-            case _ => NoSymbol
+            case 13 => ThisType(evalT)
+            case 14 => SingleType(evalT, evalT)
+            case 16 => TypeRefType(evalT, evalT, evalList)
+            case 19 => ClassType(evalT, evalList)
+            case 20 => MethodType(evalT, evalList)
+            case 21 | 48 => ParameterlessType(evalT) //48 is actually a bounded super type, but it should work fine for this project
+            case 25 => BooleanLiteral(bcr.readLong != 0)
+            case 26 => ByteLiteral(bcr.readLong.toByte)
+            case 27 => ShortLiteral(bcr.readLong.toShort)
+            case 28 => CharLiteral(bcr.readLong.toChar)
+            case 29 => IntLiteral(bcr.readLong.toInt)
+            case 30 => LongLiteral(bcr.readLong)
+            case 31 => FloatLiteral(java.lang.Float.intBitsToFloat(bcr.readLong.toInt))
+            case 32 => DoubleLiteral(java.lang.Double.longBitsToDouble(bcr.readLong))
+            case 33 => StringLiteral(evalS)
+            case 34 => NullLiteral
+            case 35 => TypeLiteral(evalT)
+            case 36 => EnumLiteral(evalT)
+            case 40 => AnnotationInfo(evalT, evalT, evalList.grouped(2).map(g => (g(0), g(1))).toMap)
+            case 44 => ArrayLiteral(evalList)
+            case _ => e
         }
     }
 
@@ -259,6 +306,15 @@ class ByteCodeReader(val bc: Bytes)
         }
         while ((b & 0x80) != 0)
         r
+    }
+
+    def readLong = {
+        var l = 0L
+        while(more) {
+            l <<= 8
+            l |= readByte & 0xFF
+        }
+        l
     }
 
     def advance[A](len: Int)(r: A) = {
@@ -293,47 +349,5 @@ object ScalaSigReader
     def ann(cnode: ClassNode): Option[AnnotationNode] = cnode.visibleAnnotations match {
         case null => None
         case a => a.find(ann => ann.desc.equals("Lscala/reflect/ScalaSignature;"))
-    }
-}
-
-/**
- * Was an idea for a transformer in FML
- */
-class ScalaSigSideTransformer
-{
-    def transform(ann: AnnotationNode, cnode: ClassNode, removedFields: JList[FieldNode], removedMethods: JList[MethodNode]) {
-        if (removedFields.isEmpty && removedMethods.isEmpty)
-            return
-
-        val remFields = removedFields.asScala.map(f => (f.name, f.desc.replace('$', '/')))
-        val remMethods = removedMethods.asScala.map(f => (f.name, f.desc.replace('$', '/')))
-
-        val sig = ScalaSigReader.read(ann)
-        for (e <- sig.table if e.id == 8) {
-            //check and remove
-            val sym: sig.MethodSymbol = sig.evalT(e.index)
-            if (sym.isAccessor) {
-                val fName = if (sym.name.endsWith("_$eq")) sym.name.substring(0, sym.name.length - 4) else sym.name
-                if (remFields.find(t => t._1 == sym.name.trim).nonEmpty) {
-                    e.delete()
-                    val it = cnode.methods.iterator
-                    while (it.hasNext) {
-                        val m = it.next
-                        if (m.name == sym.name && m.desc == sym.jDesc)
-                            it.remove()
-                    }
-                }
-            }
-            else if (sym.isMethod) {
-                if (remMethods.find(t => t._1 == sym.name && t._2 == sym.jDesc).nonEmpty)
-                    e.delete()
-            }
-            else {
-                //field
-                if (remFields.find(t => t._1 == sym.name.trim).nonEmpty)
-                    e.delete()
-            }
-        }
-        ScalaSigReader.write(sig, ann)
     }
 }

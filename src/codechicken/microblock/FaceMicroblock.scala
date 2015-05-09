@@ -4,10 +4,8 @@ import codechicken.lib.vec.Cuboid6
 import codechicken.multipart.TFacePart
 import codechicken.lib.vec.Vector3
 import codechicken.lib.vec.Rotation
-import codechicken.microblock.MicroMaterialRegistry.IMicroMaterial
 import Rotation._
 import Vector3._
-import codechicken.lib.lighting.LightMatrix
 
 object FacePlacement extends PlacementProperties
 {

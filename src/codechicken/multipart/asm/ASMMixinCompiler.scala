@@ -19,6 +19,7 @@ import codechicken.multipart.handler.MultipartProxy
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
 import org.apache.logging.log4j.LogManager
 import ASMImplicits._
+import cpw.mods.fml.relauncher.FMLLaunchHandler
 
 object DebugPrinter
 {
@@ -535,6 +536,14 @@ object ASMMixinCompiler
             fields.values.toSeq, methods, supers))
     }
 
+    def listSideOnly(sig:ScalaSignature) = {
+        val side = "cpw.mods.fml.relauncher.Side."+FMLLaunchHandler.side.name
+        sig.collect[sig.AnnotationInfo](40).filter{ a =>
+            a.annType.name == "cpw.mods.fml.relauncher.SideOnly" &&
+            a.getValue[sig.EnumLiteral]("value").value.full != side
+        }.map(_.owner.full).toSet
+    }
+
     def registerScalaTrait(cnode: ClassNode):MixinInfo = {
         getMixinInfo(cnode.name) match {
             case Some(info) => return info
@@ -543,6 +552,7 @@ object ASMMixinCompiler
 
         val info = getClassInfo(cnode).asInstanceOf[ClassInfo.ScalaClassInfo]
         val sig = info.sig
+        val sideOnly = listSideOnly(sig)
 
         val parentTraits = getAndRegisterParentTraits(cnode)
         val fieldAccessors = MMap[String, sig.MethodSymbol]()
@@ -553,6 +563,7 @@ object ASMMixinCompiler
         val csym = info.csym
         for (sym <- sig.collect[sig.MethodSymbol](8)) {
             if (sym.isParam || sym.owner != csym) {}
+            else if (sideOnly(sym.full)) {}
             else if (sym.isAccessor) {
                 fieldAccessors.put(sym.name, sym)
             }
