@@ -1,19 +1,22 @@
 package codechicken.microblock
 
-import codechicken.multipart.{TMultiPart, MultiPartRegistry}
+import codechicken.multipart.MultiPartRegistry
 import codechicken.multipart.MultiPartRegistry.IPartFactory2
 import net.minecraft.nbt.NBTTagCompound
 import codechicken.lib.data.MCDataInput
+import cpw.mods.fml.relauncher.{Side, SideOnly}
 
 abstract class MicroblockClass extends IPartFactory2
 {
     def getName:String
     def baseTrait:Class[_ <: Microblock]
+    @SideOnly(Side.CLIENT)
     def clientTrait:Class[_ <: MicroblockClient]
     def getResistanceFactor:Float
 
     val baseTraitId = MicroblockGenerator.registerTrait(baseTrait)
-    val clientTraitId = MicroblockGenerator.registerTrait(clientTrait)
+    @SideOnly(Side.CLIENT)
+    lazy val clientTraitId = MicroblockGenerator.registerTrait(clientTrait)
 
     def register() {
         MultiPartRegistry.registerParts(this, getName)
