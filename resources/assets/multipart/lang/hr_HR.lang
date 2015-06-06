@@ -1,3 +1,7 @@
+
+microblock.missing=Sljedeći mikroblokovi nisu instalirani na ovom klijentu: %s
+multipart.missing=Sljedeći višedjelni blokovi nisu instalirani na ovom klijentu: %s
+
 item.microblock:sawStone.name=Kamena Pila
 item.microblock:sawIron.name=Željezna Pila
 item.microblock:sawDiamond.name=Dijamantna Pila
