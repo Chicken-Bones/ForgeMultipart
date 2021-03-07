@@ -95,7 +95,7 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
         } catch {
             case e:Exception =>
         }
-        player.getBreakSpeed(block, false, meta, 0, -1, 0) / hardness
+        player.getBreakSpeed(block, false, meta%16, 0, -1, 0) / hardness
     }
     
     def isTransparent = !block.isOpaqueCube
