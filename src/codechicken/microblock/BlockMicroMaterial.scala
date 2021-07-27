@@ -104,7 +104,8 @@ class BlockMicroMaterial(val block:Block, val meta:Int = 0) extends IMicroMateri
     
     def toolClasses = Seq("axe", "pickaxe", "shovel")
     
-    def getCutterStrength = block.getHarvestLevel(meta)
+    // meta > 15 will throw ArrayIndexOutOfBoundsException
+    def getCutterStrength = block.getHarvestLevel(meta % 16)
     
     def getSound = block.stepSound
 
