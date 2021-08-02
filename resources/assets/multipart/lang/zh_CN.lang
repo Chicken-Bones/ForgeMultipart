@@ -1,3 +1,6 @@
+microblock.missing=下列微型方块未在此客户端安装: %s
+multipart.missing=下列多阶部件未在此客户端安装: %s
+
 item.microblock:sawStone.name=石手锯
 item.microblock:sawIron.name=铁手锯
 item.microblock:sawDiamond.name=钻石手锯
@@ -30,3 +33,5 @@ mcr_cnr.2.name=%s1/4角
 mcr_cnr.2.subset=1/4角
 mcr_cnr.4.name=%s切口
 mcr_cnr.4.subset=切口
+
+nei.subsets.Microblocks=微型方块
