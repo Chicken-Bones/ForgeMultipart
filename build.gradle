@@ -1,4 +1,4 @@
-//version: 312034ef596897f9ec9605b2ebb23c4077c9b5ef
+//version: c0d301736f9df7aa7d15cdad7f61755fe91cbc8a
 /*
 DO NOT CHANGE THIS FILE!
 
@@ -133,7 +133,7 @@ if(coreModClass) {
     String targetFileJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".java"
     String targetFileScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".scala"
     if((new File(targetFileJava).exists() || new File(targetFileScala).exists()) == false) {
-        throw new GradleException("Could not resolve \"coreModClass\"! Could not find " + targetFile + " or " + targetFileScala)
+        throw new GradleException("Could not resolve \"coreModClass\"! Could not find " + targetFileJava + " or " + targetFileScala)
     }
 }
 
