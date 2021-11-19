@@ -13,7 +13,10 @@ import java.util.concurrent.TimeUnit
 
 buildscript {
     repositories {
-        mavenCentral()
+        maven {
+            name = "Scala dependencies"
+            url = "https://repo1.maven.org/maven2/"
+        }
         maven {
             name = "jitpack"
             url = "https://jitpack.io"
