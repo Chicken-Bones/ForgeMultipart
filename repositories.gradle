@@ -2,7 +2,6 @@
 
 repositories {
     maven {
-        name = "chickenbones"
-        url = "http://chickenbones.net/maven"
+        url = "https://jitpack.io"
     }
 }
