@@ -579,7 +579,7 @@ object ASMMixinCompiler
                     })
             }
             else {
-                fields += FieldMixin(sym.name.trim, getReturnType(sym.jDesc).getDescriptor,
+                fields += FieldMixin(sym.name.trim, sym.jDesc,
                     if (fieldAccessors(sym.name.trim).isPrivate) ACC_PRIVATE else ACC_PUBLIC)
             }
         }
