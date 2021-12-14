@@ -1,4 +1,4 @@
-//version: ffe7b130f98fdfa1ac7c6ba4bd34722a55ab28d4
+//version: 928ecf7feb33a1149538b0e2cd17e3bc5f281428
 /*
 DO NOT CHANGE THIS FILE!
 
@@ -87,33 +87,27 @@ checkPropertyExists("containsMixinsAndOrCoreModOnly")
 checkPropertyExists("usesShadowedDependencies")
 checkPropertyExists("developmentEnvironmentUserName")
 
-def checkPropertyExists(String propertyName) {
-    if (project.hasProperty(propertyName) == false) {
-        throw new GradleException("This project requires a property \"" + propertyName + "\"! Please add it your \"gradle.properties\". You can find all properties and their description here: https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/gradle.properties")
-    }
-}
-
 
 String javaSourceDir = "src/main/java/"
 String scalaSourceDir = "src/main/scala/"
 
 String targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/")
 String targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/")
-if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+if((getFile(targetPackageJava).exists() || getFile(targetPackageScala).exists()) == false) {
     throw new GradleException("Could not resolve \"modGroup\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
 }
 
 if(apiPackage) {
     targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/")
     targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/")
-    if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+    if((getFile(targetPackageJava).exists() || getFile(targetPackageScala).exists()) == false) {
         throw new GradleException("Could not resolve \"apiPackage\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
     }
 }
 
 if(accessTransformersFile) {
     String targetFile = "src/main/resources/META-INF/" + accessTransformersFile
-    if(new File(targetFile).exists() == false) {
+    if(getFile(targetFile).exists() == false) {
         throw new GradleException("Could not resolve \"accessTransformersFile\"! Could not find " + targetFile)
     }
 }
@@ -125,14 +119,14 @@ if(usesMixins.toBoolean()) {
 
     targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinsPackage.toString().replaceAll("\\.", "/")
     targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinsPackage.toString().replaceAll("\\.", "/")
-    if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+    if((getFile(targetPackageJava).exists() || getFile(targetPackageScala).exists()) == false) {
         throw new GradleException("Could not resolve \"mixinsPackage\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
     }
 
     String targetFileJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".java"
     String targetFileScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".scala"
     String targetFileScalaJava = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".java"
-    if((new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists()) == false) {
+    if((getFile(targetFileJava).exists() || getFile(targetFileScala).exists() || getFile(targetFileScalaJava).exists()) == false) {
         throw new GradleException("Could not resolve \"mixinPlugin\"! Could not find " + targetFileJava + " or " + targetFileScala + " or " + targetFileScalaJava)
     }
 }
@@ -141,7 +135,7 @@ if(coreModClass) {
     String targetFileJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".java"
     String targetFileScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".scala"
     String targetFileScalaJava = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".java"
-    if((new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists()) == false) {
+    if((getFile(targetFileJava).exists() || getFile(targetFileScala).exists() || getFile(targetFileScalaJava).exists()) == false) {
         throw new GradleException("Could not resolve \"coreModClass\"! Could not find " + targetFileJava + " or " + targetFileScala + " or " + targetFileScalaJava)
     }
 }
@@ -163,8 +157,14 @@ try {
 catch (Exception e) {
     throw new IllegalStateException("This mod must be version controlled by Git AND the repository must provide at least one tag!");
 }
+
 group = modGroup
-archivesBaseName = modId
+if(project.hasProperty("customArchiveBaseName") && customArchiveBaseName) {
+    archivesBaseName = customArchiveBaseName
+}
+else {
+    archivesBaseName = modId
+}
 
 minecraft {
     version = minecraftVersion + "-" + forgeVersion + "-" + minecraftVersion
@@ -240,7 +240,7 @@ def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
 
 task generateAssets {
     if(usesMixins.toBoolean()) {
-        new File(projectDir.toString() + "/src/main/resources/", "mixins." + modId + ".json").text = """{
+        getFile("/src/main/resources/mixins." + modId + ".json").text = """{
   "required": true,
   "minVersion": "0.7.11",
   "package": "${modGroup}.${mixinsPackage}",
@@ -438,11 +438,11 @@ task devJar(type: Jar) {
 
 task apiJar(type: Jar) {
     from (sourceSets.main.allJava) {
-        include modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString() + '/**'
+        include modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/") + '/**'
     }
 
     from (sourceSets.main.output) {
-        include modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString() + '/**'
+        include modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/") + '/**'
     }
 
     from (sourceSets.main.resources.srcDirs) {
@@ -463,15 +463,15 @@ artifacts {
 // Updating
 task updateBuildScript {
     doLast {
-        if (updateBuildScript()) return
+        if (performBuildScriptUpdate(projectDir.toString())) return
 
         print("Build script already up-to-date!")
     }
 }
 
-if (isNewBuildScriptVersionAvailable()) {
+if (isNewBuildScriptVersionAvailable(projectDir.toString())) {
     if (autoUpdateBuildScript.toBoolean()) {
-        updateBuildScript()
+        performBuildScriptUpdate(projectDir.toString())
     } else {
         println("Build script update available! Run 'gradle updateBuildScript'")
     }
@@ -481,9 +481,9 @@ static URL availableBuildScriptUrl() {
     new URL("https://raw.githubusercontent.com/SinTh0r4s/ExampleMod1.7.10/main/build.gradle")
 }
 
-static boolean updateBuildScript() {
-    if (isNewBuildScriptVersionAvailable()) {
-        def buildscriptFile = new File("build.gradle")
+boolean performBuildScriptUpdate(String projectDir) {
+    if (isNewBuildScriptVersionAvailable(projectDir)) {
+        def buildscriptFile = getFile("build.gradle")
         availableBuildScriptUrl().withInputStream { i -> buildscriptFile.withOutputStream { it << i } }
         print("Build script updated. Please REIMPORT the project or RESTART your IDE!")
         return true
@@ -491,10 +491,10 @@ static boolean updateBuildScript() {
     return false
 }
 
-static boolean isNewBuildScriptVersionAvailable() {
+boolean isNewBuildScriptVersionAvailable(String projectDir) {
     Map parameters = ["connectTimeout": 2000, "readTimeout": 2000]
 
-    String currentBuildScript = new File("build.gradle").getText()
+    String currentBuildScript = getFile("build.gradle").getText()
     String currentBuildScriptHash = getVersionHash(currentBuildScript)
     String availableBuildScript = availableBuildScriptUrl().newInputStream(parameters).getText()
     String availableBuildScriptHash = getVersionHash(availableBuildScript)
@@ -514,4 +514,16 @@ static String getVersionHash(String buildScriptContent) {
 configure(updateBuildScript) {
     group = 'forgegradle'
     description = 'Updates the build script to the latest version'
+}
+
+// Helper methods
+
+def checkPropertyExists(String propertyName) {
+    if (project.hasProperty(propertyName) == false) {
+        throw new GradleException("This project requires a property \"" + propertyName + "\"! Please add it your \"gradle.properties\". You can find all properties and their description here: https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/gradle.properties")
+    }
+}
+
+def getFile(String relativePath) {
+    return new File(projectDir, relativePath)
 }
