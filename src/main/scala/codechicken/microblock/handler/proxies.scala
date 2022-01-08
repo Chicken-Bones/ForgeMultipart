@@ -9,16 +9,19 @@ import cpw.mods.fml.relauncher.Side
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraft.item.Item
 import net.minecraft.item.crafting.IRecipe
+
 import java.util.{List => JList}
 import codechicken.lib.config.ConfigFile
 import net.minecraftforge.oredict.OreDictionary
 import net.minecraft.item.ItemStack
 import net.minecraftforge.oredict.ShapedOreRecipe
 import codechicken.lib.packet.PacketCustom
+import cpw.mods.fml.common.Loader
 import cpw.mods.fml.common.registry.GameRegistry
 import net.minecraft.client.renderer.RenderBlocks
 import net.minecraft.init.{Blocks, Items}
 import org.apache.logging.log4j.Logger
+
 import scala.collection.mutable
 
 class MicroblockProxy_serverImpl
@@ -70,10 +73,12 @@ class MicroblockProxy_serverImpl
 
     def init() {
         CraftingManager.getInstance.getRecipeList.asInstanceOf[JList[IRecipe]].add(MicroRecipe)
-        CraftingManager.getInstance.addRecipe(new ItemStack(stoneRod, 4), "s", "s", 's': Character, Blocks.stone)
-        addSawRecipe(sawStone, Items.flint)
-        addSawRecipe(sawIron, Items.iron_ingot)
-        addSawRecipe(sawDiamond, Items.diamond)
+        if (!Loader.isModLoaded("dreamcraft")) {
+            CraftingManager.getInstance.addRecipe(new ItemStack(stoneRod, 4), "s", "s", 's': Character, Blocks.stone)
+            addSawRecipe(sawStone, Items.flint)
+            addSawRecipe(sawIron, Items.iron_ingot)
+            addSawRecipe(sawDiamond, Items.diamond)
+        }
     }
 
     def postInit() {
