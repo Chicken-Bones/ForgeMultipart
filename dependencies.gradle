@@ -1,6 +1,6 @@
 // Add your dependencies here
 
 dependencies {
-    compile("com.github.GTNewHorizons:CodeChickenLib:1.1.5.1:dev")
-    compile("com.github.GTNewHorizons:NotEnoughItems:2.1.22-GTNH:dev")
+    compile("com.github.GTNewHorizons:CodeChickenLib:1.1.5.3:dev")
+    compile("com.github.GTNewHorizons:NotEnoughItems:2.2.12-GTNH:dev")
 }
