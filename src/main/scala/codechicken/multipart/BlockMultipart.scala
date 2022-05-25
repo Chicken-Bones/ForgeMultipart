@@ -191,6 +191,9 @@ class BlockMultipart extends Block(Material.rock)
         val tile = getTile(world, x, y, z)
         if(tile != null)
         {
+            if (!hit.isInstanceOf[ExtendedMOP]) {
+                return null
+            }
             val (index, mop) = reduceMOP(hit)
             return tile.partList(index).pickItem(mop)
         }
