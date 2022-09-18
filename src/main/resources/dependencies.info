@@ -1,7 +1,7 @@
 {
-        "repo": "https://github.com/GTNewHorizons/CodeChickenLib/releases/download/1.1.4.1/",
-        "file": "CodeChickenLib-1.7.10-1.1.4.1.jar",
-        "dev": "https://github.com/GTNewHorizons/CodeChickenLib/releases/download/1.1.4.1/CodeChickenLib-1.7.10-1.1.4.1-dev.jar",
+        "repo": "https://github.com/GTNewHorizons/CodeChickenLib/releases/download/1.1.5.5/",
+        "file": "CodeChickenLib-1.7.10-1.1.5.5.jar",
+        "dev": "https://github.com/GTNewHorizons/CodeChickenLib/releases/download/1.1.5.5/CodeChickenLib-1.7.10-1.1.5.5-dev.jar",
         "class": "codechicken.lib.asm.ASMHelper",
         "coreLib": true
 }
