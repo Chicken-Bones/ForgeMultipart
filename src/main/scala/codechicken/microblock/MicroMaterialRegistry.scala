@@ -132,8 +132,6 @@ object MicroMaterialRegistry
             return
         }
 
-        logger.debug("Registered micro material: " + name)
-
         typeMap.put(name, material)
     }
 
