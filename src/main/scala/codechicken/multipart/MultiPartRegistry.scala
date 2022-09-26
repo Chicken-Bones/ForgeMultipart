@@ -124,8 +124,6 @@ object MultiPartRegistry
             if (typeMap.contains(s))
                 throw new IllegalStateException("Part with id " + s + " is already registered.")
 
-            logger.debug("Registered multipart: "+s)
-
             typeMap.put(s, partFactory)
             containers.put(s, container)
         }
