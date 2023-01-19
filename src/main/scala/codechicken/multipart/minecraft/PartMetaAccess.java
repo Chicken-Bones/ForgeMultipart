@@ -20,15 +20,13 @@ public class PartMetaAccess implements IBlockAccess {
 
     @Override
     public Block getBlock(int i, int j, int k) {
-        if (i == pos.x && j == pos.y && k == pos.z)
-            return part.getBlock();
+        if (i == pos.x && j == pos.y && k == pos.z) return part.getBlock();
         return part.getWorld().getBlock(i, j, k);
     }
 
     @Override
     public TileEntity getTileEntity(int i, int j, int k) {
-        if (i == pos.x && j == pos.y && k == pos.z)
-            throw new IllegalArgumentException("Unsupported Operation");
+        if (i == pos.x && j == pos.y && k == pos.z) throw new IllegalArgumentException("Unsupported Operation");
         return part.getWorld().getTileEntity(i, j, k);
     }
 
@@ -40,8 +38,7 @@ public class PartMetaAccess implements IBlockAccess {
 
     @Override
     public int getBlockMetadata(int i, int j, int k) {
-        if (i == pos.x && j == pos.y && k == pos.z)
-            return part.getMetadata() & 0xF;
+        if (i == pos.x && j == pos.y && k == pos.z) return part.getMetadata() & 0xF;
         return part.getWorld().getBlockMetadata(i, j, k);
     }
 
