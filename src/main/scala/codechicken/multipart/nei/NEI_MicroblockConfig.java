@@ -1,25 +1,22 @@
 package codechicken.multipart.nei;
 
 import codechicken.lib.inventory.InventoryUtils;
-import codechicken.microblock.MicroblockClass;
 import codechicken.microblock.CommonMicroClass;
+import codechicken.microblock.MicroblockClass;
 import codechicken.microblock.handler.MicroblockProxy;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
+import java.util.Arrays;
 import net.minecraft.util.StatCollector;
 
-import java.util.Arrays;
-
-public class NEI_MicroblockConfig implements IConfigureNEI
-{
+public class NEI_MicroblockConfig implements IConfigureNEI {
     @Override
     public void loadConfig() {
         MicroblockClass[] microClasses = CommonMicroClass.classes();
         for (int c = 0; c < microClasses.length; c++) {
             MicroblockClass mcrClass = microClasses[c];
-            if (mcrClass == null)
-                continue;
+            if (mcrClass == null) continue;
 
             addSubset(mcrClass, c << 8 | 1);
             addSubset(mcrClass, c << 8 | 2);
@@ -28,8 +25,10 @@ public class NEI_MicroblockConfig implements IConfigureNEI
     }
 
     private void addSubset(MicroblockClass mcrClass, int i) {
-        API.addSubset("Microblocks." + StatCollector.translateToLocal(mcrClass.getName() + "." + (i & 0xFF) + ".subset"),
-                Arrays.asList(InventoryUtils.newItemStack(MicroblockProxy.itemMicro(), 1, i, ItemStackMap.WILDCARD_TAG)));
+        API.addSubset(
+                "Microblocks." + StatCollector.translateToLocal(mcrClass.getName() + "." + (i & 0xFF) + ".subset"),
+                Arrays.asList(
+                        InventoryUtils.newItemStack(MicroblockProxy.itemMicro(), 1, i, ItemStackMap.WILDCARD_TAG)));
     }
 
     @Override

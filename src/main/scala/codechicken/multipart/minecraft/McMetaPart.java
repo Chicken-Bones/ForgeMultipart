@@ -2,78 +2,64 @@ package codechicken.multipart.minecraft;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
-import codechicken.lib.lighting.LightMatrix;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-public abstract class McMetaPart extends McBlockPart implements IPartMeta
-{
+public abstract class McMetaPart extends McBlockPart implements IPartMeta {
     public byte meta;
-    
-    public McMetaPart()
-    {
+
+    public McMetaPart() {}
+
+    public McMetaPart(int meta) {
+        this.meta = (byte) meta;
     }
-    
-    public McMetaPart(int meta)
-    {
-        this.meta = (byte)meta;
-    }
-    
+
     @Override
-    public void save(NBTTagCompound tag)
-    {
+    public void save(NBTTagCompound tag) {
         tag.setByte("meta", meta);
     }
-    
+
     @Override
-    public void load(NBTTagCompound tag)
-    {
+    public void load(NBTTagCompound tag) {
         meta = tag.getByte("meta");
     }
-    
+
     @Override
-    public void writeDesc(MCDataOutput packet)
-    {
+    public void writeDesc(MCDataOutput packet) {
         packet.writeByte(meta);
     }
-    
+
     @Override
-    public void readDesc(MCDataInput packet)
-    {
+    public void readDesc(MCDataInput packet) {
         meta = packet.readByte();
     }
-    
+
     @Override
-    public World getWorld()
-    {
+    public World getWorld() {
         return world();
     }
-    
+
     @Override
-    public int getMetadata()
-    {
+    public int getMetadata() {
         return meta;
     }
-    
+
     @Override
-    public BlockCoord getPos()
-    {
+    public BlockCoord getPos() {
         return new BlockCoord(tile());
     }
-    
+
     @Override
-    public boolean doesTick()
-    {
+    public boolean doesTick() {
         return false;
     }
-    
+
     @Override
-    public boolean renderStatic(Vector3 pos, int pass)
-    {
-        if(pass == 0) {
+    public boolean renderStatic(Vector3 pos, int pass) {
+        if (pass == 0) {
             new RenderBlocks(new PartMetaAccess(this)).renderBlockByRenderType(getBlock(), x(), y(), z());
             return true;
         }

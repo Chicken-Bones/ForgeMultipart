@@ -8,13 +8,6 @@ import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-import sun.misc.URLClassPath;
-import sun.net.util.URLUtil;
-
-import javax.swing.*;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
@@ -35,6 +28,12 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import sun.misc.URLClassPath;
+import sun.net.util.URLUtil;
 
 /**
  * For autodownloading stuff.
@@ -72,10 +71,12 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private Box makeProgressPanel() {
             Box box = Box.createVerticalBox();
             box.add(Box.createRigidArea(new Dimension(0, 10)));
-            JLabel welcomeLabel = new JLabel("<html><b><font size='+1'>" + owner + " is setting up your minecraft environment</font></b></html>");
+            JLabel welcomeLabel = new JLabel("<html><b><font size='+1'>" + owner
+                    + " is setting up your minecraft environment</font></b></html>");
             box.add(welcomeLabel);
             welcomeLabel.setAlignmentY(LEFT_ALIGNMENT);
-            welcomeLabel = new JLabel("<html>Please wait, " + owner + " has some tasks to do before you can play</html>");
+            welcomeLabel =
+                    new JLabel("<html>Please wait, " + owner + " has some tasks to do before you can play</html>");
             welcomeLabel.setAlignmentY(LEFT_ALIGNMENT);
             box.add(welcomeLabel);
             box.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -91,12 +92,11 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         @Override
         public JDialog makeDialog() {
-            if (container != null)
-                return container;
+            if (container != null) return container;
 
             setMessageType(JOptionPane.INFORMATION_MESSAGE);
             setMessage(makeProgressPanel());
-            setOptions(new Object[]{"Stop"});
+            setOptions(new Object[] {"Stop"});
             addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -117,39 +117,40 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             container.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    requestClose("Closing this window will stop minecraft from launching\nAre you sure you wish to do this?");
+                    requestClose(
+                            "Closing this window will stop minecraft from launching\nAre you sure you wish to do this?");
                 }
             });
             return container;
         }
 
         protected void requestClose(String message) {
-            int shouldClose = JOptionPane.showConfirmDialog(container, message, "Are you sure you want to stop?", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-            if (shouldClose == JOptionPane.YES_OPTION)
-                container.dispose();
+            int shouldClose = JOptionPane.showConfirmDialog(
+                    container,
+                    message,
+                    "Are you sure you want to stop?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if (shouldClose == JOptionPane.YES_OPTION) container.dispose();
 
             stopIt = true;
-            if (pokeThread != null)
-                pokeThread.interrupt();
+            if (pokeThread != null) pokeThread.interrupt();
         }
 
         @Override
         public void updateProgressString(String progressUpdate, Object... data) {
-            //FMLLog.finest(progressUpdate, data);
-            if (currentActivity != null)
-                currentActivity.setText(String.format(progressUpdate, data));
+            // FMLLog.finest(progressUpdate, data);
+            if (currentActivity != null) currentActivity.setText(String.format(progressUpdate, data));
         }
 
         @Override
         public void resetProgress(int sizeGuess) {
-            if (progress != null)
-                progress.getModel().setRangeProperties(0, 0, 0, sizeGuess, false);
+            if (progress != null) progress.getModel().setRangeProperties(0, 0, 0, sizeGuess, false);
         }
 
         @Override
         public void updateProgress(int fullLength) {
-            if (progress != null)
-                progress.getModel().setValue(fullLength);
+            if (progress != null) progress.getModel().setValue(fullLength);
         }
 
         @Override
@@ -164,12 +165,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         @Override
         public void showErrorDialog(String name, String url) {
-            JEditorPane ep = new JEditorPane("text/html",
-                    "<html>" +
-                            owner + " was unable to download required library " + name +
-                            "<br>Check your internet connection and try restarting or download it manually from" +
-                            "<br><a href=\"" + url + "\">" + url + "</a> and put it in your mods folder" +
-                            "</html>");
+            JEditorPane ep = new JEditorPane(
+                    "text/html",
+                    "<html>" + owner
+                            + " was unable to download required library " + name
+                            + "<br>Check your internet connection and try restarting or download it manually from"
+                            + "<br><a href=\""
+                            + url + "\">" + url + "</a> and put it in your mods folder" + "</html>");
 
             ep.setEditable(false);
             ep.setOpaque(false);
@@ -190,16 +192,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
     public static class DummyDownloader implements IDownloadDisplay {
         @Override
-        public void resetProgress(int sizeGuess) {
-        }
+        public void resetProgress(int sizeGuess) {}
 
         @Override
-        public void setPokeThread(Thread currentThread) {
-        }
+        public void setPokeThread(Thread currentThread) {}
 
         @Override
-        public void updateProgress(int fullLength) {
-        }
+        public void updateProgress(int fullLength) {}
 
         @Override
         public boolean shouldStopIt() {
@@ -207,8 +206,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         @Override
-        public void updateProgressString(String string, Object... data) {
-        }
+        public void updateProgressString(String string, Object... data) {}
 
         @Override
         public Object makeDialog() {
@@ -216,12 +214,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         @Override
-        public void showErrorDialog(String name, String url) {
-        }
+        public void showErrorDialog(String name, String url) {}
     }
 
-    public static class VersionedFile
-    {
+    public static class VersionedFile {
         public final Pattern pattern;
         public final String filename;
         public final ComparableVersion version;
@@ -231,11 +227,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             this.pattern = pattern;
             this.filename = filename;
             Matcher m = pattern.matcher(filename);
-            if(m.matches()) {
+            if (m.matches()) {
                 name = m.group(1);
                 version = new ComparableVersion(m.group(2));
-            }
-            else {
+            } else {
                 name = null;
                 version = null;
             }
@@ -246,8 +241,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
     }
 
-    public static class Dependency
-    {
+    public static class Dependency {
         public String url;
         public VersionedFile file;
 
@@ -279,21 +273,20 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
             modsDir = new File(mcDir, "mods");
             v_modsDir = new File(mcDir, "mods/" + mcVer);
-            if (!v_modsDir.exists())
-                v_modsDir.mkdirs();
+            if (!v_modsDir.exists()) v_modsDir.mkdirs();
         }
 
         private void addClasspath(String name) {
             try {
-                ((LaunchClassLoader) DepLoader.class.getClassLoader()).addURL(new File(v_modsDir, name).toURI().toURL());
+                ((LaunchClassLoader) DepLoader.class.getClassLoader())
+                        .addURL(new File(v_modsDir, name).toURI().toURL());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
 
         private void deleteMod(File mod) {
-            if (mod.delete())
-                return;
+            if (mod.delete()) return;
 
             try {
                 ClassLoader cl = DepLoader.class.getClassLoader();
@@ -317,7 +310,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
             if (!mod.delete()) {
                 mod.deleteOnExit();
-                String msg = owner + " was unable to delete file " + mod.getPath() + " the game will now try to delete it on exit. If this dialog appears again, delete it manually.";
+                String msg = owner + " was unable to delete file " + mod.getPath()
+                        + " the game will now try to delete it on exit. If this dialog appears again, delete it manually.";
                 System.err.println(msg);
                 if (!GraphicsEnvironment.isHeadless())
                     JOptionPane.showMessageDialog(null, msg, "An update error has occured", JOptionPane.ERROR_MESSAGE);
@@ -357,7 +351,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         private void download(InputStream is, int sizeGuess, File target) throws Exception {
             if (sizeGuess > downloadBuffer.capacity())
-                throw new Exception(String.format("The file %s is too large to be downloaded by " + owner + " - the download is invalid", target.getName()));
+                throw new Exception(String.format(
+                        "The file %s is too large to be downloaded by " + owner + " - the download is invalid",
+                        target.getName()));
 
             downloadBuffer.clear();
 
@@ -391,9 +387,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                 /*String cksum = generateChecksum(downloadBuffer);
                 if (cksum.equals(validationHash))
                 {*/
-                if (!target.exists())
-                    target.createNewFile();
-
+                if (!target.exists()) target.createNewFile();
 
                 downloadBuffer.position(0);
                 FileOutputStream fos = new FileOutputStream(target);
@@ -412,19 +406,16 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private String checkExisting(Dependency dep) {
             for (File f : modsDir.listFiles()) {
                 VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
-                if (!vfile.matches() || !vfile.name.equals(dep.file.name))
-                    continue;
+                if (!vfile.matches() || !vfile.name.equals(dep.file.name)) continue;
 
-                if (f.renameTo(new File(v_modsDir, f.getName())))
-                    continue;
+                if (f.renameTo(new File(v_modsDir, f.getName()))) continue;
 
                 deleteMod(f);
             }
 
             for (File f : v_modsDir.listFiles()) {
                 VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
-                if (!vfile.matches() || !vfile.name.equals(dep.file.name))
-                    continue;
+                if (!vfile.matches() || !vfile.name.equals(dep.file.name)) continue;
 
                 int cmp = vfile.version.compareTo(dep.file.version);
                 if (cmp < 0) {
@@ -433,27 +424,25 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                     return null;
                 }
                 if (cmp > 0) {
-                    System.err.println("Warning: version of " + dep.file.name + ", " + vfile.version + " is newer than request " + dep.file.version);
+                    System.err.println("Warning: version of " + dep.file.name + ", " + vfile.version
+                            + " is newer than request " + dep.file.version);
                     return f.getName();
                 }
-                return f.getName();//found dependency
+                return f.getName(); // found dependency
             }
             return null;
         }
 
         public void load() {
             scanDepInfos();
-            if (depMap.isEmpty())
-                return;
+            if (depMap.isEmpty()) return;
 
             loadDeps();
             activateDeps();
         }
 
         private void activateDeps() {
-            for (Dependency dep : depMap.values())
-                if (dep.coreLib)
-                    addClasspath(dep.existing);
+            for (Dependency dep : depMap.values()) if (dep.coreLib) addClasspath(dep.existing);
         }
 
         private void loadDeps() {
@@ -475,7 +464,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         private void load(Dependency dep) {
             dep.existing = checkExisting(dep);
-            if (dep.existing == null)//download dep
+            if (dep.existing == null) // download dep
             {
                 download(dep);
                 dep.existing = dep.file.filename;
@@ -491,8 +480,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         private void scanDepInfos() {
             for (File file : modFiles()) {
-                if (!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip"))
-                    continue;
+                if (!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip")) continue;
 
                 scanDepInfo(file);
             }
@@ -503,8 +491,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                 ZipFile zip = new ZipFile(file);
                 ZipEntry e = zip.getEntry("dependancies.info");
                 if (e == null) e = zip.getEntry("dependencies.info");
-                if (e != null)
-                    loadJSon(zip.getInputStream(e));
+                if (e != null) loadJSon(zip.getInputStream(e));
                 zip.close();
             } catch (Exception e) {
                 System.err.println("Failed to load dependencies.info from " + file.getName() + " as JSON");
@@ -515,47 +502,41 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private void loadJSon(InputStream input) throws IOException {
             InputStreamReader reader = new InputStreamReader(input);
             JsonElement root = new JsonParser().parse(reader);
-            if (root.isJsonArray())
-                loadJSonArr(root);
-            else
-                loadJson(root.getAsJsonObject());
+            if (root.isJsonArray()) loadJSonArr(root);
+            else loadJson(root.getAsJsonObject());
             reader.close();
         }
 
         private void loadJSonArr(JsonElement root) throws IOException {
-            for (JsonElement node : root.getAsJsonArray())
-                loadJson(node.getAsJsonObject());
+            for (JsonElement node : root.getAsJsonArray()) loadJson(node.getAsJsonObject());
         }
 
         private void loadJson(JsonObject node) throws IOException {
-            boolean obfuscated = ((LaunchClassLoader) DepLoader.class.getClassLoader())
-                    .getClassBytes("net.minecraft.world.World") == null;
+            boolean obfuscated =
+                    ((LaunchClassLoader) DepLoader.class.getClassLoader()).getClassBytes("net.minecraft.world.World")
+                            == null;
 
             String testClass = node.get("class").getAsString();
-            if (DepLoader.class.getResource("/" + testClass.replace('.', '/') + ".class") != null)
-                return;
+            if (DepLoader.class.getResource("/" + testClass.replace('.', '/') + ".class") != null) return;
 
             String repo = node.get("repo").getAsString();
             String filename = node.get("file").getAsString();
-            if (!obfuscated && node.has("dev"))
-                filename = node.get("dev").getAsString();
+            if (!obfuscated && node.has("dev")) filename = node.get("dev").getAsString();
 
             boolean coreLib = node.has("coreLib") && node.get("coreLib").getAsBoolean();
 
             Pattern pattern = null;
             try {
-                if(node.has("pattern"))
+                if (node.has("pattern"))
                     pattern = Pattern.compile(node.get("pattern").getAsString());
             } catch (PatternSyntaxException e) {
-                System.err.println("Invalid filename pattern: "+node.get("pattern"));
+                System.err.println("Invalid filename pattern: " + node.get("pattern"));
                 e.printStackTrace();
             }
-            if(pattern == null)
-                pattern = Pattern.compile("(\\w+).*?([\\d\\.]+)[-\\w]*\\.[^\\d]+");
+            if (pattern == null) pattern = Pattern.compile("(\\w+).*?([\\d\\.]+)[-\\w]*\\.[^\\d]+");
 
             VersionedFile file = new VersionedFile(filename, pattern);
-            if (!file.matches())
-                throw new RuntimeException("Invalid filename format for dependency: " + filename);
+            if (!file.matches()) throw new RuntimeException("Invalid filename format for dependency: " + filename);
 
             addDep(new Dependency(repo, file, coreLib));
         }
@@ -568,8 +549,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private boolean mergeNew(Dependency oldDep, Dependency newDep) {
-            if (oldDep == null)
-                return true;
+            if (oldDep == null) return true;
 
             Dependency newest = newDep.file.version.compareTo(oldDep.file.version) > 0 ? newDep : oldDep;
             newest.coreLib = newDep.coreLib || oldDep.coreLib;
@@ -601,8 +581,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     @Override
-    public void injectData(Map<String, Object> data) {
-    }
+    public void injectData(Map<String, Object> data) {}
 
     @Override
     public Void call() {

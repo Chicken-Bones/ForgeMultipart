@@ -446,7 +446,7 @@ object ASMMixinCompiler
         }
 
         def staticTransform(mnode: MethodNode, base: MethodNode) {
-            val stack = new StackAnalyser(getType(cnode.name), base)
+            val stack = new StackAnalyser(getType(Type.getObjectType(cnode.name).getDescriptor), base)
             val insnList = mnode.instructions
             var insn = insnList.getFirst
 
@@ -478,7 +478,7 @@ object ASMMixinCompiler
                                     //cast to parent class and call
                                     val mType = Type.getMethodType(minsn.desc)
                                     val instanceEntry = stack.peek(width(mType.getArgumentTypes))
-                                    insnList.insert(instanceEntry.insn, new TypeInsnNode(CHECKCAST, cnode.superName))
+                                    insnList.insert(instanceEntry.insn, new TypeInsnNode(CHECKCAST, Type.getObjectType(cnode.superName).getDescriptor))
                                     minsn.owner = cnode.superName
                                 }
                             }
