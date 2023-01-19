@@ -283,10 +283,10 @@ class StackAnalyser(val owner:Type, val m:MethodNode)
             }
             case tinsn:TypeInsnNode => ainsn.getOpcode match
             {
-                case NEW => push(New(getType(tinsn.desc)))
-                case NEWARRAY => push(NewArray(pop(), getType(tinsn.desc)))
-                case ANEWARRAY => push(NewArray(pop(), getType("["+tinsn.desc)))
-                case CHECKCAST => push(Cast(pop(), getType(tinsn.desc)))
+                case NEW => push(New(getObjectType(tinsn.desc)))
+                case NEWARRAY => push(NewArray(pop(), getObjectType(tinsn.desc)))
+                case ANEWARRAY => push(NewArray(pop(), getObjectType("["+tinsn.desc)))
+                case CHECKCAST => push(Cast(pop(), getObjectType(tinsn.desc)))
                 case INSTANCEOF => push(UnaryOp(INSTANCEOF, pop()))
             }
             case mainsn:MultiANewArrayInsnNode =>
