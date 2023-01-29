@@ -1,12 +1,7 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.multipart.IFaceRedstonePart;
-import codechicken.multipart.RedstoneInteractions;
-import codechicken.multipart.TRandomUpdateTick;
-import codechicken.multipart.TickScheduler;
 import java.util.Random;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneTorch;
 import net.minecraft.init.Blocks;
@@ -15,11 +10,20 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.multipart.IFaceRedstonePart;
+import codechicken.multipart.RedstoneInteractions;
+import codechicken.multipart.TRandomUpdateTick;
+import codechicken.multipart.TickScheduler;
+
 public class RedstoneTorchPart extends TorchPart implements IFaceRedstonePart, TRandomUpdateTick {
+
     public static BlockRedstoneTorch torchActive = (BlockRedstoneTorch) Blocks.redstone_torch;
     public static BlockRedstoneTorch torchIdle = (BlockRedstoneTorch) Blocks.unlit_redstone_torch;
 
     public class BurnoutEntry {
+
         public BurnoutEntry(long l) {
             timeout = l;
         }

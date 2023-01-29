@@ -1,13 +1,15 @@
 package codechicken.multipart.minecraft;
 
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import codechicken.multipart.TFacePart;
 import codechicken.multipart.TileMultipart;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public abstract class McSidedMetaPart extends McMetaPart implements TFacePart {
+
     public McSidedMetaPart() {}
 
     public McSidedMetaPart(int meta) {

@@ -1,5 +1,9 @@
 package codechicken.multipart.nei;
 
+import java.util.Arrays;
+
+import net.minecraft.util.StatCollector;
+
 import codechicken.lib.inventory.InventoryUtils;
 import codechicken.microblock.CommonMicroClass;
 import codechicken.microblock.MicroblockClass;
@@ -7,10 +11,9 @@ import codechicken.microblock.handler.MicroblockProxy;
 import codechicken.nei.ItemStackMap;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
-import java.util.Arrays;
-import net.minecraft.util.StatCollector;
 
 public class NEI_MicroblockConfig implements IConfigureNEI {
+
     @Override
     public void loadConfig() {
         MicroblockClass[] microClasses = CommonMicroClass.classes();

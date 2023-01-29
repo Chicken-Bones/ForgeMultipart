@@ -1,5 +1,15 @@
 package codechicken.multipart.minecraft;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.MovingObjectPosition;
+
 import codechicken.lib.vec.Cuboid6;
 import codechicken.multipart.IconHitEffects;
 import codechicken.multipart.JCuboidPart;
@@ -9,16 +19,9 @@ import codechicken.multipart.NormalOcclusionTest;
 import codechicken.multipart.TMultiPart;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import java.util.Arrays;
-import java.util.Collections;
-import net.minecraft.block.Block;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
 
 public abstract class McBlockPart extends JCuboidPart implements JNormalOcclusion, JIconHitEffects {
+
     public abstract Block getBlock();
 
     @Override

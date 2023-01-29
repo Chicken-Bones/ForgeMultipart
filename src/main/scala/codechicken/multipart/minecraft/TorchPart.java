@@ -1,19 +1,22 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.multipart.IRandomDisplayTick;
 import java.util.Random;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.multipart.IRandomDisplayTick;
+
 public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick {
+
     public static BlockTorch torch = (BlockTorch) Blocks.torch;
-    public static int[] metaSideMap = new int[] {-1, 4, 5, 2, 3, 0};
-    public static int[] sideMetaMap = new int[] {5, 0, 3, 4, 1, 2};
+    public static int[] metaSideMap = new int[] { -1, 4, 5, 2, 3, 0 };
+    public static int[] sideMetaMap = new int[] { 5, 0, 3, 4, 1, 2 };
 
     public TorchPart() {}
 
@@ -55,7 +58,7 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick {
     @Override
     public boolean canStay() {
         return sideForMeta(meta) == 0
-                        && world().getBlock(x(), y() - 1, z()).canPlaceTorchOnTop(world(), x(), y() - 1, z())
+                && world().getBlock(x(), y() - 1, z()).canPlaceTorchOnTop(world(), x(), y() - 1, z())
                 || super.canStay();
     }
 
@@ -64,7 +67,8 @@ public class TorchPart extends McSidedMetaPart implements IRandomDisplayTick {
         pos = pos.copy().offset(side ^ 1);
         Block block = world.getBlock(pos.x, pos.y, pos.z);
         if (!block.isSideSolid(world, pos.x, pos.y, pos.z, ForgeDirection.getOrientation(side))
-                && (side != 1 || block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z))) return null;
+                && (side != 1 || block.canPlaceTorchOnTop(world, pos.x, pos.y, pos.z)))
+            return null;
 
         return new TorchPart(sideMetaMap[side ^ 1]);
     }

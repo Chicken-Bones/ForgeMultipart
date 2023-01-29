@@ -190,22 +190,20 @@ object ByteCodecs {
 
   def encode(xs: Array[Byte]): Array[Byte] = avoidZero(encode8to7(xs))
 
-  /**
-   * Destructively decodes array xs and returns the length of the decoded array.
-   *
-   * Sometimes returns (length+1) of the decoded array. Example:
-   *
-   *   scala> val enc = scala.reflect.generic.ByteCodecs.encode(Array(1,2,3))
-   *   enc: Array[Byte] = Array(2, 5, 13, 1)
-   *
-   *   scala> scala.reflect.generic.ByteCodecs.decode(enc)
-   *   res43: Int = 4
-   *
-   *   scala> enc
-   *   res44: Array[Byte] = Array(1, 2, 3, 0)
-   *
-   * However, this does not always happen.
-   */
+  /** Destructively decodes array xs and returns the length of the decoded
+    * array.
+    *
+    * Sometimes returns (length+1) of the decoded array. Example:
+    *
+    * scala> val enc = scala.reflect.generic.ByteCodecs.encode(Array(1,2,3))
+    * enc: Array[Byte] = Array(2, 5, 13, 1)
+    *
+    * scala> scala.reflect.generic.ByteCodecs.decode(enc) res43: Int = 4
+    *
+    * scala> enc res44: Array[Byte] = Array(1, 2, 3, 0)
+    *
+    * However, this does not always happen.
+    */
   def decode(xs: Array[Byte]): Int = {
     val len = regenerateZero(xs)
     decode7to8(xs, len)

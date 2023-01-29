@@ -1,13 +1,5 @@
 package codechicken.core.launch;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import cpw.mods.fml.common.versioning.ComparableVersion;
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
@@ -28,23 +20,37 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+
 import net.minecraft.launchwrapper.LaunchClassLoader;
+
 import sun.misc.URLClassPath;
 import sun.net.util.URLUtil;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import cpw.mods.fml.common.versioning.ComparableVersion;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import cpw.mods.fml.relauncher.FMLLaunchHandler;
+import cpw.mods.fml.relauncher.IFMLCallHook;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+
 /**
- * For autodownloading stuff.
- * This is really unoriginal, mostly ripped off FML, credits to cpw.
+ * For autodownloading stuff. This is really unoriginal, mostly ripped off FML, credits to cpw.
  */
 public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
+
     private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
     private static final String owner = "CB's DepLoader";
     private static DepLoadInst inst;
 
     public interface IDownloadDisplay {
+
         void resetProgress(int sizeGuess);
 
         void setPokeThread(Thread currentThread);
@@ -62,6 +68,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
     @SuppressWarnings("serial")
     public static class Downloader extends JOptionPane implements IDownloadDisplay {
+
         private JDialog container;
         private JLabel currentActivity;
         private JProgressBar progress;
@@ -71,12 +78,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private Box makeProgressPanel() {
             Box box = Box.createVerticalBox();
             box.add(Box.createRigidArea(new Dimension(0, 10)));
-            JLabel welcomeLabel = new JLabel("<html><b><font size='+1'>" + owner
-                    + " is setting up your minecraft environment</font></b></html>");
+            JLabel welcomeLabel = new JLabel(
+                    "<html><b><font size='+1'>" + owner
+                            + " is setting up your minecraft environment</font></b></html>");
             box.add(welcomeLabel);
             welcomeLabel.setAlignmentY(LEFT_ALIGNMENT);
-            welcomeLabel =
-                    new JLabel("<html>Please wait, " + owner + " has some tasks to do before you can play</html>");
+            welcomeLabel = new JLabel(
+                    "<html>Please wait, " + owner + " has some tasks to do before you can play</html>");
             welcomeLabel.setAlignmentY(LEFT_ALIGNMENT);
             box.add(welcomeLabel);
             box.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -96,8 +104,9 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
             setMessageType(JOptionPane.INFORMATION_MESSAGE);
             setMessage(makeProgressPanel());
-            setOptions(new Object[] {"Stop"});
+            setOptions(new Object[] { "Stop" });
             addPropertyChangeListener(new PropertyChangeListener() {
+
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getSource() == Downloader.this && evt.getPropertyName() == VALUE_PROPERTY) {
@@ -115,6 +124,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             container.setVisible(true);
             container.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             container.addWindowListener(new WindowAdapter() {
+
                 @Override
                 public void windowClosing(WindowEvent e) {
                     requestClose(
@@ -168,21 +178,26 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             JEditorPane ep = new JEditorPane(
                     "text/html",
                     "<html>" + owner
-                            + " was unable to download required library " + name
+                            + " was unable to download required library "
+                            + name
                             + "<br>Check your internet connection and try restarting or download it manually from"
                             + "<br><a href=\""
-                            + url + "\">" + url + "</a> and put it in your mods folder" + "</html>");
+                            + url
+                            + "\">"
+                            + url
+                            + "</a> and put it in your mods folder"
+                            + "</html>");
 
             ep.setEditable(false);
             ep.setOpaque(false);
             ep.addHyperlinkListener(new HyperlinkListener() {
+
                 @Override
                 public void hyperlinkUpdate(HyperlinkEvent event) {
                     try {
                         if (event.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED))
                             Desktop.getDesktop().browse(event.getURL().toURI());
-                    } catch (Exception e) {
-                    }
+                    } catch (Exception e) {}
                 }
             });
 
@@ -191,6 +206,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     public static class DummyDownloader implements IDownloadDisplay {
+
         @Override
         public void resetProgress(int sizeGuess) {}
 
@@ -218,6 +234,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     public static class VersionedFile {
+
         public final Pattern pattern;
         public final String filename;
         public final ComparableVersion version;
@@ -242,6 +259,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     public static class Dependency {
+
         public String url;
         public VersionedFile file;
 
@@ -259,6 +277,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     public static class DepLoadInst {
+
         private File modsDir;
         private File v_modsDir;
         private IDownloadDisplay downloadMonitor;
@@ -310,7 +329,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
             if (!mod.delete()) {
                 mod.deleteOnExit();
-                String msg = owner + " was unable to delete file " + mod.getPath()
+                String msg = owner + " was unable to delete file "
+                        + mod.getPath()
                         + " the game will now try to delete it on exit. If this dialog appears again, delete it manually.";
                 System.err.println(msg);
                 if (!GraphicsEnvironment.isHeadless())
@@ -350,10 +370,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private void download(InputStream is, int sizeGuess, File target) throws Exception {
-            if (sizeGuess > downloadBuffer.capacity())
-                throw new Exception(String.format(
-                        "The file %s is too large to be downloaded by " + owner + " - the download is invalid",
-                        target.getName()));
+            if (sizeGuess > downloadBuffer.capacity()) throw new Exception(
+                    String.format(
+                            "The file %s is too large to be downloaded by " + owner + " - the download is invalid",
+                            target.getName()));
 
             downloadBuffer.clear();
 
@@ -384,20 +404,20 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             }
 
             try {
-                /*String cksum = generateChecksum(downloadBuffer);
-                if (cksum.equals(validationHash))
-                {*/
+                /*
+                 * String cksum = generateChecksum(downloadBuffer); if (cksum.equals(validationHash)) {
+                 */
                 if (!target.exists()) target.createNewFile();
 
                 downloadBuffer.position(0);
                 FileOutputStream fos = new FileOutputStream(target);
                 fos.getChannel().write(downloadBuffer);
                 fos.close();
-                /*}
-                else
-                {
-                    throw new RuntimeException(String.format("The downloaded file %s has an invalid checksum %s (expecting %s). The download did not succeed correctly and the file has been deleted. Please try launching again.", target.getName(), cksum, validationHash));
-                }*/
+                /*
+                 * } else { throw new RuntimeException(String.
+                 * format("The downloaded file %s has an invalid checksum %s (expecting %s). The download did not succeed correctly and the file has been deleted. Please try launching again."
+                 * , target.getName(), cksum, validationHash)); }
+                 */
             } catch (Exception e) {
                 throw e;
             }
@@ -424,8 +444,12 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                     return null;
                 }
                 if (cmp > 0) {
-                    System.err.println("Warning: version of " + dep.file.name + ", " + vfile.version
-                            + " is newer than request " + dep.file.version);
+                    System.err.println(
+                            "Warning: version of " + dep.file.name
+                                    + ", "
+                                    + vfile.version
+                                    + " is newer than request "
+                                    + dep.file.version);
                     return f.getName();
                 }
                 return f.getName(); // found dependency
@@ -512,9 +536,8 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private void loadJson(JsonObject node) throws IOException {
-            boolean obfuscated =
-                    ((LaunchClassLoader) DepLoader.class.getClassLoader()).getClassBytes("net.minecraft.world.World")
-                            == null;
+            boolean obfuscated = ((LaunchClassLoader) DepLoader.class.getClassLoader())
+                    .getClassBytes("net.minecraft.world.World") == null;
 
             String testClass = node.get("class").getAsString();
             if (DepLoader.class.getResource("/" + testClass.replace('.', '/') + ".class") != null) return;
@@ -527,8 +550,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
             Pattern pattern = null;
             try {
-                if (node.has("pattern"))
-                    pattern = Pattern.compile(node.get("pattern").getAsString());
+                if (node.has("pattern")) pattern = Pattern.compile(node.get("pattern").getAsString());
             } catch (PatternSyntaxException e) {
                 System.err.println("Invalid filename pattern: " + node.get("pattern"));
                 e.printStackTrace();

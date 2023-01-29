@@ -1,14 +1,16 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Vector3;
+
 public abstract class McMetaPart extends McBlockPart implements IPartMeta {
+
     public byte meta;
 
     public McMetaPart() {}

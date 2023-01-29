@@ -1,10 +1,11 @@
 package codechicken.multipart;
 
 /**
- * Defines what each slot in a multipart tile corresponds to and provides some utility functions.
- * For performance reasons, it is recommended that integer constants be useds as opposed to this enum
+ * Defines what each slot in a multipart tile corresponds to and provides some utility functions. For performance
+ * reasons, it is recommended that integer constants be useds as opposed to this enum
  */
 public enum PartMap {
+
     BOTTOM(0),
     TOP(1),
     NORTH(2),
@@ -63,9 +64,9 @@ public enum PartMap {
     }
 
     /**
-     * Returns a 3 bit mask of the axis xzy that are variable in this edge.
-     * For example, the first 4 edges (15-18) are along the Y axis, variable in x and z, so the mask is 110b. Note axis y is 1<<0, z is 1<<1 and x is 1<<2
-     * Note the parameter e is relative to the first edge slot and can range from 0-11
+     * Returns a 3 bit mask of the axis xzy that are variable in this edge. For example, the first 4 edges (15-18) are
+     * along the Y axis, variable in x and z, so the mask is 110b. Note axis y is 1<<0, z is 1<<1 and x is 1<<2 Note the
+     * parameter e is relative to the first edge slot and can range from 0-11
      */
     public static int edgeAxisMask(int e) {
         switch (e >> 2) {
@@ -80,9 +81,9 @@ public enum PartMap {
     }
 
     /**
-     * Unpacks an edge index, to a mask where high values indicate positive positions in that axis.
-     * Note the parameter e is relative to the first edge slot and can range from 0-11
-     * For example, edge 1 (slot 16), is EDGE_NYP so the mask returned would be 010 as z is positive.
+     * Unpacks an edge index, to a mask where high values indicate positive positions in that axis. Note the parameter e
+     * is relative to the first edge slot and can range from 0-11 For example, edge 1 (slot 16), is EDGE_NYP so the mask
+     * returned would be 010 as z is positive.
      */
     public static int unpackEdgeBits(int e) {
         switch (e >> 2) {
@@ -97,8 +98,8 @@ public enum PartMap {
     }
 
     /**
-     * Repacks a mask of axis bits indicating positive positions, into an edge in along the same axis as e.
-     * Note the parameter e is relative to the first edge slot and can range from 0-11
+     * Repacks a mask of axis bits indicating positive positions, into an edge in along the same axis as e. Note the
+     * parameter e is relative to the first edge slot and can range from 0-11
      */
     public static int packEdgeBits(int e, int bits) {
         switch (e >> 2) {
@@ -112,12 +113,8 @@ public enum PartMap {
         throw new IllegalArgumentException("Switch Falloff");
     }
 
-    private static int[] edgeBetweenMap = new int[] {
-        -1, -1, 8, 10, 4, 5,
-        -1, -1, 9, 11, 6, 7,
-        -1, -1, -1, -1, 0, 2,
-        -1, -1, -1, -1, 1, 3
-    };
+    private static int[] edgeBetweenMap = new int[] { -1, -1, 8, 10, 4, 5, -1, -1, 9, 11, 6, 7, -1, -1, -1, -1, 0, 2,
+            -1, -1, -1, -1, 1, 3 };
 
     /**
      * Returns the slot of the edge between 2 sides.

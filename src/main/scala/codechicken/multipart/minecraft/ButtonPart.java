@@ -1,9 +1,5 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.Vector3;
-import codechicken.multipart.IFaceRedstonePart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
 import net.minecraft.entity.Entity;
@@ -15,11 +11,17 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.lib.vec.Vector3;
+import codechicken.multipart.IFaceRedstonePart;
+
 public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart {
+
     public static BlockButton stoneButton = (BlockButton) Blocks.stone_button;
     public static BlockButton woodenButton = (BlockButton) Blocks.wooden_button;
-    public static int[] metaSideMap = new int[] {-1, 4, 5, 2, 3};
-    public static int[] sideMetaMap = new int[] {-1, -1, 3, 4, 1, 2};
+    public static int[] metaSideMap = new int[] { -1, 4, 5, 2, 3 };
+    public static int[] sideMetaMap = new int[] { -1, -1, 3, 4, 1, 2 };
 
     public static BlockButton getButton(int meta) {
         return (meta & 0x10) > 0 ? woodenButton : stoneButton;
@@ -112,11 +114,9 @@ public class ButtonPart extends McSidedMetaPart implements IFaceRedstonePart {
     }
 
     private void updateState() {
-        boolean arrows = sensitive()
-                && !world().getEntitiesWithinAABB(
-                                EntityArrow.class,
-                                getBounds().add(Vector3.fromTileEntity(tile())).toAABB())
-                        .isEmpty();
+        boolean arrows = sensitive() && !world()
+                .getEntitiesWithinAABB(EntityArrow.class, getBounds().add(Vector3.fromTileEntity(tile())).toAABB())
+                .isEmpty();
         boolean pressed = pressed();
 
         if (arrows != pressed) toggle();

@@ -1,12 +1,5 @@
 package codechicken.multipart.minecraft;
 
-import codechicken.lib.packet.PacketCustom;
-import codechicken.lib.raytracer.RayTracer;
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Vector3;
-import codechicken.multipart.TileMultipart;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +13,16 @@ import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
+import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.raytracer.RayTracer;
+import codechicken.lib.vec.BlockCoord;
+import codechicken.lib.vec.Vector3;
+import codechicken.multipart.TileMultipart;
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 public class EventHandler {
+
     private ThreadLocal<Object> placing = new ThreadLocal<Object>();
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -53,33 +55,32 @@ public class EventHandler {
 
         if (part == null) return false;
 
-        if (world.isRemote
-                && !player
-                        .isSneaking()) // attempt to use block activated like normal and tell the server the right stuff
+        if (world.isRemote && !player.isSneaking()) // attempt to use block activated like normal and tell the server
+                                                    // the right stuff
         {
             Vector3 f = new Vector3(hit.hitVec).add(-hit.blockX, -hit.blockY, -hit.blockZ);
             Block block = world.getBlock(hit.blockX, hit.blockY, hit.blockZ);
-            if (!ignoreActivate(block)
-                    && block.onBlockActivated(
-                            world,
-                            hit.blockX,
-                            hit.blockY,
-                            hit.blockZ,
-                            player,
-                            hit.sideHit,
-                            (float) f.x,
-                            (float) f.y,
-                            (float) f.z)) {
+            if (!ignoreActivate(block) && block.onBlockActivated(
+                    world,
+                    hit.blockX,
+                    hit.blockY,
+                    hit.blockZ,
+                    player,
+                    hit.sideHit,
+                    (float) f.x,
+                    (float) f.y,
+                    (float) f.z)) {
                 player.swingItem();
-                PacketCustom.sendToServer(new C08PacketPlayerBlockPlacement(
-                        hit.blockX,
-                        hit.blockY,
-                        hit.blockZ,
-                        hit.sideHit,
-                        player.inventory.getCurrentItem(),
-                        (float) f.x,
-                        (float) f.y,
-                        (float) f.z));
+                PacketCustom.sendToServer(
+                        new C08PacketPlayerBlockPlacement(
+                                hit.blockX,
+                                hit.blockY,
+                                hit.blockZ,
+                                hit.sideHit,
+                                player.inventory.getCurrentItem(),
+                                (float) f.x,
+                                (float) f.y,
+                                (float) f.z));
                 return true;
             }
         }

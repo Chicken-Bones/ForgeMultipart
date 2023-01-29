@@ -13,28 +13,32 @@ import cpw.mods.fml.common.Loader
 import cpw.mods.fml.common.LoaderState
 import net.minecraft.util.MovingObjectPosition.MovingObjectType
 
-object MicroblockEventHandler
-{
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    def postTextureStitch(event:TextureStitchEvent.Post)
-    {
-        if(event.map.getTextureType == 0)
-            MicroMaterialRegistry.loadIcons()
-    }
+object MicroblockEventHandler {
+  @SubscribeEvent
+  @SideOnly(Side.CLIENT)
+  def postTextureStitch(event: TextureStitchEvent.Post) {
+    if (event.map.getTextureType == 0)
+      MicroMaterialRegistry.loadIcons()
+  }
 
-    @SubscribeEvent
-    @SideOnly(Side.CLIENT)
-    def drawBlockHighlight(event:DrawBlockHighlightEvent)
-    {
-        if(event.currentItem != null && event.currentItem.getItem == MicroblockProxy.itemMicro && 
-                event.target != null && event.target.typeOfHit == MovingObjectType.BLOCK)
-        {
-            GL11.glPushMatrix()
-                RenderUtils.translateToWorldCoords(event.player, event.partialTicks)
-                if(ItemMicroPartRenderer.renderHighlight(event.player, event.currentItem, event.target))
-                    event.setCanceled(true)
-            GL11.glPopMatrix()
-        }
+  @SubscribeEvent
+  @SideOnly(Side.CLIENT)
+  def drawBlockHighlight(event: DrawBlockHighlightEvent) {
+    if (
+      event.currentItem != null && event.currentItem.getItem == MicroblockProxy.itemMicro &&
+      event.target != null && event.target.typeOfHit == MovingObjectType.BLOCK
+    ) {
+      GL11.glPushMatrix()
+      RenderUtils.translateToWorldCoords(event.player, event.partialTicks)
+      if (
+        ItemMicroPartRenderer.renderHighlight(
+          event.player,
+          event.currentItem,
+          event.target
+        )
+      )
+        event.setCanceled(true)
+      GL11.glPopMatrix()
     }
+  }
 }
