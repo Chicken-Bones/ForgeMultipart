@@ -35,3 +35,5 @@ mcr_cnr.4.name=%s Notch
 mcr_cnr.4.subset=Notch
 
 nei.subsets.Microblocks=Microblocks
+
+key.control=Switch block disposition

@@ -34,6 +34,6 @@ mcr_cnr.2.subset=Angoletto
 mcr_cnr.4.name=Angolo di %s
 mcr_cnr.4.subset=Angolo
 
-key.control=[Forge Multipart] Disposizione del blocco
+key.control=Disposizione del blocco
 
 nei.subsets.Microblocks=Microblocchi
