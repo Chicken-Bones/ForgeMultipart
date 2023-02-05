@@ -33,8 +33,8 @@ object ControlKeyModifer {
 object ControlKeyHandler
     extends KeyBinding(
       "key.control",
-      Keyboard.KEY_LCONTROL,
-      "key.categories.gameplay"
+      Keyboard.KEY_NONE,
+      "Forge Multipart"
     ) {
   import ControlKeyModifer._
   var wasPressed = false
