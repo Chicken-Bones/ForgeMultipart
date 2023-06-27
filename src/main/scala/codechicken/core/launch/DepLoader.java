@@ -27,9 +27,6 @@ import javax.swing.event.HyperlinkListener;
 
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
-import sun.misc.URLClassPath;
-import sun.net.util.URLUtil;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -39,6 +36,8 @@ import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import sun.misc.URLClassPath;
+import sun.net.util.URLUtil;
 
 /**
  * For autodownloading stuff. This is really unoriginal, mostly ripped off FML, credits to cpw.
