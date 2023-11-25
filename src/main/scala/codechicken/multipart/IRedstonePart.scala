@@ -276,9 +276,6 @@ object RedstoneInteractions {
     if (fullVanillaBlocks(block))
       return 0x1f
 
-    if (side == 0) // vanilla doesn't handle side 0
-      return if (power) 0x1f else 0
-
     /** so that these can be conducted to from face parts on the other side of
       * the block. Due to vanilla's in adequecy with redstone/logic on walls
       */
